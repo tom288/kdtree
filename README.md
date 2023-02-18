@@ -11,7 +11,7 @@ I picked the least microsoft-like sounding name out of the 64 bit releases, whic
 
 If you would prefer an alternative installation method you can go to <https://sourceforge.net/projects/mingw-w64/> to obtain some kind of installer for the same purpose. It will ask you questions that <https://stackoverflow.com/questions/29947302/meaning-of-options-in-mingw-w64-installer> can help you to answer, but not by much, and I'm not sure the answers matter much either.
 
-I personally recommending opting for the first option and using 7-Zip to unzip it somewhere sensible. If you want to then you can add the `bin` directory to your PATH, but I didn't.
+I personally recommending opting for the first option and using 7-Zip to unzip it somewhere sensible. Either way you __must__ add the `bin` directory to your PATH, or else gcc and g++ will never generate output files. Then restart your terminal, or whatever program it is integrated into.
 
 ### C Graphics Libraries
 
@@ -31,3 +31,10 @@ glfw-3.3.8.bin.WIN64
 kdtree
 mingw
 ```
+
+## Running
+
+There are `.cmd` files in the root project directory:
+
+- `build.cmd` will build and run in debug mode
+- `build_release` will make a release build
