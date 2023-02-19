@@ -64,11 +64,14 @@ There are `.cmd` files in the root project directory:
 - You may need to create `custom.cmd` to override paths in `common.cmd`
 
 Both of these build types require `glew32.dll` in the folder of the executable,
-which is important for distribution. The build scripts take care of this.
+which is important for distribution. The build scripts take care of this. I've
+discovered a nice way to use Visual Studio Code for this project, which is
+straightforward to set up and which I am happy to share.
 
 ## Next steps
 
-- Render a rectangle
+- Improve attribute management in `rectangle.c`
+- Move `rectangle.c` static variables to a struct parameter
 - Work out how to link and use `cglm`
 - Create a struct for the tree
 - Render a tree
