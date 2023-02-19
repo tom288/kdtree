@@ -8,7 +8,7 @@ int main(int argc, char *argv[])
     window_init();
 
     // Create the shader program
-    GLuint shader = shader_init("src/glsl/white.vert", "src/glsl/white.frag", "");
+    GLuint shader = shader_init("src/glsl/colour.vert", "src/glsl/colour.frag", "");
 
     shader_use(shader);
 

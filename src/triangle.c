@@ -6,9 +6,9 @@ static GLuint vbo;
 static GLuint vao;
 
 float vertices[] = {
-     0.0f,  0.5f, // Vertex 1 (X, Y)
-     0.5f, -0.5f, // Vertex 2 (X, Y)
-    -0.5f, -0.5f  // Vertex 3 (X, Y)
+     0.0f,  0.5f,  1.0f,  0.0f,  0.0f,
+     0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+    -0.5f, -0.5f,  0.0f,  0.0f,  1.0f,
 };
 
 void triangle_init() {
@@ -20,9 +20,14 @@ void triangle_init() {
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
     // Attribute properties for the vertex positions
+
+    // Here we are using manual indices and then referring to them in the
+    // fragment shaders. This grants opportunities for very confusing mistakes.
+    // We could use glGetAttribLocation(id, "position") instead, but we'd need
+    // to be able to interrogate the shader. It returns -1 if not found.
     GLint index = 0;
     GLint components = 2;
-    GLint total_components = 2;
+    GLint total_components = 5;
     GLenum type = GL_FLOAT;
     GLboolean normalise = GL_FALSE;
     GLsizei stride = total_components * sizeof(vertices[0]);
@@ -31,10 +36,12 @@ void triangle_init() {
     glEnableVertexAttribArray(index);
     glVertexAttribPointer(index, components, type, normalise, stride, first);
 
-    // These steps would be necessary if we wanted to extract additional
-    // attributes from the same buffer such as colour, normals, or solidity
     index++;
     first += components * sizeof(vertices[0]);
+    components = 3;
+
+    glEnableVertexAttribArray(index);
+    glVertexAttribPointer(index, components, type, normalise, stride, first);
 
     glEnableVertexAttribArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
