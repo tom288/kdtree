@@ -68,10 +68,14 @@ which is important for distribution. The build scripts take care of this. I've
 discovered a nice way to use Visual Studio Code for this project, which is
 straightforward to set up and which I am happy to share.
 
+## Linux
+
+Build the project with `gcc src/main.c -lglfw -lGL -lGLEW`. If you're missing a
+library then hopefully there are sufficient clues here and in the build scripts.
+
 ## Next steps
 
 - Improve attribute management in `rectangle.c`
 - Move `rectangle.c` static variables to a struct parameter
-- Work out how to link and use `cglm`
 - Create a struct for the tree
 - Render a tree
