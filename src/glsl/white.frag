@@ -1,8 +1,8 @@
 #version 150 core
 
-out vec4 outColor;
+out vec4 colour;
 
 void main()
 {
-    outColor = vec4(1.0, 1.0, 1.0, 1.0);
+    colour = vec4(1.0, 1.0, 1.0, 1.0);
 }
