@@ -6,12 +6,18 @@ static GLuint vbo;
 static GLuint vao;
 
 float vertices[] = {
-     0.0f,  0.5f,  1.0f,  0.0f,  0.0f,
-     0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
     -0.5f, -0.5f,  0.0f,  0.0f,  1.0f,
+     0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+    -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+
+     0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+    -0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+     0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
 };
 
-void triangle_init() {
+GLint total_components = 5;
+
+void rectangle_init() {
     glGenVertexArrays(1, &vao);
     glGenBuffers(1, &vbo);
     glBindVertexArray(vao);
@@ -22,12 +28,12 @@ void triangle_init() {
     // Attribute properties for the vertex positions
 
     // Here we are using manual indices and then referring to them in the
-    // fragment shaders. This grants opportunities for very confusing mistakes.
+    // fragment shaders. This has opportunities for very confusing mistakes.
     // We could use glGetAttribLocation(id, "position") instead, but we'd need
     // to be able to interrogate the shader. It returns -1 if not found.
+
     GLint index = 0;
     GLint components = 2;
-    GLint total_components = 5;
     GLenum type = GL_FLOAT;
     GLboolean normalise = GL_FALSE;
     GLsizei stride = total_components * sizeof(vertices[0]);
@@ -49,13 +55,13 @@ void triangle_init() {
     check_gl_error();
 }
 
-void triangle_draw() {
+void rectangle_draw() {
     glBindVertexArray(vao);
-    glDrawArrays(GL_TRIANGLES, 0, 3); // 3 = number of vertices
+    glDrawArrays(GL_TRIANGLES, 0, sizeof(vertices) / sizeof(vertices[0]) / total_components);
     glBindVertexArray(0);
 }
 
-void triangle_kill() {
+void rectangle_kill() {
     glDeleteVertexArrays(1, &vao);
     glDeleteBuffers(1, &vbo);
 }

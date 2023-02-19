@@ -71,7 +71,7 @@ void window_init()
 
     const int width = 1920;
     const int height = 1080;
-    const char* title = "Title";
+    const char* title = "Rectangle";
 
     // These two are not currently used
     GLFWmonitor* monitor = NULL;

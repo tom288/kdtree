@@ -1,19 +1,13 @@
 #include "window.h"
 #include "shader.h"
-#include "triangle.h"
+#include "rectangle.h"
 
 int main(int argc, char *argv[])
 {
-    // Create the window
     window_init();
-
-    // Create the shader program
     GLuint shader = shader_init("src/glsl/colour.vert", "src/glsl/colour.frag", "");
-
     shader_use(shader);
-
-    // Create the triangle
-    triangle_init();
+    rectangle_init();
 
     // Choose the background colour
     glClearColor(0.1f, 0.0f, 0.3f, 0.0f);
@@ -21,15 +15,12 @@ int main(int argc, char *argv[])
     // Swap the buffers and process pending events until the window is not OK
     while (window_ok())
     {
-        triangle_draw();
+        rectangle_draw();
         window_swap();
     }
 
-    triangle_kill();
-
+    rectangle_kill();
     shader_kill(shader);
-
-    // Destroy the window
     window_kill();
 
     return 0;
