@@ -4,7 +4,7 @@
 #include <stdlib.h> // For exit, calloc, free
 
 // Print any shader compilation or linking errors, return whether errors exist
-GLint compile_errors(GLuint id, int is_program, char* path)
+GLint compile_error(GLuint id, int is_program, char* path)
 {
     const GLsizei max_length = 1024;
     GLint ok;
@@ -75,7 +75,7 @@ GLuint compile(char* path, GLenum type)
     GLuint id = glCreateShader(type);
     glShaderSource(id, 1, (const GLchar**)&buffer, NULL);
     glCompileShader(id);
-    if (compile_errors(id, 0, path)) {
+    if (compile_error(id, 0, path)) {
         exit(1);   
     }
 
@@ -102,7 +102,7 @@ GLuint shader_init(char* vertex, char* fragment, char* geometry)
     if (geom) glAttachShader(id, geom);
 
     glLinkProgram(id);
-    if (compile_errors(id, 1, vertex)) {
+    if (compile_error(id, 1, vertex)) {
         exit(1);   
     }
 

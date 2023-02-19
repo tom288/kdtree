@@ -1,6 +1,6 @@
 #include "window.h"
 #include "shader.h"
-#include "triangle.c"
+#include "triangle.h"
 
 int main(int argc, char *argv[])
 {

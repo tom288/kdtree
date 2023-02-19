@@ -1,5 +1,6 @@
 #define GLEW_STATIC
 #include <GL/glew.h>
+#include "utility.h"
 
 static GLuint vbo;
 static GLuint vao;
@@ -17,11 +18,28 @@ void triangle_init() {
 
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(vertices[0]), (GLvoid*)0); // 2 
+
+    // Attribute properties for the vertex positions
+    GLint index = 0;
+    GLint components = 2;
+    GLint total_components = 2;
+    GLenum type = GL_FLOAT;
+    GLboolean normalise = GL_FALSE;
+    GLsizei stride = total_components * sizeof(vertices[0]);
+    void* first = 0;
+
+    glEnableVertexAttribArray(index);
+    glVertexAttribPointer(index, components, type, normalise, stride, first);
+
+    // These steps would be necessary if we wanted to extract additional
+    // attributes from the same buffer such as colour, normals, or solidity
+    index++;
+    first += components * sizeof(vertices[0]);
 
     glEnableVertexAttribArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
+    check_gl_error();
 }
 
 void triangle_draw() {
