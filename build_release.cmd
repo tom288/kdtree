@@ -1,24 +1,9 @@
 @echo off
 
-set libs=C:\Git\C
-set glfw=%libs%\glfw-3.3.8.bin.WIN64
-set glew=%libs%\glew-2.1.0
-set target_path=target
-set exe_path=%target_path%\release.exe
-
+set exe_name=release.exe
+set flags=-Ofast -static -static-libgcc -static-libstdc++ -Wl,-subsystem,windows
 echo BUILDING RELEASE...
-
-gcc -std=c17 -march=native -Ofast ^
--Wall -Wextra -Wno-unused-parameter ^
--static -static-libgcc -static-libstdc++ -Wl,-subsystem,windows ^
--o %exe_path% ^
-src/main.c ^
--I "src" ^
--I "%glfw%\include" ^
--I "%glew%\include" ^
--L "%glfw%\lib-mingw-w64" ^
--L "%glew%\lib\Release\x64" ^
--lglfw3 -lgdi32 -lopengl32 -lglew32
+call common.cmd
 
 if %errorlevel% == 0 (
     : Do not print launching
