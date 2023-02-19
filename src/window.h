@@ -1,3 +1,5 @@
+#pragma once
+
 #include "window.c"
 
 void window_init();

@@ -1,3 +1,5 @@
+#pragma once
+
 #include "rectangle.c"
 
 void rectangle_init();

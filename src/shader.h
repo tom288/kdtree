@@ -1,3 +1,5 @@
+#pragma once
+
 #include "shader.c"
 
 GLuint shader_init(char* vertex, char* fragment, char* geometry);
