@@ -2,6 +2,7 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <stdio.h>
+#include <stdlib.h> // Used for exit
 
 static GLFWwindow* win = NULL;
 static const int test_depth = 0;
@@ -53,9 +54,15 @@ void scroll_callback(GLFWwindow* win, double x_offset, double y_offset)
 // Error callback
 void error_callback(int error_code, const char* description)
 {
-    printf("GLFW error #%d\n%s\n", error_code, description);
+    fprintf(stderr, "GLFW error #%d\n%s\n", error_code, description);
 }
 
+void window_kill()
+{
+    glfwDestroyWindow(win);
+    win = NULL;
+    glfwTerminate();
+}
 
 void window_init()
 {
@@ -75,7 +82,10 @@ void window_init()
     const int vertical_sync = 1;
 
     // Prepare for window creation
-    glfwInit();
+    if (!glfwInit()) {
+        const char* description;
+        error_callback(glfwGetError(&description), description);
+    }
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -116,7 +126,12 @@ void window_init()
     // This assignment to glewExperimental used to be necessary for older
     // versions of GLEW (<=1.13), but may now be redundant, I haven't checked
     glewExperimental = 1;
-    glewInit();
+    GLenum err = glewInit();
+    if (err != GLEW_OK) {
+        fprintf(stderr, "Failed to init GLEW: %s\n", glewGetErrorString(err));
+        window_kill();
+        exit(1);
+    }
 }
 
 GLFWwindow* window_get()
@@ -134,11 +149,4 @@ void window_swap()
     glfwSwapBuffers(win);
     glClear(GL_COLOR_BUFFER_BIT | test_depth * GL_DEPTH_BUFFER_BIT);
     glfwPollEvents();
-}
-
-void window_kill()
-{
-    glfwDestroyWindow(win);
-    win = NULL;
-    glfwTerminate();
 }

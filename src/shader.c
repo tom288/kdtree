@@ -91,7 +91,7 @@ GLuint shader_init(char* vertex, char* fragment, char* geometry)
 {
     GLuint vert = compile(vertex, GL_VERTEX_SHADER);
     GLuint frag = compile(fragment, GL_FRAGMENT_SHADER);
-    GLuint geom = *geometry
+    GLuint geom = geometry && *geometry
         ? compile(geometry, GL_GEOMETRY_SHADER)
         : 0;
 
