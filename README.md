@@ -1,28 +1,51 @@
-# kdtree
+# k-d tree
 
-## Toolchain setup
+This is some kind of space subdivision demo / game implemented in C.
+
+## Toolchain setup (Windows)
 
 ### C Compiler
 
-I picked `mingw` as opposed to `msvc` as it probably offers more portability options.
-To download this I first sought out <https://github.com/niXman/mingw-builds-binaries/releases>
+I picked `mingw` as opposed to `msvc` as it probably offers better portability.
+To download this I first sought out
+<https://github.com/niXman/mingw-builds-binaries/releases>
 as I had no intention of building this myself.
-I picked the least microsoft-like sounding name out of the 64 bit releases, which was `x86_64-12.2.0-release-posix-seh-ucrt-rt_v10-rev2.7z`. The final download URL was <https://github.com/niXman/mingw-builds-binaries/releases/download/12.2.0-rt_v10-rev2/x86_64-12.2.0-release-posix-seh-ucrt-rt_v10-rev2.7z>
+I picked the least microsoft-like sounding name out of the 64 bit releases,
+which was `x86_64-12.2.0-release-posix-seh-ucrt-rt_v10-rev2.7z`.
+The final download URL was
+<https://github.com/niXman/mingw-builds-binaries/releases/download/12.2.0-rt_v10-rev2/x86_64-12.2.0-release-posix-seh-ucrt-rt_v10-rev2.7z>
 
-If you would prefer an alternative installation method you can go to <https://sourceforge.net/projects/mingw-w64/> to obtain some kind of installer for the same purpose. It will ask you questions that <https://stackoverflow.com/questions/29947302/meaning-of-options-in-mingw-w64-installer> can help you to answer, but not by much, and I'm not sure the answers matter much either.
+If you would prefer an alternative installation method you can go to
+<https://sourceforge.net/projects/mingw-w64/> to obtain some kind of installer
+for the same purpose.
+It will ask you questions that
+<https://stackoverflow.com/questions/29947302/meaning-of-options-in-mingw-w64-installer>
+can help you to answer, but not by much,
+and I'm not sure the answers matter much either.
+However this will be an older version of the compiler, which among other things
+may mean that random number generation is broken, or maybe thats only for C++.
 
-I personally recommending opting for the first option and using 7-Zip to unzip it somewhere sensible. Either way you __must__ add the `bin` directory to your PATH, or else gcc and g++ will never generate output files. Then restart your terminal, or whatever program it is integrated into.
+I recommend opting for the first option and using 7-Zip to unzip it somewhere.
+Either way you __must__ add the `bin` directory to your PATH,
+or else gcc and g++ will never generate output files, and fail silently.
+Then restart your terminal, or whatever program it is integrated into.
 
 ### C Graphics Libraries
 
-- Go to <https://glew.sourceforge.net/> and download binaries for Windows 32-bit and 64-bit. I downloaded the latest which was 2.1.0.
-- Go to <https://www.glfw.org/download.html> and download 64-bit Windows binaries. I downloaded the latest which was 3.3.8.
+- Go to <https://glew.sourceforge.net/> and download binaries for Windows
+32-bit and 64-bit. I downloaded the latest which was 2.1.0.
+- Go to <https://www.glfw.org/download.html> and download 64-bit Windows
+binaries. I downloaded the latest which was 3.3.8.
 
-GLEW lets us use OpenGL functionality, and GLFW lets us manage windows and input.
+GLEW enables OpenGL functionality, and GLFW lets us manage windows and input.
 
 ### C Linear Algebra Libraries
 
-I've used GLM for C++ before, and <https://github.com/recp/cglm> looks promising. I used `git clone https://github.com/recp/cglm` to clone it to the same folder as the other libraries. To keep things simple I made a folder for my C projects and inside it I put this project, these libraries, and the compiler. The subfolders are as follows:
+I've used GLM for C++ before, and for C <https://github.com/recp/cglm>
+looks promising. I used `git clone https://github.com/recp/cglm` to clone into
+the same folder as the other libraries. To keep things simple I made a folder
+for my C projects and inside it I put this project, these libraries,
+and the compiler. I didn't rename anything, so the subfolders are as follows:
 
 ```text
 cglm
@@ -32,9 +55,20 @@ kdtree
 mingw
 ```
 
-## Running
+## Running (Windows)
 
 There are `.cmd` files in the root project directory:
 
 - `build.cmd` will build and run in debug mode
-- `build_release` will make a release build
+- `build_release.cmd` will make a release build
+- You may need to create `custom.cmd` to override paths in `common.cmd`
+
+Both of these build types require `glew32.dll` in the folder of the executable,
+which is important for distribution. The build scripts take care of this.
+
+## Next steps
+
+- Render a rectangle
+- Work out how to link and use `cglm`
+- Create a struct for the tree
+- Render a tree
