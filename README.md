@@ -75,6 +75,5 @@ library then hopefully there are sufficient clues here and in the build scripts.
 
 ## Next steps
 
-- Improve attribute management in `rectangle.c`
 - Create a struct for the tree
 - Render a tree

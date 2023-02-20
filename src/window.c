@@ -94,8 +94,7 @@ Window* window_init()
     const GLboolean vertical_sync = GL_TRUE;
 
     Window* const window = malloc(sizeof(Window));
-    *window = (Window)
-    {
+    *window = (Window) {
         .win = NULL,
         .ok = GL_FALSE,
         .test_depth = GL_FALSE,
@@ -127,7 +126,7 @@ Window* window_init()
         title,
         monitor,
         share_window
-    ),
+    );
     glfwMakeContextCurrent(window->win);
 
     // Configure input
