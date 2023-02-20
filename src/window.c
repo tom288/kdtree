@@ -2,13 +2,15 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <stdio.h>
-#include <stdlib.h> // Used for exit
+#include <stdlib.h> // Used for malloc, free
 
 typedef struct Window {
     GLFWwindow* win;
+    GLboolean ok;
     GLboolean test_depth;
 } Window;
 
+static size_t window_count = 0;
 
 // Keyboard input callback
 void key_callback(GLFWwindow* win, int key, int scancode, int action, int mods)
@@ -27,7 +29,7 @@ void key_callback(GLFWwindow* win, int key, int scancode, int action, int mods)
     }
 
     // Window* window = glfwGetWindowUserPointer(win);
-    // if (window) { }
+    // if (window) ...
 }
 
 // Mouse cursor movement callback
@@ -67,7 +69,7 @@ void window_kill(Window* window)
 {
     glfwDestroyWindow(window->win);
     free(window);
-    glfwTerminate();
+    if (!--window_count) glfwTerminate();
 }
 
 Window* window_init()
@@ -87,11 +89,23 @@ Window* window_init()
     const GLboolean cull_faces = GL_FALSE;
     const GLboolean vertical_sync = GL_TRUE;
 
-    // Prepare for window creation
-    if (!glfwInit()) {
+    // Create window and put it in focus
+    Window* window = malloc(sizeof(Window));
+    *window = (Window)
+    {
+        .win = NULL,
+        .ok = GL_FALSE,
+        .test_depth = GL_FALSE,
+    };
+
+    if (!window_count && !glfwInit())
+    {
         const char* description;
         error_callback(glfwGetError(&description), description);
+        return window;
     }
+
+    // Prepare for window creation
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -104,21 +118,18 @@ Window* window_init()
 #endif
 
     // Create window and put it in focus
-    Window* window = malloc(sizeof(Window));
-    *window = (Window) {
-        .win = glfwCreateWindow(
-            width,
-            height,
-            title,
-            monitor,
-            share_window
-        ),
-        .test_depth = GL_FALSE,
-    };
+    window->win = glfwCreateWindow(
+        width,
+        height,
+        title,
+        monitor,
+        share_window
+    ),
     glfwMakeContextCurrent(window->win);
 
     // Configure input
-    if (!show_cursor) {
+    if (!show_cursor)
+    {
         glfwSetInputMode(window->win, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     }
     // This call to glfwSetWindowUserPointer allow us to use the whole window
@@ -144,18 +155,27 @@ Window* window_init()
     // This assignment to glewExperimental used to be necessary for older
     // versions of GLEW (<=1.13), but may now be redundant, I haven't checked
     glewExperimental = GL_TRUE;
-    GLenum err = glewInit();
-    if (err != GLEW_OK) {
+
+    // We call glewInit when creating a window if there are no other windows.
+    // This can happen again whenever our program inits 1 or more windows,
+    // kills all the windows, and then inits 1 or more.
+    // From what I can tell by running this glewInit doesn't care.
+    GLenum err;
+    if (!window_count++ && (err = glewInit()) != GLEW_OK)
+    {
         fprintf(stderr, "Failed to init GLEW: %s\n", glewGetErrorString(err));
-        window_kill(window);
-        exit(1);
+    }
+    else 
+    {
+        window->ok = GL_TRUE;
     }
     return window;
 }
 
 GLboolean window_ok(Window* window)
 {
-    return window->win && !glfwWindowShouldClose(window->win);
+    window->ok &= window->win && !glfwWindowShouldClose(window->win); 
+    return window->ok;
 }
 
 void window_swap(Window* window)

@@ -19,7 +19,8 @@ float vertices[] = {
      0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
 };
 
-Rectangle rectangle_init(Shader shader) {
+Rectangle rectangle_init(Shader shader)
+{
     Rectangle rect;
     glGenVertexArrays(1, &rect.vao);
     glGenBuffers(1, &rect.vbo);
@@ -38,10 +39,13 @@ Rectangle rectangle_init(Shader shader) {
     GLsizei stride = rect.total_components * sizeof(vertices[0]);
     void* first = 0;
 
-    if (index != -1) {
+    if (index != -1)
+    {
         glEnableVertexAttribArray(index);
         glVertexAttribPointer(index, components, type, normalise, stride, first);
-    } else {
+    }
+    else
+    {
         fprintf(stderr, "Failed to find %s in shader\n", name);
     }
 
@@ -50,10 +54,13 @@ Rectangle rectangle_init(Shader shader) {
     first += components * sizeof(vertices[0]);
     components = 3;
 
-    if (index != -1) {
+    if (index != -1) 
+    {
         glEnableVertexAttribArray(index);
         glVertexAttribPointer(index, components, type, normalise, stride, first);
-    } else {
+    }
+    else
+    {
         fprintf(stderr, "Failed to find %s in shader\n", name);
     }
 
@@ -65,13 +72,15 @@ Rectangle rectangle_init(Shader shader) {
     return rect;
 }
 
-void rectangle_draw(Rectangle rect) {
+void rectangle_draw(Rectangle rect)
+{
     glBindVertexArray(rect.vao);
     glDrawArrays(GL_TRIANGLES, 0, sizeof(vertices) / sizeof(vertices[0]) / rect.total_components);
     glBindVertexArray(0);
 }
 
-void rectangle_kill(Rectangle* rect) {
+void rectangle_kill(Rectangle* rect)
+{
     glDeleteVertexArrays(1, &rect->vao);
     glDeleteBuffers(1, &rect->vbo);
     rect->vao = 0;
