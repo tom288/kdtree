@@ -139,7 +139,7 @@ void shader_use(Shader shader)
     glUseProgram(shader.id);
 }
 
-int shader_set_1i(Shader shader, char* name, GLint n)
+GLboolean shader_set_1i(Shader shader, char* name, GLint n)
 {
     GLint location = glGetUniformLocation(shader.id, name);
     if (location == -1) {
@@ -150,7 +150,7 @@ int shader_set_1i(Shader shader, char* name, GLint n)
     return location != -1;
 }
 
-int shader_set_1ui(Shader shader, char* name, GLuint n)
+GLboolean shader_set_1ui(Shader shader, char* name, GLuint n)
 {
     GLint location = glGetUniformLocation(shader.id, name);
     if (location == -1) {
@@ -161,7 +161,7 @@ int shader_set_1ui(Shader shader, char* name, GLuint n)
     return location != -1;
 }
 
-int shader_set_1f(Shader shader, char* name, GLfloat n)
+GLboolean shader_set_1f(Shader shader, char* name, GLfloat n)
 {
     GLint location = glGetUniformLocation(shader.id, name);
     if (location == -1) {
@@ -172,7 +172,7 @@ int shader_set_1f(Shader shader, char* name, GLfloat n)
     return location != -1;
 }
 
-int shader_set_2i(Shader shader, char* name, GLint x, GLint y)
+GLboolean shader_set_2i(Shader shader, char* name, GLint x, GLint y)
 {
     GLint location = glGetUniformLocation(shader.id, name);
     if (location == -1) {
@@ -183,7 +183,7 @@ int shader_set_2i(Shader shader, char* name, GLint x, GLint y)
     return location != -1;
 }
 
-int shader_set_2ui(Shader shader, char* name, GLuint x, GLuint y)
+GLboolean shader_set_2ui(Shader shader, char* name, GLuint x, GLuint y)
 {
     GLint location = glGetUniformLocation(shader.id, name);
     if (location == -1) {
@@ -194,7 +194,7 @@ int shader_set_2ui(Shader shader, char* name, GLuint x, GLuint y)
     return location != -1;
 }
 
-int shader_set_2f(Shader shader, char* name, GLfloat x, GLfloat y)
+GLboolean shader_set_2f(Shader shader, char* name, GLfloat x, GLfloat y)
 {
     GLint location = glGetUniformLocation(shader.id, name);
     if (location == -1) {
@@ -205,7 +205,7 @@ int shader_set_2f(Shader shader, char* name, GLfloat x, GLfloat y)
     return location != -1;
 }
 
-int shader_set_3i(Shader shader, char* name, GLint x, GLint y, GLint z)
+GLboolean shader_set_3i(Shader shader, char* name, GLint x, GLint y, GLint z)
 {
     GLint location = glGetUniformLocation(shader.id, name);
     if (location == -1) {
@@ -216,7 +216,7 @@ int shader_set_3i(Shader shader, char* name, GLint x, GLint y, GLint z)
     return location != -1;
 }
 
-int shader_set_3ui(Shader shader, char* name, GLuint x, GLuint y, GLuint z)
+GLboolean shader_set_3ui(Shader shader, char* name, GLuint x, GLuint y, GLuint z)
 {
     GLint location = glGetUniformLocation(shader.id, name);
     if (location == -1) {
@@ -227,7 +227,7 @@ int shader_set_3ui(Shader shader, char* name, GLuint x, GLuint y, GLuint z)
     return location != -1;
 }
 
-int shader_set_3f(Shader shader, char* name, GLfloat x, GLfloat y, GLfloat z)
+GLboolean shader_set_3f(Shader shader, char* name, GLfloat x, GLfloat y, GLfloat z)
 {
     GLint location = glGetUniformLocation(shader.id, name);
     if (location == -1) {
@@ -238,7 +238,7 @@ int shader_set_3f(Shader shader, char* name, GLfloat x, GLfloat y, GLfloat z)
     return location != -1;
 }
 
-int shader_set_4i(Shader shader, char* name, GLint x, GLint y, GLint z, GLint w)
+GLboolean shader_set_4i(Shader shader, char* name, GLint x, GLint y, GLint z, GLint w)
 {
     GLint location = glGetUniformLocation(shader.id, name);
     if (location == -1) {
@@ -249,7 +249,7 @@ int shader_set_4i(Shader shader, char* name, GLint x, GLint y, GLint z, GLint w)
     return location != -1;
 }
 
-int shader_set_4ui(Shader shader, char* name, GLuint x, GLuint y, GLuint z, GLuint w)
+GLboolean shader_set_4ui(Shader shader, char* name, GLuint x, GLuint y, GLuint z, GLuint w)
 {
     GLint location = glGetUniformLocation(shader.id, name);
     if (location == -1) {
@@ -260,7 +260,7 @@ int shader_set_4ui(Shader shader, char* name, GLuint x, GLuint y, GLuint z, GLui
     return location != -1;
 }
 
-int shader_set_4f(Shader shader, char* name, GLfloat x, GLfloat y, GLfloat z, GLfloat w)
+GLboolean shader_set_4f(Shader shader, char* name, GLfloat x, GLfloat y, GLfloat z, GLfloat w)
 {
     GLint location = glGetUniformLocation(shader.id, name);
     if (location == -1) {
@@ -271,7 +271,7 @@ int shader_set_4f(Shader shader, char* name, GLfloat x, GLfloat y, GLfloat z, GL
     return location != -1;
 }
 
-int shader_set_1iv(Shader shader, char* name, GLsizei count, GLint* v)
+GLboolean shader_set_1iv(Shader shader, char* name, GLsizei count, GLint* v)
 {
     GLint location = glGetUniformLocation(shader.id, name);
     if (location == -1) {
@@ -282,7 +282,7 @@ int shader_set_1iv(Shader shader, char* name, GLsizei count, GLint* v)
     return location != -1;
 }
 
-int shader_set_1uiv(Shader shader, char* name, GLsizei count, GLuint* v)
+GLboolean shader_set_1uiv(Shader shader, char* name, GLsizei count, GLuint* v)
 {
     GLint location = glGetUniformLocation(shader.id, name);
     if (location == -1) {
@@ -293,7 +293,7 @@ int shader_set_1uiv(Shader shader, char* name, GLsizei count, GLuint* v)
     return location != -1;
 }
 
-int shader_set_1fv(Shader shader, char* name, GLsizei count, GLfloat* v)
+GLboolean shader_set_1fv(Shader shader, char* name, GLsizei count, GLfloat* v)
 {
     GLint location = glGetUniformLocation(shader.id, name);
     if (location == -1) {
@@ -304,7 +304,7 @@ int shader_set_1fv(Shader shader, char* name, GLsizei count, GLfloat* v)
     return location != -1;
 }
 
-int shader_set_2iv(Shader shader, char* name, GLsizei count, GLint* v)
+GLboolean shader_set_2iv(Shader shader, char* name, GLsizei count, GLint* v)
 {
     GLint location = glGetUniformLocation(shader.id, name);
     if (location == -1) {
@@ -315,7 +315,7 @@ int shader_set_2iv(Shader shader, char* name, GLsizei count, GLint* v)
     return location != -1;
 }
 
-int shader_set_2uiv(Shader shader, char* name, GLsizei count, GLuint* v)
+GLboolean shader_set_2uiv(Shader shader, char* name, GLsizei count, GLuint* v)
 {
     GLint location = glGetUniformLocation(shader.id, name);
     if (location == -1) {
@@ -326,7 +326,7 @@ int shader_set_2uiv(Shader shader, char* name, GLsizei count, GLuint* v)
     return location != -1;
 }
 
-int shader_set_2fv(Shader shader, char* name, GLsizei count, GLfloat* v)
+GLboolean shader_set_2fv(Shader shader, char* name, GLsizei count, GLfloat* v)
 {
     GLint location = glGetUniformLocation(shader.id, name);
     if (location == -1) {
@@ -337,7 +337,7 @@ int shader_set_2fv(Shader shader, char* name, GLsizei count, GLfloat* v)
     return location != -1;
 }
 
-int shader_set_3iv(Shader shader, char* name, GLsizei count, GLint* v)
+GLboolean shader_set_3iv(Shader shader, char* name, GLsizei count, GLint* v)
 {
     GLint location = glGetUniformLocation(shader.id, name);
     if (location == -1) {
@@ -348,7 +348,7 @@ int shader_set_3iv(Shader shader, char* name, GLsizei count, GLint* v)
     return location != -1;
 }
 
-int shader_set_3uiv(Shader shader, char* name, GLsizei count, GLuint* v)
+GLboolean shader_set_3uiv(Shader shader, char* name, GLsizei count, GLuint* v)
 {
     GLint location = glGetUniformLocation(shader.id, name);
     if (location == -1) {
@@ -359,7 +359,7 @@ int shader_set_3uiv(Shader shader, char* name, GLsizei count, GLuint* v)
     return location != -1;
 }
 
-int shader_set_3fv(Shader shader, char* name, GLsizei count, GLfloat* v)
+GLboolean shader_set_3fv(Shader shader, char* name, GLsizei count, GLfloat* v)
 {
     GLint location = glGetUniformLocation(shader.id, name);
     if (location == -1) {
@@ -370,7 +370,7 @@ int shader_set_3fv(Shader shader, char* name, GLsizei count, GLfloat* v)
     return location != -1;
 }
 
-int shader_set_4iv(Shader shader, char* name, GLsizei count, GLint* v)
+GLboolean shader_set_4iv(Shader shader, char* name, GLsizei count, GLint* v)
 {
     GLint location = glGetUniformLocation(shader.id, name);
     if (location == -1) {
@@ -381,7 +381,7 @@ int shader_set_4iv(Shader shader, char* name, GLsizei count, GLint* v)
     return location != -1;
 }
 
-int shader_set_4uiv(Shader shader, char* name, GLsizei count, GLuint* v)
+GLboolean shader_set_4uiv(Shader shader, char* name, GLsizei count, GLuint* v)
 {
     GLint location = glGetUniformLocation(shader.id, name);
     if (location == -1) {
@@ -392,7 +392,7 @@ int shader_set_4uiv(Shader shader, char* name, GLsizei count, GLuint* v)
     return location != -1;
 }
 
-int shader_set_4fv(Shader shader, char* name, GLsizei count, GLfloat* v)
+GLboolean shader_set_4fv(Shader shader, char* name, GLsizei count, GLfloat* v)
 {
     GLint location = glGetUniformLocation(shader.id, name);
     if (location == -1) {
@@ -403,7 +403,7 @@ int shader_set_4fv(Shader shader, char* name, GLsizei count, GLfloat* v)
     return location != -1;
 }
 
-int shader_set_m2(Shader shader, char* name, GLsizei count, GLfloat* m)
+GLboolean shader_set_m2(Shader shader, char* name, GLsizei count, GLfloat* m)
 {
     GLint location = glGetUniformLocation(shader.id, name);
     if (location == -1) {
@@ -414,7 +414,7 @@ int shader_set_m2(Shader shader, char* name, GLsizei count, GLfloat* m)
     return location != -1;
 }
 
-int shader_set_m3(Shader shader, char* name, GLsizei count, GLfloat* m)
+GLboolean shader_set_m3(Shader shader, char* name, GLsizei count, GLfloat* m)
 {
     GLint location = glGetUniformLocation(shader.id, name);
     if (location == -1) {
@@ -425,7 +425,7 @@ int shader_set_m3(Shader shader, char* name, GLsizei count, GLfloat* m)
     return location != -1;
 }
 
-int shader_set_m4(Shader shader, char* name, GLsizei count, GLfloat* m)
+GLboolean shader_set_m4(Shader shader, char* name, GLsizei count, GLfloat* m)
 {
     GLint location = glGetUniformLocation(shader.id, name);
     if (location == -1) {
@@ -436,7 +436,7 @@ int shader_set_m4(Shader shader, char* name, GLsizei count, GLfloat* m)
     return location != -1;
 }
 
-int shader_set_m2x3(Shader shader, char* name, GLsizei count, GLfloat* m)
+GLboolean shader_set_m2x3(Shader shader, char* name, GLsizei count, GLfloat* m)
 {
     GLint location = glGetUniformLocation(shader.id, name);
     if (location == -1) {
@@ -447,7 +447,7 @@ int shader_set_m2x3(Shader shader, char* name, GLsizei count, GLfloat* m)
     return location != -1;
 }
 
-int shader_set_m3x2(Shader shader, char* name, GLsizei count, GLfloat* m)
+GLboolean shader_set_m3x2(Shader shader, char* name, GLsizei count, GLfloat* m)
 {
     GLint location = glGetUniformLocation(shader.id, name);
     if (location == -1) {
@@ -458,7 +458,7 @@ int shader_set_m3x2(Shader shader, char* name, GLsizei count, GLfloat* m)
     return location != -1;
 }
 
-int shader_set_m2x4(Shader shader, char* name, GLsizei count, GLfloat* m)
+GLboolean shader_set_m2x4(Shader shader, char* name, GLsizei count, GLfloat* m)
 {
     GLint location = glGetUniformLocation(shader.id, name);
     if (location == -1) {
@@ -469,7 +469,7 @@ int shader_set_m2x4(Shader shader, char* name, GLsizei count, GLfloat* m)
     return location != -1;
 }
 
-int shader_set_m4x2(Shader shader, char* name, GLsizei count, GLfloat* m)
+GLboolean shader_set_m4x2(Shader shader, char* name, GLsizei count, GLfloat* m)
 {
     GLint location = glGetUniformLocation(shader.id, name);
     if (location == -1) {
@@ -480,7 +480,7 @@ int shader_set_m4x2(Shader shader, char* name, GLsizei count, GLfloat* m)
     return location != -1;
 }
 
-int shader_set_m3x4(Shader shader, char* name, GLsizei count, GLfloat* m)
+GLboolean shader_set_m3x4(Shader shader, char* name, GLsizei count, GLfloat* m)
 {
     GLint location = glGetUniformLocation(shader.id, name);
     if (location == -1) {
@@ -491,7 +491,7 @@ int shader_set_m3x4(Shader shader, char* name, GLsizei count, GLfloat* m)
     return location != -1;
 }
 
-int shader_set_m4x3(Shader shader, char* name, GLsizei count, GLfloat* m)
+GLboolean shader_set_m4x3(Shader shader, char* name, GLsizei count, GLfloat* m)
 {
     GLint location = glGetUniformLocation(shader.id, name);
     if (location == -1) {

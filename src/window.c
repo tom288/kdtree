@@ -5,7 +5,7 @@
 #include <stdlib.h> // Used for exit
 
 static GLFWwindow* win = NULL;
-static const int test_depth = 0;
+static const GLboolean test_depth = GL_FALSE;
 
 // Keyboard input callback
 void key_callback(GLFWwindow* win, int key, int scancode, int action, int mods)
@@ -66,7 +66,7 @@ void window_kill()
 
 void window_init()
 {
-    const int resizable = 0;
+    const GLboolean resizable = GL_FALSE;
     const int msaa_samples = 16;
 
     const int width = 1920;
@@ -77,9 +77,9 @@ void window_init()
     GLFWmonitor* monitor = NULL;
     GLFWwindow* share_window = NULL;
 
-    const int show_cursor = 1;
-    const int cull_faces = 0;
-    const int vertical_sync = 1;
+    const GLboolean show_cursor = GL_TRUE;
+    const GLboolean cull_faces = GL_FALSE;
+    const GLboolean vertical_sync = GL_TRUE;
 
     // Prepare for window creation
     if (!glfwInit()) {
@@ -139,7 +139,7 @@ GLFWwindow* window_get()
     return win;
 }
 
-int window_ok()
+GLboolean window_ok()
 {
     return win && !glfwWindowShouldClose(win);
 }
