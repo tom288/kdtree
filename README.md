@@ -1,8 +1,8 @@
-# k-d tree
+# K-D Tree
 
 This is some kind of space subdivision demo / game implemented in C.
 
-## Toolchain setup (Windows)
+## Toolchain Setup (Windows)
 
 ### C Compiler
 
@@ -55,7 +55,7 @@ kdtree
 mingw
 ```
 
-## Running (Windows)
+## Building and Running on Windows
 
 There are `.cmd` files in the root project directory:
 
@@ -70,9 +70,9 @@ straightforward to set up and which I am happy to share.
 
 ## Building and Running on Linux / macOS
 
-`build_linux.sh` or `build_mac.sh`
+Use `build.sh` to build and run in debug mode
 
-## Next steps
+## Next Steps
 
 - Create a struct for the tree
 - Render a tree

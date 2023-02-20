@@ -14,7 +14,7 @@ if not exist %target_path% (
 )
 
 gcc src\*.c -o %exe_path% %flags% ^
--std=c17 -Wall -Wextra -Wno-unused-parameter ^
+-std=c17 -Wall -Wextra -pedantic -Wno-unused-parameter ^
 -I "%glfw%\include" ^
 -I "%glew%\include" ^
 -I "%cglm%\include" ^

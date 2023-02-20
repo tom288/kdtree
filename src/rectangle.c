@@ -62,7 +62,7 @@ Rectangle rectangle_init(Shader shader)
     }
 
     const GLsizei stride = rect.numbers_per_vertex * sizeof(vertices[0]);
-    void* first = 0;
+    unsigned char* first = 0;
     GLboolean error = GL_FALSE;
 
     for (size_t i = 0; i < component_count; i++)
