@@ -4,9 +4,9 @@
 mkdir -p target
 
 # Build
-gcc src/main.c -o target/debug -Og -D DEBUG \
+gcc src/*.c -o target/debug -Og -D DEBUG \
 -std=c17 -Wall -Wextra -Wno-unused-parameter \
-lglfw -lGL -lGLEW
+-lglfw -lGL -lGLEW
 
 # Run
 ./target/debug
