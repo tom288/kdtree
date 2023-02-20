@@ -2,6 +2,6 @@
 
 #include "rectangle.c"
 
-void rectangle_init();
-void rectangle_draw();
-void rectangle_kill();
+Rectangle rectangle_init();
+void rectangle_draw(Rectangle rect);
+void rectangle_kill(Rectangle* rect);

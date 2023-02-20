@@ -2,8 +2,11 @@
 #include <GL/glew.h>
 #include "utility.h"
 
-static GLuint vbo;
-static GLuint vao;
+typedef struct Rectangle {
+    GLuint vao;
+    GLuint vbo;
+    GLint total_components;
+} Rectangle;
 
 float vertices[] = {
     -0.5f, -0.5f,  0.0f,  0.0f,  1.0f,
@@ -15,14 +18,13 @@ float vertices[] = {
      0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
 };
 
-GLint total_components = 5;
+Rectangle rectangle_init() {
+    Rectangle rect;
+    glGenVertexArrays(1, &rect.vao);
+    glGenBuffers(1, &rect.vbo);
+    glBindVertexArray(rect.vao);
 
-void rectangle_init() {
-    glGenVertexArrays(1, &vao);
-    glGenBuffers(1, &vbo);
-    glBindVertexArray(vao);
-
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, rect.vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
     // Attribute properties for the vertex positions
@@ -32,11 +34,12 @@ void rectangle_init() {
     // We could use glGetAttribLocation(id, "position") instead, but we'd need
     // to be able to interrogate the shader. It returns -1 if not found.
 
+    rect.total_components = 5;
     GLint index = 0;
     GLint components = 2;
     GLenum type = GL_FLOAT;
     GLboolean normalise = GL_FALSE;
-    GLsizei stride = total_components * sizeof(vertices[0]);
+    GLsizei stride = rect.total_components * sizeof(vertices[0]);
     void* first = 0;
 
     glEnableVertexAttribArray(index);
@@ -53,15 +56,20 @@ void rectangle_init() {
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
     check_gl_error();
+
+    return rect;
 }
 
-void rectangle_draw() {
-    glBindVertexArray(vao);
-    glDrawArrays(GL_TRIANGLES, 0, sizeof(vertices) / sizeof(vertices[0]) / total_components);
+void rectangle_draw(Rectangle rect) {
+    glBindVertexArray(rect.vao);
+    glDrawArrays(GL_TRIANGLES, 0, sizeof(vertices) / sizeof(vertices[0]) / rect.total_components);
     glBindVertexArray(0);
 }
 
-void rectangle_kill() {
-    glDeleteVertexArrays(1, &vao);
-    glDeleteBuffers(1, &vbo);
+void rectangle_kill(Rectangle* rect) {
+    glDeleteVertexArrays(1, &rect->vao);
+    glDeleteBuffers(1, &rect->vbo);
+    rect->vao = 0;
+    rect->vbo = 0;
+    rect->total_components = 0;
 }
