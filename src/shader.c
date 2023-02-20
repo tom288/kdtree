@@ -1,7 +1,7 @@
 #define GLEW_STATIC
 #include <GL/glew.h>
 #include <stdio.h>
-#include <stdlib.h> // For calloc, free
+#include <stdlib.h> // calloc, free
 
 typedef struct Shader {
     GLuint id;
@@ -21,7 +21,7 @@ GLint compile_error(GLuint id, int is_program, char* path)
         if (!ok)
         {
             glGetProgramInfoLog(id, max_length, NULL, log);
-            printf("Failed to link shader program (vertex shader %s)", path);
+            fprintf(stderr, "Failed to link shader program (vertex shader %s)", path);
         }
     }
     else
@@ -30,13 +30,13 @@ GLint compile_error(GLuint id, int is_program, char* path)
         if (!ok)
         {
             glGetShaderInfoLog(id, max_length, NULL, log);
-            printf("Failed to compile shader file %s", path);
+            fprintf(stderr, "Failed to compile shader file %s", path);
         }
     }
 
     if (!ok)
     {
-        printf("\n%s\n", log);
+        fprintf(stderr, "\n%s\n", log);
     }
 
     return !ok;
@@ -96,7 +96,7 @@ GLuint compile(char* path, GLenum type)
 
 void shader_kill(Shader* shader)
 {
-    // glDeleteProgram(shader.id);
+    glDeleteProgram(shader->id);
     shader->id = 0;
     shader->ok = 0;
 }

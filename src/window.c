@@ -2,7 +2,7 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <stdio.h>
-#include <stdlib.h> // Used for malloc, free
+#include <stdlib.h> // malloc, free
 
 typedef struct Window {
     GLFWwindow* win;
@@ -89,6 +89,7 @@ Window* window_init()
     GLFWwindow* share_window = NULL;
 
     const GLboolean show_cursor = GL_TRUE;
+    const GLboolean raw_input = GL_FALSE;
     const GLboolean cull_faces = GL_FALSE;
     const GLboolean vertical_sync = GL_TRUE;
 
@@ -133,6 +134,11 @@ Window* window_init()
     if (!show_cursor)
     {
         glfwSetInputMode(window->win, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    }
+    if (raw_input && glfwRawMouseMotionSupported())
+    {
+        // Disable mouse motion acceleration and scaling
+        glfwSetInputMode(window->win, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
     }
     // This call to glfwSetWindowUserPointer allow us to use the whole window
     // struct in event callbacks, instead of just the GLFWwindow* win pointer.
