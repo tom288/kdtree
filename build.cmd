@@ -7,7 +7,7 @@ call common.cmd
 
 if %errorlevel% == 0 (
     echo LAUNCHING...
-    copy >NUL "%glew%\bin\Release\x64\glew32.dll" %target_path%
-    %exe_path%
+    robocopy >NUL "%glew%/bin/Release/x64/" %target_path% glew32.dll
+    "%exe_path%"
     echo CLOSING...
 ) else ( pause )
