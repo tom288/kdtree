@@ -46,7 +46,7 @@ GLint compile_error(GLuint id, int is_program, char* path)
 GLuint compile(char* path, GLenum type)
 {
     // Read file at path into buffer (https://stackoverflow.com/a/3747128)
-    FILE* file = fopen(path, "rb");
+    FILE* const file = fopen(path, "rb");
     if (!file)
     {
         fprintf(stderr, "Failed to fopen ");
@@ -56,11 +56,11 @@ GLuint compile(char* path, GLenum type)
 
     // Record size of file content
     fseek(file, 0L, SEEK_END);
-    long file_size = ftell(file);
+    const long file_size = ftell(file);
     rewind(file);
 
     // Allocate memory for entire file content
-    GLchar* buffer = calloc(1, file_size + 1);
+    GLchar* const buffer = calloc(1, file_size + 1);
     if (!buffer)
     {
         fclose(file);
@@ -104,9 +104,9 @@ void shader_kill(Shader* shader)
 // Create a shader program from 2 or 3 input files
 Shader shader_init(char* vertex, char* fragment, char* geometry)
 {
-    GLuint vert = compile(vertex, GL_VERTEX_SHADER);
-    GLuint frag = compile(fragment, GL_FRAGMENT_SHADER);
-    GLuint geom = geometry && *geometry
+    const GLuint vert = compile(vertex, GL_VERTEX_SHADER);
+    const GLuint frag = compile(fragment, GL_FRAGMENT_SHADER);
+    const GLuint geom = geometry && *geometry
         ? compile(geometry, GL_GEOMETRY_SHADER)
         : 0;
 
@@ -150,7 +150,7 @@ void shader_use(Shader shader)
 
 GLboolean shader_set_1i(Shader shader, char* name, GLint n)
 {
-    GLint location = glGetUniformLocation(shader.id, name);
+    const GLint location = glGetUniformLocation(shader.id, name);
     if (location == -1)
     {
         fprintf(stderr, "Failed to find uniform %s in shader_set_1ui\n", name);
@@ -164,7 +164,7 @@ GLboolean shader_set_1i(Shader shader, char* name, GLint n)
 
 GLboolean shader_set_1ui(Shader shader, char* name, GLuint n)
 {
-    GLint location = glGetUniformLocation(shader.id, name);
+    const GLint location = glGetUniformLocation(shader.id, name);
     if (location == -1)
     {
         fprintf(stderr, "Failed to find uniform %s in shader_set_1ui\n", name);
@@ -178,7 +178,7 @@ GLboolean shader_set_1ui(Shader shader, char* name, GLuint n)
 
 GLboolean shader_set_1f(Shader shader, char* name, GLfloat n)
 {
-    GLint location = glGetUniformLocation(shader.id, name);
+    const GLint location = glGetUniformLocation(shader.id, name);
     if (location == -1)
     {
         fprintf(stderr, "Failed to find uniform %s in shader_set_1f\n", name);
@@ -192,7 +192,7 @@ GLboolean shader_set_1f(Shader shader, char* name, GLfloat n)
 
 GLboolean shader_set_2i(Shader shader, char* name, GLint x, GLint y)
 {
-    GLint location = glGetUniformLocation(shader.id, name);
+    const GLint location = glGetUniformLocation(shader.id, name);
     if (location == -1)
     {
         fprintf(stderr, "Failed to find uniform %s in shader_set_2i\n", name);
@@ -206,7 +206,7 @@ GLboolean shader_set_2i(Shader shader, char* name, GLint x, GLint y)
 
 GLboolean shader_set_2ui(Shader shader, char* name, GLuint x, GLuint y)
 {
-    GLint location = glGetUniformLocation(shader.id, name);
+    const GLint location = glGetUniformLocation(shader.id, name);
     if (location == -1)
     {
         fprintf(stderr, "Failed to find uniform %s in shader_set_2ui\n", name);
@@ -220,7 +220,7 @@ GLboolean shader_set_2ui(Shader shader, char* name, GLuint x, GLuint y)
 
 GLboolean shader_set_2f(Shader shader, char* name, GLfloat x, GLfloat y)
 {
-    GLint location = glGetUniformLocation(shader.id, name);
+    const GLint location = glGetUniformLocation(shader.id, name);
     if (location == -1)
     {
         fprintf(stderr, "Failed to find uniform %s in shader_set_2f\n", name);
@@ -234,7 +234,7 @@ GLboolean shader_set_2f(Shader shader, char* name, GLfloat x, GLfloat y)
 
 GLboolean shader_set_3i(Shader shader, char* name, GLint x, GLint y, GLint z)
 {
-    GLint location = glGetUniformLocation(shader.id, name);
+    const GLint location = glGetUniformLocation(shader.id, name);
     if (location == -1)
     {
         fprintf(stderr, "Failed to find uniform %s in shader_set_3i\n", name);
@@ -248,7 +248,7 @@ GLboolean shader_set_3i(Shader shader, char* name, GLint x, GLint y, GLint z)
 
 GLboolean shader_set_3ui(Shader shader, char* name, GLuint x, GLuint y, GLuint z)
 {
-    GLint location = glGetUniformLocation(shader.id, name);
+    const GLint location = glGetUniformLocation(shader.id, name);
     if (location == -1)
     {
         fprintf(stderr, "Failed to find uniform %s in shader_set_3ui\n", name);
@@ -262,7 +262,7 @@ GLboolean shader_set_3ui(Shader shader, char* name, GLuint x, GLuint y, GLuint z
 
 GLboolean shader_set_3f(Shader shader, char* name, GLfloat x, GLfloat y, GLfloat z)
 {
-    GLint location = glGetUniformLocation(shader.id, name);
+    const GLint location = glGetUniformLocation(shader.id, name);
     if (location == -1)
     {
         fprintf(stderr, "Failed to find uniform %s in shader_set_3f\n", name);
@@ -276,7 +276,7 @@ GLboolean shader_set_3f(Shader shader, char* name, GLfloat x, GLfloat y, GLfloat
 
 GLboolean shader_set_4i(Shader shader, char* name, GLint x, GLint y, GLint z, GLint w)
 {
-    GLint location = glGetUniformLocation(shader.id, name);
+    const GLint location = glGetUniformLocation(shader.id, name);
     if (location == -1)
     {
         fprintf(stderr, "Failed to find uniform %s in shader_set_4i\n", name);
@@ -290,7 +290,7 @@ GLboolean shader_set_4i(Shader shader, char* name, GLint x, GLint y, GLint z, GL
 
 GLboolean shader_set_4ui(Shader shader, char* name, GLuint x, GLuint y, GLuint z, GLuint w)
 {
-    GLint location = glGetUniformLocation(shader.id, name);
+    const GLint location = glGetUniformLocation(shader.id, name);
     if (location == -1)
     {
         fprintf(stderr, "Failed to find uniform %s in shader_set_4ui\n", name);
@@ -304,7 +304,7 @@ GLboolean shader_set_4ui(Shader shader, char* name, GLuint x, GLuint y, GLuint z
 
 GLboolean shader_set_4f(Shader shader, char* name, GLfloat x, GLfloat y, GLfloat z, GLfloat w)
 {
-    GLint location = glGetUniformLocation(shader.id, name);
+    const GLint location = glGetUniformLocation(shader.id, name);
     if (location == -1)
     {
         fprintf(stderr, "Failed to find uniform %s in shader_set_4f\n", name);
@@ -318,7 +318,7 @@ GLboolean shader_set_4f(Shader shader, char* name, GLfloat x, GLfloat y, GLfloat
 
 GLboolean shader_set_1iv(Shader shader, char* name, GLsizei count, GLint* v)
 {
-    GLint location = glGetUniformLocation(shader.id, name);
+    const GLint location = glGetUniformLocation(shader.id, name);
     if (location == -1)
     {
         fprintf(stderr, "Failed to find uniform %s in shader_set_1iv\n", name);
@@ -332,7 +332,7 @@ GLboolean shader_set_1iv(Shader shader, char* name, GLsizei count, GLint* v)
 
 GLboolean shader_set_1uiv(Shader shader, char* name, GLsizei count, GLuint* v)
 {
-    GLint location = glGetUniformLocation(shader.id, name);
+    const GLint location = glGetUniformLocation(shader.id, name);
     if (location == -1)
     {
         fprintf(stderr, "Failed to find uniform %s in shader_set_1uiv\n", name);
@@ -346,7 +346,7 @@ GLboolean shader_set_1uiv(Shader shader, char* name, GLsizei count, GLuint* v)
 
 GLboolean shader_set_1fv(Shader shader, char* name, GLsizei count, GLfloat* v)
 {
-    GLint location = glGetUniformLocation(shader.id, name);
+    const GLint location = glGetUniformLocation(shader.id, name);
     if (location == -1)
     {
         fprintf(stderr, "Failed to find uniform %s in shader_set_1fv\n", name);
@@ -360,7 +360,7 @@ GLboolean shader_set_1fv(Shader shader, char* name, GLsizei count, GLfloat* v)
 
 GLboolean shader_set_2iv(Shader shader, char* name, GLsizei count, GLint* v)
 {
-    GLint location = glGetUniformLocation(shader.id, name);
+    const GLint location = glGetUniformLocation(shader.id, name);
     if (location == -1)
     {
         fprintf(stderr, "Failed to find uniform %s in shader_set_2iv\n", name);
@@ -374,7 +374,7 @@ GLboolean shader_set_2iv(Shader shader, char* name, GLsizei count, GLint* v)
 
 GLboolean shader_set_2uiv(Shader shader, char* name, GLsizei count, GLuint* v)
 {
-    GLint location = glGetUniformLocation(shader.id, name);
+    const GLint location = glGetUniformLocation(shader.id, name);
     if (location == -1)
     {
         fprintf(stderr, "Failed to find uniform %s in shader_set_2uiv\n", name);
@@ -388,7 +388,7 @@ GLboolean shader_set_2uiv(Shader shader, char* name, GLsizei count, GLuint* v)
 
 GLboolean shader_set_2fv(Shader shader, char* name, GLsizei count, GLfloat* v)
 {
-    GLint location = glGetUniformLocation(shader.id, name);
+    const GLint location = glGetUniformLocation(shader.id, name);
     if (location == -1)
     {
         fprintf(stderr, "Failed to find uniform %s in shader_set_2fv\n", name);
@@ -402,7 +402,7 @@ GLboolean shader_set_2fv(Shader shader, char* name, GLsizei count, GLfloat* v)
 
 GLboolean shader_set_3iv(Shader shader, char* name, GLsizei count, GLint* v)
 {
-    GLint location = glGetUniformLocation(shader.id, name);
+    const GLint location = glGetUniformLocation(shader.id, name);
     if (location == -1)
     {
         fprintf(stderr, "Failed to find uniform %s in shader_set_3iv\n", name);
@@ -416,7 +416,7 @@ GLboolean shader_set_3iv(Shader shader, char* name, GLsizei count, GLint* v)
 
 GLboolean shader_set_3uiv(Shader shader, char* name, GLsizei count, GLuint* v)
 {
-    GLint location = glGetUniformLocation(shader.id, name);
+    const GLint location = glGetUniformLocation(shader.id, name);
     if (location == -1)
     {
         fprintf(stderr, "Failed to find uniform %s in shader_set_3uiv\n", name);
@@ -430,7 +430,7 @@ GLboolean shader_set_3uiv(Shader shader, char* name, GLsizei count, GLuint* v)
 
 GLboolean shader_set_3fv(Shader shader, char* name, GLsizei count, GLfloat* v)
 {
-    GLint location = glGetUniformLocation(shader.id, name);
+    const GLint location = glGetUniformLocation(shader.id, name);
     if (location == -1)
     {
         fprintf(stderr, "Failed to find uniform %s in shader_set_3fv\n", name);
@@ -444,7 +444,7 @@ GLboolean shader_set_3fv(Shader shader, char* name, GLsizei count, GLfloat* v)
 
 GLboolean shader_set_4iv(Shader shader, char* name, GLsizei count, GLint* v)
 {
-    GLint location = glGetUniformLocation(shader.id, name);
+    const GLint location = glGetUniformLocation(shader.id, name);
     if (location == -1)
     {
         fprintf(stderr, "Failed to find uniform %s in shader_set_4iv\n", name);
@@ -458,7 +458,7 @@ GLboolean shader_set_4iv(Shader shader, char* name, GLsizei count, GLint* v)
 
 GLboolean shader_set_4uiv(Shader shader, char* name, GLsizei count, GLuint* v)
 {
-    GLint location = glGetUniformLocation(shader.id, name);
+    const GLint location = glGetUniformLocation(shader.id, name);
     if (location == -1)
     {
         fprintf(stderr, "Failed to find uniform %s in shader_set_4uiv\n", name);
@@ -472,7 +472,7 @@ GLboolean shader_set_4uiv(Shader shader, char* name, GLsizei count, GLuint* v)
 
 GLboolean shader_set_4fv(Shader shader, char* name, GLsizei count, GLfloat* v)
 {
-    GLint location = glGetUniformLocation(shader.id, name);
+    const GLint location = glGetUniformLocation(shader.id, name);
     if (location == -1)
     {
         fprintf(stderr, "Failed to find uniform %s in shader_set_4fv\n", name);
@@ -486,7 +486,7 @@ GLboolean shader_set_4fv(Shader shader, char* name, GLsizei count, GLfloat* v)
 
 GLboolean shader_set_m2(Shader shader, char* name, GLsizei count, GLfloat* m)
 {
-    GLint location = glGetUniformLocation(shader.id, name);
+    const GLint location = glGetUniformLocation(shader.id, name);
     if (location == -1)
     {
         fprintf(stderr, "Failed to find uniform %s in shader_set_m2\n", name);
@@ -500,7 +500,7 @@ GLboolean shader_set_m2(Shader shader, char* name, GLsizei count, GLfloat* m)
 
 GLboolean shader_set_m3(Shader shader, char* name, GLsizei count, GLfloat* m)
 {
-    GLint location = glGetUniformLocation(shader.id, name);
+    const GLint location = glGetUniformLocation(shader.id, name);
     if (location == -1)
     {
         fprintf(stderr, "Failed to find uniform %s in shader_set_m3\n", name);
@@ -514,7 +514,7 @@ GLboolean shader_set_m3(Shader shader, char* name, GLsizei count, GLfloat* m)
 
 GLboolean shader_set_m4(Shader shader, char* name, GLsizei count, GLfloat* m)
 {
-    GLint location = glGetUniformLocation(shader.id, name);
+    const GLint location = glGetUniformLocation(shader.id, name);
     if (location == -1)
     {
         fprintf(stderr, "Failed to find uniform %s in shader_set_m4\n", name);
@@ -528,7 +528,7 @@ GLboolean shader_set_m4(Shader shader, char* name, GLsizei count, GLfloat* m)
 
 GLboolean shader_set_m2x3(Shader shader, char* name, GLsizei count, GLfloat* m)
 {
-    GLint location = glGetUniformLocation(shader.id, name);
+    const GLint location = glGetUniformLocation(shader.id, name);
     if (location == -1)
     {
         fprintf(stderr, "Failed to find uniform %s in shader_set_m2x3\n", name);
@@ -542,7 +542,7 @@ GLboolean shader_set_m2x3(Shader shader, char* name, GLsizei count, GLfloat* m)
 
 GLboolean shader_set_m3x2(Shader shader, char* name, GLsizei count, GLfloat* m)
 {
-    GLint location = glGetUniformLocation(shader.id, name);
+    const GLint location = glGetUniformLocation(shader.id, name);
     if (location == -1)
     {
         fprintf(stderr, "Failed to find uniform %s in shader_set_m3x2\n", name);
@@ -556,7 +556,7 @@ GLboolean shader_set_m3x2(Shader shader, char* name, GLsizei count, GLfloat* m)
 
 GLboolean shader_set_m2x4(Shader shader, char* name, GLsizei count, GLfloat* m)
 {
-    GLint location = glGetUniformLocation(shader.id, name);
+    const GLint location = glGetUniformLocation(shader.id, name);
     if (location == -1)
     {
         fprintf(stderr, "Failed to find uniform %s in shader_set_m2x4\n", name);
@@ -570,7 +570,7 @@ GLboolean shader_set_m2x4(Shader shader, char* name, GLsizei count, GLfloat* m)
 
 GLboolean shader_set_m4x2(Shader shader, char* name, GLsizei count, GLfloat* m)
 {
-    GLint location = glGetUniformLocation(shader.id, name);
+    const GLint location = glGetUniformLocation(shader.id, name);
     if (location == -1)
     {
         fprintf(stderr, "Failed to find uniform %s in shader_set_m4x2\n", name);
@@ -584,7 +584,7 @@ GLboolean shader_set_m4x2(Shader shader, char* name, GLsizei count, GLfloat* m)
 
 GLboolean shader_set_m3x4(Shader shader, char* name, GLsizei count, GLfloat* m)
 {
-    GLint location = glGetUniformLocation(shader.id, name);
+    const GLint location = glGetUniformLocation(shader.id, name);
     if (location == -1)
     {
         fprintf(stderr, "Failed to find uniform %s in shader_set_m3x4\n", name);
@@ -598,7 +598,7 @@ GLboolean shader_set_m3x4(Shader shader, char* name, GLsizei count, GLfloat* m)
 
 GLboolean shader_set_m4x3(Shader shader, char* name, GLsizei count, GLfloat* m)
 {
-    GLint location = glGetUniformLocation(shader.id, name);
+    const GLint location = glGetUniformLocation(shader.id, name);
     if (location == -1)
     {
         fprintf(stderr, "Failed to find uniform %s in shader_set_m4x3\n", name);

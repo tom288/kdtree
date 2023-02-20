@@ -8,7 +8,7 @@ GLenum _check_gl_error(char* file, int line)
     GLenum error_code;
     while ((error_code = glGetError()) != GL_NO_ERROR)
     {
-        char* error;
+        const char* error;
         switch (error_code)
         {
             case GL_INVALID_ENUM:

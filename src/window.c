@@ -89,7 +89,7 @@ Window* window_init()
     const GLboolean cull_faces = GL_FALSE;
     const GLboolean vertical_sync = GL_TRUE;
 
-    Window* window = malloc(sizeof(Window));
+    Window* const window = malloc(sizeof(Window));
     *window = (Window)
     {
         .win = NULL,

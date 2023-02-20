@@ -31,12 +31,12 @@ Rectangle rectangle_init(Shader shader)
 
     // Attribute properties for the vertex positions
     rect.total_components = 5;
-    char* name = "position";
+    const char* name = "position";
     GLint index = glGetAttribLocation(shader.id, name);
     GLint components = 2;
-    GLenum type = GL_FLOAT;
-    GLboolean normalise = GL_FALSE;
-    GLsizei stride = rect.total_components * sizeof(vertices[0]);
+    const GLenum type = GL_FLOAT;
+    const GLboolean normalise = GL_FALSE;
+    const GLsizei stride = rect.total_components * sizeof(vertices[0]);
     void* first = 0;
 
     if (index != -1)
