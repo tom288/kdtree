@@ -1,4 +1,4 @@
-set libs=..\
+set libs=..
 set glfw=%libs%\glfw-3.3.8.bin.WIN64
 set glew=%libs%\glew-2.1.0
 set cglm=%libs%\cglm
