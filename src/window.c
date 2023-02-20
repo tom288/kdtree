@@ -67,7 +67,7 @@ void error_callback(int error_code, const char* description)
 
 void window_kill(Window* window)
 {
-    if (window->win) 
+    if (window->win)
     {
         glfwDestroyWindow(window->win);
         if (!--window_count) glfwTerminate();
@@ -173,7 +173,7 @@ Window* window_init()
     {
         fprintf(stderr, "Failed to init GLEW: %s\n", glewGetErrorString(err));
     }
-    else 
+    else
     {
         window->ok = GL_TRUE;
     }
@@ -183,7 +183,7 @@ Window* window_init()
 GLboolean window_ok(Window* window)
 {
     glfwPollEvents();
-    window->ok &= window->win && !glfwWindowShouldClose(window->win); 
+    window->ok &= window->win && !glfwWindowShouldClose(window->win);
     return window->ok;
 }
 

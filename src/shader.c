@@ -5,7 +5,7 @@
 
 typedef struct Shader {
     GLuint id;
-    GLint ok;
+    GLboolean ok;
 } Shader;
 
 // Print any shader compilation or linking errors, return whether errors exist
@@ -98,7 +98,7 @@ void shader_kill(Shader* shader)
 {
     glDeleteProgram(shader->id);
     shader->id = 0;
-    shader->ok = 0;
+    shader->ok = GL_FALSE;
 }
 
 // Create a shader program from 2 or 3 input files

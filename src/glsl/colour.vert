@@ -2,7 +2,7 @@
 
 in vec2 position;
 in vec3 colour;
-  
+
 out vec3 colour_frag;
 
 void main()

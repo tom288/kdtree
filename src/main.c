@@ -5,15 +5,23 @@
 int main(int argc, char* argv[])
 {
     Window* win = window_init();
+
     Shader shader = shader_init("src/glsl/colour.vert", "src/glsl/colour.frag", "");
     if (!shader.ok)
     {
         window_kill(win);
         return 1;
     }
-    shader_use(shader);
-    Rectangle rect = rectangle_init(shader);
 
+    Rectangle rect = rectangle_init(shader);
+    if (!rect.vao)
+    {
+        shader_kill(&shader);
+        window_kill(win);
+        return 1;
+    }
+
+    shader_use(shader);
     // Choose the background colour
     glClearColor(0.1f, 0.0f, 0.3f, 0.0f);
 

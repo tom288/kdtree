@@ -3,7 +3,7 @@
 #include <stdio.h>
 
 // Check for an OpenGL runtime error
-GLenum _check_gl_error(char* file, int line)
+GLenum _gl_error(char* file, int line)
 {
     GLenum error_code;
     while ((error_code = glGetError()) != GL_NO_ERROR)
@@ -38,5 +38,5 @@ GLenum _check_gl_error(char* file, int line)
         }
         fprintf(stderr, "OpenGL %s @ %s (%d)\n", error, file, line);
     }
-    return error_code;
+    return !!error_code;
 }
