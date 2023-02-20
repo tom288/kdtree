@@ -1,12 +1,6 @@
-#define GLEW_STATIC
-#include <GL/glew.h>
+#include "shader.h"
 #include <stdio.h>
 #include <stdlib.h> // calloc, free
-
-typedef struct Shader {
-    GLuint id;
-    GLboolean ok;
-} Shader;
 
 // Print any shader compilation or linking errors, return whether errors exist
 GLint compile_error(GLuint id, int is_program, char* path)

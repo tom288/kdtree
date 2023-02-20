@@ -1,13 +1,8 @@
 #define GLEW_STATIC
-#include <GL/glew.h>
-#include "shader.h"
+#include "rectangle.h"
 #include "utility.h"
-
-typedef struct Rectangle {
-    GLuint vao;
-    GLuint vbo;
-    GLint numbers_per_vertex;
-} Rectangle;
+#include <GL/glew.h>
+#include <stdio.h>
 
 typedef struct Component {
     char* name;

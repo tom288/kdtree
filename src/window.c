@@ -1,14 +1,6 @@
-#define GLEW_STATIC
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
+#include "window.h"
 #include <stdio.h>
 #include <stdlib.h> // malloc, free
-
-typedef struct Window {
-    GLFWwindow* win;
-    GLboolean ok;
-    GLboolean test_depth;
-} Window;
 
 static size_t window_count = 0;
 

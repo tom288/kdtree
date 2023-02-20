@@ -1,6 +1,12 @@
 #pragma once
 
-#include "shader.c"
+#define GLEW_STATIC
+#include <GL/glew.h>
+
+typedef struct Shader {
+    GLuint id;
+    GLboolean ok;
+} Shader;
 
 Shader shader_init(char* vertex, char* fragment, char* geometry);
 void shader_use(Shader shader);

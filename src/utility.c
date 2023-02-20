@@ -1,5 +1,4 @@
-#define GLEW_STATIC
-#include <GL/glew.h>
+#include "utility.h"
 #include <stdio.h>
 
 // Check for an OpenGL runtime error
