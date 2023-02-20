@@ -13,11 +13,11 @@ if not exist %target_path% (
     mkdir %target_path%
 )
 
-gcc -std=c17 -Wall -Wextra -Wno-unused-parameter ^
-src\*.c -o %exe_path% ^
+gcc src\*.c -o %exe_path% %flags% ^
+-std=c17 -Wall -Wextra -Wno-unused-parameter ^
 -I "%glfw%\include" ^
 -I "%glew%\include" ^
 -I "%cglm%\include" ^
 -L "%glfw%\lib-mingw-w64" ^
 -L "%glew%\lib\Release\x64" ^
--lglfw3 -lgdi32 -lopengl32 -lglew32 %flags%
+-lglfw3 -lgdi32 -lopengl32 -lglew32

@@ -68,10 +68,9 @@ which is important for distribution. The build scripts take care of this. I've
 discovered a nice way to use Visual Studio Code for this project, which is
 straightforward to set up and which I am happy to share.
 
-## Linux
+## Building and Running on Linux / macOS
 
-Build the project with `gcc src/main.c -lglfw -lGL -lGLEW`. If you're missing a
-library then hopefully there are sufficient clues here and in the build scripts.
+`build_linux.sh` or `build_mac.sh`
 
 ## Next steps
 
