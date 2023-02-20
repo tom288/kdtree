@@ -144,6 +144,10 @@ void shader_use(Shader shader)
     glUseProgram(shader.id);
 }
 
+// These probably ought to be generated using a macro, but that would involve
+// generating the header definitions too, and in the meantime it's not too hard
+// to use an editor that supports multiple cursors to manage all of this.
+
 GLboolean shader_set_1i(Shader shader, char* name, GLint n)
 {
     GLint location = glGetUniformLocation(shader.id, name);

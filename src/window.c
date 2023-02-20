@@ -89,7 +89,6 @@ Window* window_init()
     const GLboolean cull_faces = GL_FALSE;
     const GLboolean vertical_sync = GL_TRUE;
 
-    // Create window and put it in focus
     Window* window = malloc(sizeof(Window));
     *window = (Window)
     {
@@ -174,6 +173,7 @@ Window* window_init()
 
 GLboolean window_ok(Window* window)
 {
+    glfwPollEvents();
     window->ok &= window->win && !glfwWindowShouldClose(window->win); 
     return window->ok;
 }
@@ -182,5 +182,4 @@ void window_swap(Window* window)
 {
     glfwSwapBuffers(window->win);
     glClear(GL_COLOR_BUFFER_BIT | window->test_depth * GL_DEPTH_BUFFER_BIT);
-    glfwPollEvents();
 }
