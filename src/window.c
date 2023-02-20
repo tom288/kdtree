@@ -67,9 +67,12 @@ void error_callback(int error_code, const char* description)
 
 void window_kill(Window* window)
 {
-    glfwDestroyWindow(window->win);
+    if (window->win) 
+    {
+        glfwDestroyWindow(window->win);
+        if (!--window_count) glfwTerminate();
+    }
     free(window);
-    if (!--window_count) glfwTerminate();
 }
 
 Window* window_init()
