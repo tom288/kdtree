@@ -125,7 +125,7 @@ void window_init()
 
     // This assignment to glewExperimental used to be necessary for older
     // versions of GLEW (<=1.13), but may now be redundant, I haven't checked
-    glewExperimental = 1;
+    glewExperimental = GL_TRUE;
     GLenum err = glewInit();
     if (err != GLEW_OK) {
         fprintf(stderr, "Failed to init GLEW: %s\n", glewGetErrorString(err));

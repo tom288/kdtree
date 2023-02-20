@@ -11,7 +11,7 @@ int main(int argc, char *argv[])
         return 1;
     }
     shader_use(shader);
-    Rectangle rect = rectangle_init();
+    Rectangle rect = rectangle_init(shader);
 
     // Choose the background colour
     glClearColor(0.1f, 0.0f, 0.3f, 0.0f);

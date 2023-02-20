@@ -1,7 +1,7 @@
 #version 330 core
 
-layout (location = 0) in vec2 position;
-layout (location = 1) in vec3 colour;
+in vec2 position;
+in vec3 colour;
   
 out vec3 colour_frag;
 

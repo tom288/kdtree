@@ -1,5 +1,6 @@
 #define GLEW_STATIC
 #include <GL/glew.h>
+#include "shader.h"
 #include "utility.h"
 
 typedef struct Rectangle {
@@ -18,7 +19,7 @@ float vertices[] = {
      0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
 };
 
-Rectangle rectangle_init() {
+Rectangle rectangle_init(Shader shader) {
     Rectangle rect;
     glGenVertexArrays(1, &rect.vao);
     glGenBuffers(1, &rect.vbo);
@@ -35,22 +36,32 @@ Rectangle rectangle_init() {
     // to be able to interrogate the shader. It returns -1 if not found.
 
     rect.total_components = 5;
-    GLint index = 0;
+    char* name = "position";
+    GLint index = glGetAttribLocation(shader.id, name);
     GLint components = 2;
     GLenum type = GL_FLOAT;
     GLboolean normalise = GL_FALSE;
     GLsizei stride = rect.total_components * sizeof(vertices[0]);
     void* first = 0;
 
-    glEnableVertexAttribArray(index);
-    glVertexAttribPointer(index, components, type, normalise, stride, first);
+    if (index != -1) {
+        glEnableVertexAttribArray(index);
+        glVertexAttribPointer(index, components, type, normalise, stride, first);
+    } else {
+        fprintf(stderr, "Failed to find %s in shader\n", name);
+    }
 
-    index++;
+    name = "colour";
+    index = glGetAttribLocation(shader.id, name);
     first += components * sizeof(vertices[0]);
     components = 3;
 
-    glEnableVertexAttribArray(index);
-    glVertexAttribPointer(index, components, type, normalise, stride, first);
+    if (index != -1) {
+        glEnableVertexAttribArray(index);
+        glVertexAttribPointer(index, components, type, normalise, stride, first);
+    } else {
+        fprintf(stderr, "Failed to find %s in shader\n", name);
+    }
 
     glEnableVertexAttribArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
