@@ -29,12 +29,6 @@ Rectangle rectangle_init(Shader shader) {
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
     // Attribute properties for the vertex positions
-
-    // Here we are using manual indices and then referring to them in the
-    // fragment shaders. This has opportunities for very confusing mistakes.
-    // We could use glGetAttribLocation(id, "position") instead, but we'd need
-    // to be able to interrogate the shader. It returns -1 if not found.
-
     rect.total_components = 5;
     char* name = "position";
     GLint index = glGetAttribLocation(shader.id, name);

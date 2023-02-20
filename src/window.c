@@ -4,8 +4,11 @@
 #include <stdio.h>
 #include <stdlib.h> // Used for exit
 
-static GLFWwindow* win = NULL;
-static const GLboolean test_depth = GL_FALSE;
+typedef struct Window {
+    GLFWwindow* win;
+    GLboolean test_depth;
+} Window;
+
 
 // Keyboard input callback
 void key_callback(GLFWwindow* win, int key, int scancode, int action, int mods)
@@ -22,6 +25,9 @@ void key_callback(GLFWwindow* win, int key, int scancode, int action, int mods)
     {
         glfwSetWindowShouldClose(win, 1);
     }
+
+    // Window* window = glfwGetWindowUserPointer(win);
+    // if (window) { }
 }
 
 // Mouse cursor movement callback
@@ -57,14 +63,14 @@ void error_callback(int error_code, const char* description)
     fprintf(stderr, "GLFW error #%d\n%s\n", error_code, description);
 }
 
-void window_kill()
+void window_kill(Window* window)
 {
-    glfwDestroyWindow(win);
-    win = NULL;
+    glfwDestroyWindow(window->win);
+    free(window);
     glfwTerminate();
 }
 
-void window_init()
+Window* window_init()
 {
     const GLboolean resizable = GL_FALSE;
     const int msaa_samples = 16;
@@ -98,26 +104,38 @@ void window_init()
 #endif
 
     // Create window and put it in focus
-    win = glfwCreateWindow(
-        width,
-        height,
-        title,
-        monitor,
-        share_window
-    );
-    glfwMakeContextCurrent(win);
+    Window* window = malloc(sizeof(Window));
+    *window = (Window) {
+        .win = glfwCreateWindow(
+            width,
+            height,
+            title,
+            monitor,
+            share_window
+        ),
+        .test_depth = GL_FALSE,
+    };
+    glfwMakeContextCurrent(window->win);
 
     // Configure input
-    if (!show_cursor) glfwSetInputMode(win, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-    glfwSetKeyCallback(win, key_callback);
-    glfwSetMouseButtonCallback(win, mouse_button_callback);
-    glfwSetCursorPosCallback(win, cursor_pos_callback);
-    glfwSetScrollCallback(win, scroll_callback);
+    if (!show_cursor) {
+        glfwSetInputMode(window->win, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    }
+    // This call to glfwSetWindowUserPointer allow us to use the whole window
+    // struct in event callbacks, instead of just the GLFWwindow* win pointer.
+    // This line is why we pass window as a pointer, since otherwise these
+    // callbacks would reference memory of an old Window that could be freed at
+    // any time, and which is likely to hold outdated state.
+    glfwSetWindowUserPointer(window->win, window);
+    glfwSetKeyCallback(window->win, key_callback);
+    glfwSetMouseButtonCallback(window->win, mouse_button_callback);
+    glfwSetCursorPosCallback(window->win, cursor_pos_callback);
+    glfwSetScrollCallback(window->win, scroll_callback);
     glfwSetErrorCallback(error_callback);
 
     // Configure triangle visibility
     if (cull_faces) glEnable(GL_CULL_FACE);
-    if (test_depth) glEnable(GL_DEPTH_TEST);
+    if (window->test_depth) glEnable(GL_DEPTH_TEST);
 
     // Configure additional window properties
     if (!vertical_sync) glfwSwapInterval(0);
@@ -129,24 +147,20 @@ void window_init()
     GLenum err = glewInit();
     if (err != GLEW_OK) {
         fprintf(stderr, "Failed to init GLEW: %s\n", glewGetErrorString(err));
-        window_kill();
+        window_kill(window);
         exit(1);
     }
+    return window;
 }
 
-GLFWwindow* window_get()
+GLboolean window_ok(Window* window)
 {
-    return win;
+    return window->win && !glfwWindowShouldClose(window->win);
 }
 
-GLboolean window_ok()
+void window_swap(Window* window)
 {
-    return win && !glfwWindowShouldClose(win);
-}
-
-void window_swap()
-{
-    glfwSwapBuffers(win);
-    glClear(GL_COLOR_BUFFER_BIT | test_depth * GL_DEPTH_BUFFER_BIT);
+    glfwSwapBuffers(window->win);
+    glClear(GL_COLOR_BUFFER_BIT | window->test_depth * GL_DEPTH_BUFFER_BIT);
     glfwPollEvents();
 }

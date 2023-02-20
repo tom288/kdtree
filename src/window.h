@@ -2,8 +2,7 @@
 
 #include "window.c"
 
-void window_init();
-GLFWwindow* window_get();
-GLboolean window_ok();
-void window_swap();
-void window_kill();
+Window* window_init();
+GLboolean window_ok(Window* window);
+void window_swap(Window* window);
+void window_kill(Window* window);
