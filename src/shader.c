@@ -139,167 +139,167 @@ void shader_use(Shader shader)
     glUseProgram(shader.id);
 }
 
-void shader_set_1i(GLuint id, char* name, GLint n)
+void shader_set_1i(Shader shader, char* name, GLint n)
 {
-    glUniform1i(glGetUniformLocation(id, name), n);
+    glUniform1i(glGetUniformLocation(shader.id, name), n);
 }
 
-void shader_set_1ui(GLuint id, char* name, GLuint n)
+void shader_set_1ui(Shader shader, char* name, GLuint n)
 {
-    glUniform1ui(glGetUniformLocation(id, name), n);
+    glUniform1ui(glGetUniformLocation(shader.id, name), n);
 }
 
-void shader_set_1f(GLuint id, char* name, GLfloat n)
+void shader_set_1f(Shader shader, char* name, GLfloat n)
 {
-    glUniform1f(glGetUniformLocation(id, name), n);
+    glUniform1f(glGetUniformLocation(shader.id, name), n);
 }
 
-void shader_set_2i(GLuint id, char* name, GLint x, GLint y)
+void shader_set_2i(Shader shader, char* name, GLint x, GLint y)
 {
-    glUniform2i(glGetUniformLocation(id, name), x, y);
+    glUniform2i(glGetUniformLocation(shader.id, name), x, y);
 }
 
-void shader_set_2ui(GLuint id, char* name, GLuint x, GLuint y)
+void shader_set_2ui(Shader shader, char* name, GLuint x, GLuint y)
 {
-    glUniform2ui(glGetUniformLocation(id, name), x, y);
+    glUniform2ui(glGetUniformLocation(shader.id, name), x, y);
 }
 
-void shader_set_2f(GLuint id, char* name, GLfloat x, GLfloat y)
+void shader_set_2f(Shader shader, char* name, GLfloat x, GLfloat y)
 {
-    glUniform2f(glGetUniformLocation(id, name), x, y);
+    glUniform2f(glGetUniformLocation(shader.id, name), x, y);
 }
 
-void shader_set_3i(GLuint id, char* name, GLint x, GLint y, GLint z)
+void shader_set_3i(Shader shader, char* name, GLint x, GLint y, GLint z)
 {
-    glUniform3i(glGetUniformLocation(id, name), x, y, z);
+    glUniform3i(glGetUniformLocation(shader.id, name), x, y, z);
 }
 
-void shader_set_3ui(GLuint id, char* name, GLuint x, GLuint y, GLuint z)
+void shader_set_3ui(Shader shader, char* name, GLuint x, GLuint y, GLuint z)
 {
-    glUniform3ui(glGetUniformLocation(id, name), x, y, z);
+    glUniform3ui(glGetUniformLocation(shader.id, name), x, y, z);
 }
 
-void shader_set_3f(GLuint id, char* name, GLfloat x, GLfloat y, GLfloat z)
+void shader_set_3f(Shader shader, char* name, GLfloat x, GLfloat y, GLfloat z)
 {
-    glUniform3f(glGetUniformLocation(id, name), x, y, z);
+    glUniform3f(glGetUniformLocation(shader.id, name), x, y, z);
 }
 
-void shader_set_4i(GLuint id, char* name, GLint x, GLint y, GLint z, GLint w)
+void shader_set_4i(Shader shader, char* name, GLint x, GLint y, GLint z, GLint w)
 {
-    glUniform4i(glGetUniformLocation(id, name), x, y, z, w);
+    glUniform4i(glGetUniformLocation(shader.id, name), x, y, z, w);
 }
 
-void shader_set_4ui(GLuint id, char* name, GLuint x, GLuint y, GLuint z, GLuint w)
+void shader_set_4ui(Shader shader, char* name, GLuint x, GLuint y, GLuint z, GLuint w)
 {
-    glUniform4ui(glGetUniformLocation(id, name), x, y, z, w);
+    glUniform4ui(glGetUniformLocation(shader.id, name), x, y, z, w);
 }
 
-void shader_set_4f(GLuint id, char* name, GLfloat x, GLfloat y, GLfloat z, GLfloat w)
+void shader_set_4f(Shader shader, char* name, GLfloat x, GLfloat y, GLfloat z, GLfloat w)
 {
-    glUniform4f(glGetUniformLocation(id, name), x, y, z, w);
+    glUniform4f(glGetUniformLocation(shader.id, name), x, y, z, w);
 }
 
-void shader_set_1iv(GLuint id, char* name, GLsizei count, GLint* v)
+void shader_set_1iv(Shader shader, char* name, GLsizei count, GLint* v)
 {
-    glUniform1iv(glGetUniformLocation(id, name), count, v);
+    glUniform1iv(glGetUniformLocation(shader.id, name), count, v);
 }
 
-void shader_set_1uiv(GLuint id, char* name, GLsizei count, GLuint* v)
+void shader_set_1uiv(Shader shader, char* name, GLsizei count, GLuint* v)
 {
-    glUniform1uiv(glGetUniformLocation(id, name), count, v);
+    glUniform1uiv(glGetUniformLocation(shader.id, name), count, v);
 }
 
-void shader_set_1fv(GLuint id, char* name, GLsizei count, GLfloat* v)
+void shader_set_1fv(Shader shader, char* name, GLsizei count, GLfloat* v)
 {
-    glUniform1fv(glGetUniformLocation(id, name), count, v);
+    glUniform1fv(glGetUniformLocation(shader.id, name), count, v);
 }
 
-void shader_set_2iv(GLuint id, char* name, GLsizei count, GLint* v)
+void shader_set_2iv(Shader shader, char* name, GLsizei count, GLint* v)
 {
-    glUniform2iv(glGetUniformLocation(id, name), count, v);
+    glUniform2iv(glGetUniformLocation(shader.id, name), count, v);
 }
 
-void shader_set_2uiv(GLuint id, char* name, GLsizei count, GLuint* v)
+void shader_set_2uiv(Shader shader, char* name, GLsizei count, GLuint* v)
 {
-    glUniform2uiv(glGetUniformLocation(id, name), count, v);
+    glUniform2uiv(glGetUniformLocation(shader.id, name), count, v);
 }
 
-void shader_set_2fv(GLuint id, char* name, GLsizei count, GLfloat* v)
+void shader_set_2fv(Shader shader, char* name, GLsizei count, GLfloat* v)
 {
-    glUniform2fv(glGetUniformLocation(id, name), count, v);
+    glUniform2fv(glGetUniformLocation(shader.id, name), count, v);
 }
 
-void shader_set_3iv(GLuint id, char* name, GLsizei count, GLint* v)
+void shader_set_3iv(Shader shader, char* name, GLsizei count, GLint* v)
 {
-    glUniform3iv(glGetUniformLocation(id, name), count, v);
+    glUniform3iv(glGetUniformLocation(shader.id, name), count, v);
 }
 
-void shader_set_3uiv(GLuint id, char* name, GLsizei count, GLuint* v)
+void shader_set_3uiv(Shader shader, char* name, GLsizei count, GLuint* v)
 {
-    glUniform3uiv(glGetUniformLocation(id, name), count, v);
+    glUniform3uiv(glGetUniformLocation(shader.id, name), count, v);
 }
 
-void shader_set_3fv(GLuint id, char* name, GLsizei count, GLfloat* v)
+void shader_set_3fv(Shader shader, char* name, GLsizei count, GLfloat* v)
 {
-    glUniform3fv(glGetUniformLocation(id, name), count, v);
+    glUniform3fv(glGetUniformLocation(shader.id, name), count, v);
 }
 
-void shader_set_4iv(GLuint id, char* name, GLsizei count, GLint* v)
+void shader_set_4iv(Shader shader, char* name, GLsizei count, GLint* v)
 {
-    glUniform4iv(glGetUniformLocation(id, name), count, v);
+    glUniform4iv(glGetUniformLocation(shader.id, name), count, v);
 }
 
-void shader_set_4uiv(GLuint id, char* name, GLsizei count, GLuint* v)
+void shader_set_4uiv(Shader shader, char* name, GLsizei count, GLuint* v)
 {
-    glUniform4uiv(glGetUniformLocation(id, name), count, v);
+    glUniform4uiv(glGetUniformLocation(shader.id, name), count, v);
 }
 
-void shader_set_4fv(GLuint id, char* name, GLsizei count, GLfloat* v)
+void shader_set_4fv(Shader shader, char* name, GLsizei count, GLfloat* v)
 {
-    glUniform4fv(glGetUniformLocation(id, name), count, v);
+    glUniform4fv(glGetUniformLocation(shader.id, name), count, v);
 }
 
-void shader_set_m2fv(GLuint id, char* name, GLsizei count, GLfloat* m)
+void shader_set_m2(Shader shader, char* name, GLsizei count, GLfloat* m)
 {
-    glUniformMatrix2fv(glGetUniformLocation(id, name), count, 0, m);
+    glUniformMatrix2fv(glGetUniformLocation(shader.id, name), count, 0, m);
 }
 
-void shader_set_m3fv(GLuint id, char* name, GLsizei count, GLfloat* m)
+void shader_set_m3(Shader shader, char* name, GLsizei count, GLfloat* m)
 {
-    glUniformMatrix3fv(glGetUniformLocation(id, name), count, 0, m);
+    glUniformMatrix3fv(glGetUniformLocation(shader.id, name), count, 0, m);
 }
 
-void shader_set_m4fv(GLuint id, char* name, GLsizei count, GLfloat* m)
+void shader_set_m4(Shader shader, char* name, GLsizei count, GLfloat* m)
 {
-    glUniformMatrix4fv(glGetUniformLocation(id, name), count, 0, m);
+    glUniformMatrix4fv(glGetUniformLocation(shader.id, name), count, 0, m);
 }
 
-void shader_set_m2x3fv(GLuint id, char* name, GLsizei count, GLfloat* m)
+void shader_set_m2x3(Shader shader, char* name, GLsizei count, GLfloat* m)
 {
-    glUniformMatrix2x3fv(glGetUniformLocation(id, name), count, 0, m);
+    glUniformMatrix2x3fv(glGetUniformLocation(shader.id, name), count, 0, m);
 }
 
-void shader_set_m3x2fv(GLuint id, char* name, GLsizei count, GLfloat* m)
+void shader_set_m3x2(Shader shader, char* name, GLsizei count, GLfloat* m)
 {
-    glUniformMatrix3x2fv(glGetUniformLocation(id, name), count, 0, m);
+    glUniformMatrix3x2fv(glGetUniformLocation(shader.id, name), count, 0, m);
 }
 
-void shader_set_m2x4fv(GLuint id, char* name, GLsizei count, GLfloat* m)
+void shader_set_m2x4(Shader shader, char* name, GLsizei count, GLfloat* m)
 {
-    glUniformMatrix2x4fv(glGetUniformLocation(id, name), count, 0, m);
+    glUniformMatrix2x4fv(glGetUniformLocation(shader.id, name), count, 0, m);
 }
 
-void shader_set_m4x2fv(GLuint id, char* name, GLsizei count, GLfloat* m)
+void shader_set_m4x2(Shader shader, char* name, GLsizei count, GLfloat* m)
 {
-    glUniformMatrix4x2fv(glGetUniformLocation(id, name), count, 0, m);
+    glUniformMatrix4x2fv(glGetUniformLocation(shader.id, name), count, 0, m);
 }
 
-void shader_set_m3x4fv(GLuint id, char* name, GLsizei count, GLfloat* m)
+void shader_set_m3x4(Shader shader, char* name, GLsizei count, GLfloat* m)
 {
-    glUniformMatrix3x4fv(glGetUniformLocation(id, name), count, 0, m);
+    glUniformMatrix3x4fv(glGetUniformLocation(shader.id, name), count, 0, m);
 }
 
-void shader_set_m4x3fv(GLuint id, char* name, GLsizei count, GLfloat* m)
+void shader_set_m4x3(Shader shader, char* name, GLsizei count, GLfloat* m)
 {
-    glUniformMatrix4x3fv(glGetUniformLocation(id, name), count, 0, m);
+    glUniformMatrix4x3fv(glGetUniformLocation(shader.id, name), count, 0, m);
 }
