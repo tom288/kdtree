@@ -2,9 +2,9 @@
 
 #include "shader.c"
 
-GLuint shader_init(char* vertex, char* fragment, char* geometry);
-void shader_use(GLuint id);
-void shader_kill(GLuint id);
+Shader shader_init(char* vertex, char* fragment, char* geometry);
+void shader_use(Shader id);
+void shader_kill(Shader* id);
 void shader_set_1i(GLuint id, char* name, GLint n);
 void shader_set_1ui(GLuint id, char* name, GLuint n);
 void shader_set_1f(GLuint id, char* name, GLfloat n);

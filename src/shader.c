@@ -1,7 +1,12 @@
 #define GLEW_STATIC
 #include <GL/glew.h>
 #include <stdio.h>
-#include <stdlib.h> // For exit, calloc, free
+#include <stdlib.h> // For calloc, free
+
+typedef struct Shader {
+    GLuint id;
+    GLint ok;
+} Shader;
 
 // Print any shader compilation or linking errors, return whether errors exist
 GLint compile_error(GLuint id, int is_program, char* path)
@@ -37,7 +42,7 @@ GLint compile_error(GLuint id, int is_program, char* path)
     return !ok;
 }
 
-// Compile the shader file and return its ID
+// Compile the shader file and return its ID, or 0 in the event of an error
 GLuint compile(char* path, GLenum type)
 {
     // Read file at path into buffer (https://stackoverflow.com/a/3747128)
@@ -46,7 +51,7 @@ GLuint compile(char* path, GLenum type)
     {
         fprintf(stderr, "Failed to fopen ");
         perror(path);
-        exit(1);
+        return 0;
     }
 
     // Record size of file content
@@ -59,7 +64,7 @@ GLuint compile(char* path, GLenum type)
     if (!buffer) {
         fclose(file);
         fprintf(stderr, "Failed to calloc for %s buffer\n", path);
-        exit(1);
+        return 0;
     }
 
     // Copy the file content into the buffer
@@ -67,7 +72,7 @@ GLuint compile(char* path, GLenum type)
         fclose(file);
         free(buffer);
         fprintf(stderr, "Failed to fread for %s\n", path);
-        exit(1);
+        return 0;
     }
 
     fclose(file);
@@ -76,18 +81,25 @@ GLuint compile(char* path, GLenum type)
     glShaderSource(id, 1, (const GLchar**)&buffer, NULL);
     glCompileShader(id);
     if (compile_error(id, 0, path)) {
-        exit(1);   
+        id = 0;
     }
 
     // Free the memory containing the file content
     free(buffer);
-    
+
     // Return the shader ID so that we may use it in a shader program
     return id;
 }
 
+void shader_kill(Shader* shader)
+{
+    // glDeleteProgram(shader.id);
+    shader->id = 0;
+    shader->ok = 0;
+}
+
 // Create a shader program from 2 or 3 input files
-GLuint shader_init(char* vertex, char* fragment, char* geometry)
+Shader shader_init(char* vertex, char* fragment, char* geometry)
 {
     GLuint vert = compile(vertex, GL_VERTEX_SHADER);
     GLuint frag = compile(fragment, GL_FRAGMENT_SHADER);
@@ -95,33 +107,36 @@ GLuint shader_init(char* vertex, char* fragment, char* geometry)
         ? compile(geometry, GL_GEOMETRY_SHADER)
         : 0;
 
-    // Create shader program
-    GLuint id = glCreateProgram();
-    glAttachShader(id, vert);
-    glAttachShader(id, frag);
-    if (geom) glAttachShader(id, geom);
+    Shader shader = {
+        .id = 0,
+        .ok = vert && frag && (!geometry || !*geometry || geom),
+    };
 
-    glLinkProgram(id);
-    if (compile_error(id, 1, vertex)) {
-        exit(1);   
+    if (shader.ok) {
+        // Create shader program
+        shader.id = glCreateProgram();
+        glAttachShader(shader.id, vert);
+        glAttachShader(shader.id, frag);
+        if (geom) glAttachShader(shader.id, geom);
+        glLinkProgram(shader.id);
     }
 
-    // The shaders are now linked to the program and so can be deleted
+    // The shaders are linked to the program and so can now be deleted
+    // Values of 0 are silently ignored, so there's no need to check
     glDeleteShader(vert);
     glDeleteShader(frag);
-    if (geom) glDeleteShader(geom);
+    glDeleteShader(geom);
 
-    return id;
+    if (shader.ok && compile_error(shader.id, 1, vertex)) {
+        shader_kill(&shader);
+    }
+
+    return shader;
 }
 
-void shader_use(GLuint id)
+void shader_use(Shader shader)
 {
-    glUseProgram(id);
-}
-
-void shader_kill(GLuint id)
-{
-    glDeleteProgram(id);
+    glUseProgram(shader.id);
 }
 
 void shader_set_1i(GLuint id, char* name, GLint n)
@@ -208,7 +223,7 @@ void shader_set_2uiv(GLuint id, char* name, GLsizei count, GLuint* v)
 {
     glUniform2uiv(glGetUniformLocation(id, name), count, v);
 }
- 
+
 void shader_set_2fv(GLuint id, char* name, GLsizei count, GLfloat* v)
 {
     glUniform2fv(glGetUniformLocation(id, name), count, v);
@@ -223,7 +238,7 @@ void shader_set_3uiv(GLuint id, char* name, GLsizei count, GLuint* v)
 {
     glUniform3uiv(glGetUniformLocation(id, name), count, v);
 }
- 
+
 void shader_set_3fv(GLuint id, char* name, GLsizei count, GLfloat* v)
 {
     glUniform3fv(glGetUniformLocation(id, name), count, v);
@@ -238,7 +253,7 @@ void shader_set_4uiv(GLuint id, char* name, GLsizei count, GLuint* v)
 {
     glUniform4uiv(glGetUniformLocation(id, name), count, v);
 }
- 
+
 void shader_set_4fv(GLuint id, char* name, GLsizei count, GLfloat* v)
 {
     glUniform4fv(glGetUniformLocation(id, name), count, v);

@@ -5,7 +5,8 @@
 int main(int argc, char *argv[])
 {
     window_init();
-    GLuint shader = shader_init("src/glsl/colour.vert", "src/glsl/colour.frag", "");
+    Shader shader = shader_init("src/glsl/colour.vert", "src/glsl/colour.frag", "");
+    if (!shader.ok) return 1;
     shader_use(shader);
     rectangle_init();
 
@@ -20,7 +21,7 @@ int main(int argc, char *argv[])
     }
 
     rectangle_kill();
-    shader_kill(shader);
+    shader_kill(&shader);
     window_kill();
 
     return 0;
