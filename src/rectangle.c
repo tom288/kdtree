@@ -40,7 +40,7 @@ Rectangle rectangle_init(Shader shader)
     glBindBuffer(GL_ARRAY_BUFFER, rect.vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-    Component components[] = {
+    const Component components[] = {
         {
             .name = "position",
             .size = 2,
@@ -53,7 +53,7 @@ Rectangle rectangle_init(Shader shader)
         },
     };
 
-    size_t component_count = sizeof(components) / sizeof(Component);
+    const size_t component_count = sizeof(components) / sizeof(Component);
 
     rect.numbers_per_vertex = 0;
     for (size_t i = 0; i < component_count; i++)
@@ -67,8 +67,8 @@ Rectangle rectangle_init(Shader shader)
 
     for (size_t i = 0; i < component_count; i++)
     {
-        Component c = components[i];
-        GLint index = glGetAttribLocation(shader.id, c.name);
+        const Component c = components[i];
+        const GLint index = glGetAttribLocation(shader.id, c.name);
         if (index == -1)
         {
             fprintf(stderr, "Failed to find %s in shader\n", c.name);
