@@ -25,11 +25,13 @@ size_t gl_sizeof(GLenum type)
 			return sizeof(GLfixed);
 		case GL_HALF_FLOAT:
 			return sizeof(GLhalf);
+        case BYTE_GAP:
+            return 1;
         default:
             fprintf(stderr, "gl_sizeof unknown type with value %X\n", type);
 	}
 
-	return 1;
+	return 0;
 }
 
 // Check for an OpenGL runtime error

@@ -5,6 +5,60 @@
 #include <stdio.h>
 #include <stdlib.h> // free
 
+void init_attr(Shader shader, Component comp, Graph graph, unsigned char* first)
+{
+    const GLboolean force_cast_to_float = GL_FALSE;
+    const GLboolean normalise_fixed_point_values = GL_FALSE;
+
+    const GLint index = glGetAttribLocation(shader.id, comp.name);
+    if (index == -1)
+    {
+        fprintf(stderr, "Failed to find %s in shader\n", comp.name);
+    }
+
+    glEnableVertexAttribArray(index);
+    switch (comp.type) {
+        case GL_BYTE:
+        case GL_UNSIGNED_BYTE:
+        case GL_SHORT:
+        case GL_UNSIGNED_SHORT:
+        case GL_INT:
+        case GL_UNSIGNED_INT:
+            if (!force_cast_to_float)
+            {
+                glVertexAttribIPointer(
+                    index,
+                    comp.size,
+                    comp.type,
+                    graph.stride,
+                    first
+                );
+                break;
+            }
+        case GL_DOUBLE:
+            if (!force_cast_to_float)
+            {
+                glVertexAttribLPointer(
+                    index,
+                    comp.size,
+                    comp.type,
+                    graph.stride,
+                    first
+                );
+                break;
+            }
+        default:
+            glVertexAttribPointer(
+                index,
+                comp.size,
+                comp.type,
+                normalise_fixed_point_values,
+                graph.stride,
+                first
+            );
+    }
+}
+
 void graph_kill(Graph* graph)
 {
     glDeleteVertexArrays(1, &graph->vao);
@@ -46,9 +100,6 @@ Graph graph_init
         graph.stride += component.size * gl_sizeof(component.type);
     }
 
-    const GLboolean force_cast_to_float = GL_FALSE;
-    const GLboolean normalise_fixed_point_values = GL_FALSE;
-
     unsigned char* first = 0;
     GLboolean error = GL_FALSE;
 
@@ -56,57 +107,9 @@ Graph graph_init
     {
         const Component component = components[i];
 
-        // If we were to add a component type which only counts towards stride
-        // and advances first, e.g. GL_NONE, then we must assign it some kind of
-        // size inside gl_sizeof. Additionally we need to check for it here
-        // and if it exists then add to first and continue.
-
-        const GLint index = glGetAttribLocation(shader.id, component.name);
-        if (index == -1)
+        if (component.type != BYTE_GAP)
         {
-            fprintf(stderr, "Failed to find %s in shader\n", component.name);
-            error = GL_TRUE;
-        }
-        glEnableVertexAttribArray(index);
-        switch (component.type) {
-            case GL_BYTE:
-            case GL_UNSIGNED_BYTE:
-            case GL_SHORT:
-            case GL_UNSIGNED_SHORT:
-            case GL_INT:
-            case GL_UNSIGNED_INT:
-                if (!force_cast_to_float)
-                {
-                    glVertexAttribIPointer(
-                        index,
-                        component.size,
-                        component.type,
-                        graph.stride,
-                        first
-                    );
-                    break;
-                }
-            case GL_DOUBLE:
-                if (!force_cast_to_float)
-                {
-                    glVertexAttribLPointer(
-                        index,
-                        component.size,
-                        component.type,
-                        graph.stride,
-                        first
-                    );
-                    break;
-                }
-            default:
-                glVertexAttribPointer(
-                    index,
-                    component.size,
-                    component.type,
-                    normalise_fixed_point_values,
-                    graph.stride,
-                    first
-                );
+            init_attr(shader, component, graph, first);
         }
 
         first += component.size * gl_sizeof(component.type);
