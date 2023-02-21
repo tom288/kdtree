@@ -3,42 +3,54 @@
 #include "utility.h"
 #include <GL/glew.h>
 #include <stdio.h>
+#include <stdlib.h> // malloc, free
+#include <string.h> // memcpy
 
 typedef struct Component {
     char* name;
-    GLint size;
+    size_t size;
     GLenum type;
     GLboolean normalised;
 } Component;
 
-float vertices[] = {
-    -0.5f, -0.5f,  0.0f,  0.0f,  1.0f,
-     0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-    -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-
-     0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
-    -0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
-     0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-};
-
 void rectangle_kill(Rectangle* rect)
 {
     glDeleteVertexArrays(1, &rect->vao);
-    glDeleteBuffers(1, &rect->vbo);
     rect->vao = 0;
+    glDeleteBuffers(1, &rect->vbo);
     rect->vbo = 0;
-    rect->numbers_per_vertex = 0;
+    rect->vertices_size = 0;
+    free(rect->vertices);
+    rect->vertices = NULL;
+    rect->stride = 0;
 }
 
 Rectangle rectangle_init(Shader shader)
 {
     Rectangle rect;
+
+    const float vertices[] = {
+        -0.5f, -0.5f,  0.0f,  0.0f,  1.0f,
+         0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+        -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+
+         0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+        -0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+         0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+    };
+
+    rect.vertices_size = sizeof(vertices);
+    rect.vertices = malloc(rect.vertices_size);
+    memcpy(rect.vertices, vertices, sizeof(vertices));
+
     glGenVertexArrays(1, &rect.vao);
     glGenBuffers(1, &rect.vbo);
     glBindVertexArray(rect.vao);
 
+    const GLenum usage = GL_STATIC_DRAW;
+
     glBindBuffer(GL_ARRAY_BUFFER, rect.vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, rect.vertices_size, rect.vertices, usage);
 
     const Component components[] = {
         {
@@ -55,16 +67,16 @@ Rectangle rectangle_init(Shader shader)
 
     const size_t component_count = sizeof(components) / sizeof(Component);
 
-    rect.numbers_per_vertex = 0;
+    size_t numbers_per_vertex = 0;
     for (size_t i = 0; i < component_count; i++)
     {
-        rect.numbers_per_vertex += components[i].size;
+        numbers_per_vertex += components[i].size;
     }
+    rect.stride = numbers_per_vertex * sizeof(rect.vertices[0]);
 
     const GLboolean force_cast_to_float = GL_FALSE;
     const GLboolean normalise_fixed_point_values = GL_FALSE;
 
-    const GLsizei stride = rect.numbers_per_vertex * sizeof(vertices[0]);
     unsigned char* first = 0;
     GLboolean error = GL_FALSE;
 
@@ -89,13 +101,25 @@ Rectangle rectangle_init(Shader shader)
             case GL_UNSIGNED_INT:
                 if (!force_cast_to_float)
                 {
-                    glVertexAttribIPointer(index, c.size, c.type, stride, first);
+                    glVertexAttribIPointer(
+                        index,
+                        c.size,
+                        c.type,
+                        rect.stride,
+                        first
+                    );
                     break;
                 }
             case GL_DOUBLE:
                 if (!force_cast_to_float)
                 {
-                    glVertexAttribLPointer(index, c.size, c.type, stride, first);
+                    glVertexAttribLPointer(
+                        index,
+                        c.size,
+                        c.type,
+                        rect.stride,
+                        first
+                    );
                     break;
                 }
             default:
@@ -104,12 +128,12 @@ Rectangle rectangle_init(Shader shader)
                     c.size,
                     c.type,
                     normalise_fixed_point_values,
-                    stride,
+                    rect.stride,
                     first
                 );
         }
 
-        first += c.size * sizeof(vertices[0]);
+        first += c.size * sizeof(rect.vertices[0]);
     }
 
     glEnableVertexAttribArray(0);
@@ -126,8 +150,8 @@ Rectangle rectangle_init(Shader shader)
 
 void rectangle_draw(Rectangle rect)
 {
-    if (!rect.vao) return;
+    if (!rect.vao || !rect.vertices_size || !rect.stride) return;
     glBindVertexArray(rect.vao);
-    glDrawArrays(GL_TRIANGLES, 0, sizeof(vertices) / sizeof(vertices[0]) / rect.numbers_per_vertex);
+    glDrawArrays(GL_TRIANGLES, 0, rect.vertices_size / rect.stride);
     glBindVertexArray(0);
 }

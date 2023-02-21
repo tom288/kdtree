@@ -5,7 +5,9 @@
 typedef struct Rectangle {
     GLuint vao;
     GLuint vbo;
-    GLint numbers_per_vertex;
+    size_t vertices_size;
+    float* vertices;
+    size_t stride;
 } Rectangle;
 
 Rectangle rectangle_init(Shader shader);
