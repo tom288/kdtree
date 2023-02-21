@@ -25,8 +25,6 @@ size_t gl_sizeof(GLenum type)
 			return sizeof(GLfixed);
 		case GL_HALF_FLOAT:
 			return sizeof(GLhalf);
-        case BYTE_GAP:
-            return 1;
         default:
             fprintf(stderr, "gl_sizeof unknown type with value %X\n", type);
 	}

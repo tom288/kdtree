@@ -107,7 +107,8 @@ Graph graph_init
     {
         const Component component = components[i];
 
-        if (component.type != BYTE_GAP)
+        // Skip nameless components, allowing them to act as gaps
+        if (component.name && *component.name)
         {
             init_attr(shader, component, graph, first);
         }
