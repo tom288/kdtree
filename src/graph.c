@@ -28,6 +28,7 @@ Graph graph_init
     Graph graph = {
         .vertices_size = vertices_size,
         .vertices = vertices,
+        .stride = 0,
     };
 
     glGenVertexArrays(1, &graph.vao);
@@ -39,12 +40,11 @@ Graph graph_init
     glBindBuffer(GL_ARRAY_BUFFER, graph.vbo);
     glBufferData(GL_ARRAY_BUFFER, graph.vertices_size, graph.vertices, usage);
 
-    size_t numbers_per_vertex = 0;
     for (size_t i = 0; i < component_count; i++)
     {
-        numbers_per_vertex += components[i].size;
+        Component component = components[i];
+        graph.stride += component.size * gl_sizeof(component.type);
     }
-    graph.stride = numbers_per_vertex * sizeof(graph.vertices[0]);
 
     const GLboolean force_cast_to_float = GL_FALSE;
     const GLboolean normalise_fixed_point_values = GL_FALSE;
@@ -54,17 +54,21 @@ Graph graph_init
 
     for (size_t i = 0; i < component_count; i++)
     {
-        const Component c = components[i];
-        const GLint index = glGetAttribLocation(shader.id, c.name);
+        const Component component = components[i];
+
+        // If we were to add a component type which only counts towards stride
+        // and advances first, e.g. GL_NONE, then we must assign it some kind of
+        // size inside gl_sizeof. Additionally we need to check for it here
+        // and if it exists then add to first and continue.
+
+        const GLint index = glGetAttribLocation(shader.id, component.name);
         if (index == -1)
         {
-            fprintf(stderr, "Failed to find %s in shader\n", c.name);
+            fprintf(stderr, "Failed to find %s in shader\n", component.name);
             error = GL_TRUE;
         }
         glEnableVertexAttribArray(index);
-        switch (c.type) {
-            case GL_NONE:
-                break;
+        switch (component.type) {
             case GL_BYTE:
             case GL_UNSIGNED_BYTE:
             case GL_SHORT:
@@ -75,8 +79,8 @@ Graph graph_init
                 {
                     glVertexAttribIPointer(
                         index,
-                        c.size,
-                        c.type,
+                        component.size,
+                        component.type,
                         graph.stride,
                         first
                     );
@@ -87,8 +91,8 @@ Graph graph_init
                 {
                     glVertexAttribLPointer(
                         index,
-                        c.size,
-                        c.type,
+                        component.size,
+                        component.type,
                         graph.stride,
                         first
                     );
@@ -97,15 +101,15 @@ Graph graph_init
             default:
                 glVertexAttribPointer(
                     index,
-                    c.size,
-                    c.type,
+                    component.size,
+                    component.type,
                     normalise_fixed_point_values,
                     graph.stride,
                     first
                 );
         }
 
-        first += c.size * sizeof(graph.vertices[0]);
+        first += component.size * gl_sizeof(component.type);
     }
 
     glEnableVertexAttribArray(0);

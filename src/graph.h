@@ -6,7 +6,7 @@ typedef struct Graph {
     GLuint vao;
     GLuint vbo;
     size_t vertices_size;
-    float* vertices;
+    void* vertices;
     size_t stride;
 } Graph;
 

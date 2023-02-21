@@ -1,6 +1,37 @@
 #include "utility.h"
 #include <stdio.h>
 
+// Get size in bytes of type described by OpenGL enum
+size_t gl_sizeof(GLenum type)
+{
+	switch(type)
+	{
+		case GL_BYTE:
+		case GL_UNSIGNED_BYTE:
+			return sizeof(GLbyte);
+		case GL_SHORT:
+		case GL_UNSIGNED_SHORT:
+			return sizeof(GLshort);
+		case GL_INT_2_10_10_10_REV:
+		case GL_INT:
+		case GL_UNSIGNED_INT_2_10_10_10_REV:
+		case GL_UNSIGNED_INT:
+			return sizeof(GLint);
+		case GL_FLOAT:
+			return sizeof(GLfloat);
+		case GL_DOUBLE:
+			return sizeof(GLdouble);
+		case GL_FIXED:
+			return sizeof(GLfixed);
+		case GL_HALF_FLOAT:
+			return sizeof(GLhalf);
+        default:
+            fprintf(stderr, "gl_sizeof unknown type with value %X\n", type);
+	}
+
+	return 1;
+}
+
 // Check for an OpenGL runtime error
 GLenum _gl_error(char* file, int line)
 {
