@@ -61,6 +61,9 @@ Rectangle rectangle_init(Shader shader)
         rect.numbers_per_vertex += components[i].size;
     }
 
+    const GLboolean force_cast_to_float = GL_FALSE;
+    const GLboolean normalise_fixed_point_values = GL_FALSE;
+
     const GLsizei stride = rect.numbers_per_vertex * sizeof(vertices[0]);
     unsigned char* first = 0;
     GLboolean error = GL_FALSE;
@@ -76,19 +79,34 @@ Rectangle rectangle_init(Shader shader)
         }
         glEnableVertexAttribArray(index);
         switch (c.type) {
+            case GL_NONE:
+                break;
             case GL_BYTE:
             case GL_UNSIGNED_BYTE:
             case GL_SHORT:
             case GL_UNSIGNED_SHORT:
             case GL_INT:
             case GL_UNSIGNED_INT:
-                glVertexAttribIPointer(index, c.size, c.type, stride, first);
-                break;
+                if (!force_cast_to_float)
+                {
+                    glVertexAttribIPointer(index, c.size, c.type, stride, first);
+                    break;
+                }
             case GL_DOUBLE:
-                glVertexAttribLPointer(index, c.size, c.type, stride, first);
-                break;
+                if (!force_cast_to_float)
+                {
+                    glVertexAttribLPointer(index, c.size, c.type, stride, first);
+                    break;
+                }
             default:
-                glVertexAttribPointer(index, c.size, c.type, GL_FALSE, stride, first);
+                glVertexAttribPointer(
+                    index,
+                    c.size,
+                    c.type,
+                    normalise_fixed_point_values,
+                    stride,
+                    first
+                );
         }
 
         first += c.size * sizeof(vertices[0]);
