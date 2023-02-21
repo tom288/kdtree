@@ -15,7 +15,7 @@ int main(int argc, char* argv[])
     }
 
     Rectangle rect = rectangle_init(shader);
-    if (!rect.vao)
+    if (!rectangle_ok(rect))
     {
         shader_kill(&shader);
         window_kill(win);

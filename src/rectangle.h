@@ -1,15 +1,13 @@
 #pragma once
 
 #include "shader.h"
+#include "graph.h"
 
 typedef struct Rectangle {
-    GLuint vao;
-    GLuint vbo;
-    size_t vertices_size;
-    float* vertices;
-    size_t stride;
+    Graph graph;
 } Rectangle;
 
 Rectangle rectangle_init(Shader shader);
+GLboolean rectangle_ok(Rectangle rect);
 void rectangle_draw(Rectangle rect);
 void rectangle_kill(Rectangle* rect);
