@@ -7,7 +7,7 @@ call common.cmd
 
 if %errorlevel% == 0 (
     : Do not print launching
-    copy >NUL "%glew%\bin\Release\x64\glew32.dll" %target_path%
+    echo n | copy >NUL /-y "%glew%\bin\Release\x64\glew32.dll" %target_path%
     : Do not launch
     echo CLOSING...
 ) else ( pause )

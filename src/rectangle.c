@@ -75,7 +75,22 @@ Rectangle rectangle_init(Shader shader)
             error = GL_TRUE;
         }
         glEnableVertexAttribArray(index);
-        glVertexAttribPointer(index, c.size, c.type, GL_FALSE, stride, first);
+        switch (c.type) {
+            case GL_BYTE:
+            case GL_UNSIGNED_BYTE:
+            case GL_SHORT:
+            case GL_UNSIGNED_SHORT:
+            case GL_INT:
+            case GL_UNSIGNED_INT:
+                glVertexAttribIPointer(index, c.size, c.type, stride, first);
+                break;
+            case GL_DOUBLE:
+                glVertexAttribLPointer(index, c.size, c.type, stride, first);
+                break;
+            default:
+                glVertexAttribPointer(index, c.size, c.type, GL_FALSE, stride, first);
+        }
+
         first += c.size * sizeof(vertices[0]);
     }
 

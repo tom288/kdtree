@@ -16,9 +16,9 @@ float interp_iter(float t, float a, float b)
 {
     float t_inv = 1.0 - t;
     return (
-        3.0 * t *     t_inv * t_inv * a +
-        3.0 * t * t * t_inv *         b +
-              t * t * t
+        t *     t_inv * t_inv * a * 3.0 +
+        t * t * t_inv *         b * 3.0 +
+        t * t * t
     );
 }
 
