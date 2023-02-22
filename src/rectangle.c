@@ -15,7 +15,7 @@ Rectangle rectangle_init(Shader shader)
     };
 
     const size_t vertices_size = sizeof(const_vertices);
-    float* vertices = malloc(vertices_size);
+    float* const vertices = malloc(vertices_size);
     memcpy(vertices, const_vertices, vertices_size);
 
     Attribute attributes[] = {

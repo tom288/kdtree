@@ -22,3 +22,5 @@ GLboolean rand_bool();
 float rand_float();
 
 void rand_vec3(vec3* v);
+
+float bias_float(float f, float towards, float strength);
