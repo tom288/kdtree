@@ -74,8 +74,9 @@ Use `build.sh` to build and run in debug mode
 
 ## Next Steps
 
-- Create a struct for the tree
-- Render a tree
+- Include some useful data types like vector, queue, stack
+- Refactor KDTree to use these data types
 - Support multiple VBOs in Graph
 - Add Graph functions to free and reassign vertices
 - Check malloc return values
+- Support some form of camera movement
