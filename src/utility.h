@@ -2,6 +2,7 @@
 
 #define GLEW_STATIC
 #include <GL/glew.h>
+#include <cglm/cglm.h>
 
 // See gl_error for the single intended use of this function
 GLboolean _gl_error(char* file, int line);
@@ -15,3 +16,9 @@ GLboolean _gl_error(char* file, int line);
 /// @param type
 /// @return Size in bytes
 size_t gl_sizeof(GLenum type);
+
+GLboolean rand_bool();
+
+float rand_float();
+
+void rand_vec3(vec3* v);

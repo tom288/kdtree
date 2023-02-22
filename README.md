@@ -78,3 +78,4 @@ Use `build.sh` to build and run in debug mode
 - Render a tree
 - Support multiple VBOs in Graph
 - Add Graph functions to free and reassign vertices
+- Check malloc return values

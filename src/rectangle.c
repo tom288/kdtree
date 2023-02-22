@@ -4,7 +4,7 @@
 
 Rectangle rectangle_init(Shader shader)
 {
-    const float vertices[] = {
+    const float const_vertices[] = {
         -0.5f, -0.5f,  0.0f,  0.0f,  1.0f,
          0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
         -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
@@ -14,11 +14,11 @@ Rectangle rectangle_init(Shader shader)
          0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
     };
 
-    const size_t vertices_size = sizeof(vertices);
-    float* graph_vertices = malloc(vertices_size);
-    memcpy(graph_vertices, vertices, vertices_size);
+    const size_t vertices_size = sizeof(const_vertices);
+    float* vertices = malloc(vertices_size);
+    memcpy(vertices, const_vertices, vertices_size);
 
-    Component components[] = {
+    Attribute attributes[] = {
         {
             .name = "position",
             .size = 2,
@@ -31,15 +31,15 @@ Rectangle rectangle_init(Shader shader)
         },
     };
 
-    const size_t component_count = sizeof(components) / sizeof(Component);
+    const size_t attribute_count = sizeof(attributes) / sizeof(Attribute);
 
     return (Rectangle) {
         .graph = graph_init(
             shader,
             vertices_size,
-            graph_vertices,
-            component_count,
-            components
+            vertices,
+            attribute_count,
+            attributes
         ),
     };
 }

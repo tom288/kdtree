@@ -10,20 +10,20 @@ typedef struct Graph {
     size_t stride;
 } Graph;
 
-typedef struct Component {
+typedef struct Attribute {
     char* name;
     size_t size;
     GLenum type;
     GLboolean normalised;
-} Component;
+} Attribute;
 
 Graph graph_init
 (
     Shader shader,
     size_t vertices_size,
     float* vertices,
-    size_t component_count,
-    Component components[]
+    size_t attribute_count,
+    Attribute attributes[]
 );
 GLboolean graph_ok(Graph graph);
 void graph_draw(Graph graph);

@@ -1,5 +1,6 @@
 #include "utility.h"
 #include <stdio.h>
+#include <stdlib.h> // RAND_MAX
 
 // In the event where type is not a recognised case we print its hexadecimal
 // value as defined in glew.h, rather than the macro string itself.
@@ -77,4 +78,22 @@ GLboolean _gl_error(char* file, int line)
         fprintf(stderr, "OpenGL %s @ %s (%d)\n", error, file, line);
     }
     return !!error_code;
+}
+
+GLboolean rand_bool()
+{
+    return rand() > RAND_MAX / 2;
+}
+
+float rand_float()
+{
+    return (float)rand() / (float)RAND_MAX;
+}
+
+void rand_vec3(vec3 *v)
+{
+    for (size_t i = 0; i < 3; i++)
+    {
+        (*v)[i] = rand_float();
+    }
 }

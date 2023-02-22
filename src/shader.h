@@ -3,19 +3,29 @@
 #define GLEW_STATIC
 #include <GL/glew.h>
 
+/// @brief Shader program object. Create using shader_init.
 typedef struct Shader {
+    /// @brief Shader program ID
     GLuint id;
+    /// @brief Whether the shader is fit for use
     GLboolean ok;
 } Shader;
 
-/// @brief Create a shader program from 2 or 3 input files
+/// @brief Assemble a shader program from 2 or 3 input files
 /// @param vertex Path from project root to vertex shader file
 /// @param fragment Path from project root to fragment shader file
 /// @param geometry Optional path from project root to geometry shader file
 /// @return Shader created from input files
 Shader shader_init(char* vertex, char* fragment, char* geometry);
+
+/// @brief Install the shader, using it in future draw operations
+/// @param shader Shader to instal
 void shader_use(Shader shader);
+
+/// @brief Destroy the shader, preventing any future uses
+/// @param shader Shader being destroyed
 void shader_kill(Shader* shader);
+
 GLboolean shader_set_1i(Shader shader, char* name, GLint n);
 GLboolean shader_set_1ui(Shader shader, char* name, GLuint n);
 GLboolean shader_set_1f(Shader shader, char* name, GLfloat n);

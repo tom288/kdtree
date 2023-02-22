@@ -5,19 +5,20 @@
 #include <stdio.h>
 #include <stdlib.h> // free
 
-void init_attr(Shader shader, Component comp, Graph graph, unsigned char* first)
+void init_attr(Shader shader, Attribute attr, Graph graph, unsigned char* first)
 {
     const GLboolean force_cast_to_float = GL_FALSE;
     const GLboolean normalise_fixed_point_values = GL_FALSE;
 
-    const GLint index = glGetAttribLocation(shader.id, comp.name);
+    const GLint index = glGetAttribLocation(shader.id, attr.name);
     if (index == -1)
     {
-        fprintf(stderr, "Failed to find %s in shader\n", comp.name);
+        fprintf(stderr, "Failed to find %s in shader\n", attr.name);
     }
 
     glEnableVertexAttribArray(index);
-    switch (comp.type) {
+    switch (attr.type)
+    {
         case GL_BYTE:
         case GL_UNSIGNED_BYTE:
         case GL_SHORT:
@@ -28,8 +29,8 @@ void init_attr(Shader shader, Component comp, Graph graph, unsigned char* first)
             {
                 glVertexAttribIPointer(
                     index,
-                    comp.size,
-                    comp.type,
+                    attr.size,
+                    attr.type,
                     graph.stride,
                     first
                 );
@@ -40,8 +41,8 @@ void init_attr(Shader shader, Component comp, Graph graph, unsigned char* first)
             {
                 glVertexAttribLPointer(
                     index,
-                    comp.size,
-                    comp.type,
+                    attr.size,
+                    attr.type,
                     graph.stride,
                     first
                 );
@@ -50,8 +51,8 @@ void init_attr(Shader shader, Component comp, Graph graph, unsigned char* first)
         default:
             glVertexAttribPointer(
                 index,
-                comp.size,
-                comp.type,
+                attr.size,
+                attr.type,
                 normalise_fixed_point_values,
                 graph.stride,
                 first
@@ -76,8 +77,8 @@ Graph graph_init
     Shader shader,
     size_t vertices_size,
     float* vertices,
-    size_t component_count,
-    Component components[]
+    size_t attribute_count,
+    Attribute attributes[]
 ) {
     Graph graph = {
         .vertices_size = vertices_size,
@@ -94,26 +95,26 @@ Graph graph_init
     glBindBuffer(GL_ARRAY_BUFFER, graph.vbo);
     glBufferData(GL_ARRAY_BUFFER, graph.vertices_size, graph.vertices, usage);
 
-    for (size_t i = 0; i < component_count; i++)
+    for (size_t i = 0; i < attribute_count; ++i)
     {
-        Component component = components[i];
-        graph.stride += component.size * gl_sizeof(component.type);
+        Attribute attribute = attributes[i];
+        graph.stride += attribute.size * gl_sizeof(attribute.type);
     }
 
     unsigned char* first = 0;
     GLboolean error = GL_FALSE;
 
-    for (size_t i = 0; i < component_count; i++)
+    for (size_t i = 0; i < attribute_count; ++i)
     {
-        const Component component = components[i];
+        const Attribute attribute = attributes[i];
 
-        // Skip nameless components, allowing them to act as gaps
-        if (component.name && *component.name)
+        // Skip nameless attributes, allowing them to act as gaps
+        if (attribute.name && *attribute.name)
         {
-            init_attr(shader, component, graph, first);
+            init_attr(shader, attribute, graph, first);
         }
 
-        first += component.size * gl_sizeof(component.type);
+        first += attribute.size * gl_sizeof(attribute.type);
     }
 
     glEnableVertexAttribArray(0);

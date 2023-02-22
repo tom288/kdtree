@@ -2,7 +2,11 @@
 #include <stdio.h>
 #include <stdlib.h> // calloc, free
 
-// Print any shader compilation or linking errors, return whether errors exist
+// The term 'shader' is ambiguous. It could refer to a single shader file such
+// as a vertex shader named *.vert or a fragment shader named *.frag, but it
+// could also refer to the whole shader program which is formed by compiling
+// and linking these shader source files. This file encapsulates all the work
+// done using shader source files, and exposes shader program functionality.
 
 /// @brief Print any shader compilation or linking errors
 /// @param id Shader id or shader program id
@@ -97,6 +101,7 @@ GLuint compile(char* path, GLenum type)
     return id;
 }
 
+// A shader or shader program ID of 0 is silently ignored by OpenGL
 void shader_kill(Shader* shader)
 {
     glDeleteProgram(shader->id);
@@ -104,6 +109,7 @@ void shader_kill(Shader* shader)
     shader->ok = GL_FALSE;
 }
 
+// The geometry path is made optional by having checks for values NULL and ""
 Shader shader_init(char* vertex, char* fragment, char* geometry)
 {
     const GLuint vert = compile(vertex, GL_VERTEX_SHADER);
@@ -143,6 +149,7 @@ Shader shader_init(char* vertex, char* fragment, char* geometry)
     return shader;
 }
 
+// See https://docs.gl/gl3/glUseProgram for details on errors and mutation
 void shader_use(Shader shader)
 {
     glUseProgram(shader.id);
