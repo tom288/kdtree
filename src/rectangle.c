@@ -33,7 +33,7 @@ Rectangle rectangle_init(Shader shader)
 
     const size_t component_count = sizeof(components) / sizeof(Component);
 
-    Rectangle rect = {
+    return (Rectangle) {
         .graph = graph_init(
             shader,
             vertices_size,
@@ -42,8 +42,6 @@ Rectangle rectangle_init(Shader shader)
             components
         ),
     };
-
-    return rect;
 }
 
 GLboolean rectangle_ok(const Rectangle rect) { return graph_ok(rect.graph); }

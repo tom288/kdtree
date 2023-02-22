@@ -3,6 +3,12 @@
 #include <stdlib.h> // calloc, free
 
 // Print any shader compilation or linking errors, return whether errors exist
+
+/// @brief Print any shader compilation or linking errors
+/// @param id Shader id or shader program id
+/// @param is_program Whether the id is of a shader program
+/// @param path Path from project root to shader file (.frag for programs)
+/// @return Whether an error occurred
 GLint compile_error(GLuint id, int is_program, char* path)
 {
     const GLsizei max_length = 1024;
@@ -36,7 +42,10 @@ GLint compile_error(GLuint id, int is_program, char* path)
     return !ok;
 }
 
-// Compile the shader file and return its ID, or 0 in the event of an error
+/// @brief Compile a shader file
+/// @param path Path from project root to shader file
+/// @param type Shader type
+/// @return ID of shader created, or 0 in the event of an error
 GLuint compile(char* path, GLenum type)
 {
     // Read file at path into buffer (https://stackoverflow.com/a/3747128)
@@ -95,7 +104,6 @@ void shader_kill(Shader* shader)
     shader->ok = GL_FALSE;
 }
 
-// Create a shader program from 2 or 3 input files
 Shader shader_init(char* vertex, char* fragment, char* geometry)
 {
     const GLuint vert = compile(vertex, GL_VERTEX_SHADER);
@@ -119,13 +127,15 @@ Shader shader_init(char* vertex, char* fragment, char* geometry)
         glLinkProgram(shader.id);
     }
 
-    // The shaders are linked to the program and so can now be deleted
-    // Values of 0 are silently ignored, so there's no need to check
+    // The shaders are linked to the program and so can now be deleted.
+    // Values of 0 are silently ignored, so there's no need to check.
     glDeleteShader(vert);
     glDeleteShader(frag);
     glDeleteShader(geom);
 
-    if (shader.ok && compile_error(shader.id, 1, vertex))
+    // For program linking errors lets print the fragment shader path,
+    // as this shader is likely to have the highest specificity
+    if (shader.ok && compile_error(shader.id, 1, fragment))
     {
         shader_kill(&shader);
     }

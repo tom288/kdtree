@@ -8,6 +8,11 @@ typedef struct Shader {
     GLboolean ok;
 } Shader;
 
+/// @brief Create a shader program from 2 or 3 input files
+/// @param vertex Path from project root to vertex shader file
+/// @param fragment Path from project root to fragment shader file
+/// @param geometry Optional path from project root to geometry shader file
+/// @return Shader created from input files
 Shader shader_init(char* vertex, char* fragment, char* geometry);
 void shader_use(Shader shader);
 void shader_kill(Shader* shader);

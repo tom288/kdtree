@@ -1,10 +1,11 @@
 #include "utility.h"
 #include <stdio.h>
 
-// Get size in bytes of type described by OpenGL enum
+// In the event where type is not a recognised case we print its hexadecimal
+// value as defined in glew.h, rather than the macro string itself.
 size_t gl_sizeof(GLenum type)
 {
-	switch(type)
+	switch (type)
 	{
 		case GL_BYTE:
 		case GL_UNSIGNED_BYTE:
@@ -26,14 +27,15 @@ size_t gl_sizeof(GLenum type)
 		case GL_HALF_FLOAT:
 			return sizeof(GLhalf);
         default:
-            fprintf(stderr, "gl_sizeof unknown type with value %X\n", type);
+            fprintf(stderr, "gl_sizeof unknown type with value 0x%X\n", type);
 	}
 
+    // Zero is likely to make error cases fatal, but by returning a safer value
+    // like 4 we'd be making these cases impossible to programmatically detect.
 	return 0;
 }
 
-// Check for an OpenGL runtime error
-GLenum _gl_error(char* file, int line)
+GLboolean _gl_error(char* file, int line)
 {
     GLenum error_code;
     while ((error_code = glGetError()) != GL_NO_ERROR)
@@ -63,8 +65,14 @@ GLenum _gl_error(char* file, int line)
                 error = "INVALID_FRAMEBUFFER_OPERATION";
                 break;
             default:
-                error = "UNKNOWN ERROR";
-                break;
+                fprintf (
+                    stderr,
+                    "OpenGL unrecognised error 0x%X @ %s (%d)\n",
+                    error_code,
+                    file,
+                    line
+                );
+                return GL_TRUE;
         }
         fprintf(stderr, "OpenGL %s @ %s (%d)\n", error, file, line);
     }
