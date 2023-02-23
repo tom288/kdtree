@@ -5,16 +5,15 @@
 #include <stdio.h>
 #include <stdlib.h> // free
 
-void init_attr(Shader shader, Attribute attr, Graph graph, unsigned char* first)
+/// @brief Inform OpenGL about our attribute
+/// @param index Attribute index corresponding to graph args or shader location
+/// @param attr Attribute information
+/// @param stride The stride used in the graph VBO
+/// @param first Pointer offset for the first value of this attribute
+void init_attr(GLint index, Attribute attr, size_t stride, unsigned char* first)
 {
     const GLboolean force_cast_to_float = GL_FALSE;
     const GLboolean normalise_fixed_point_values = GL_FALSE;
-
-    const GLint index = glGetAttribLocation(shader.id, attr.name);
-    if (index == -1)
-    {
-        fprintf(stderr, "Failed to find %s in shader\n", attr.name);
-    }
 
     glEnableVertexAttribArray(index);
     switch (attr.type)
@@ -31,7 +30,7 @@ void init_attr(Shader shader, Attribute attr, Graph graph, unsigned char* first)
                     index,
                     attr.size,
                     attr.type,
-                    graph.stride,
+                    stride,
                     first
                 );
                 break;
@@ -43,7 +42,7 @@ void init_attr(Shader shader, Attribute attr, Graph graph, unsigned char* first)
                     index,
                     attr.size,
                     attr.type,
-                    graph.stride,
+                    stride,
                     first
                 );
                 break;
@@ -54,7 +53,7 @@ void init_attr(Shader shader, Attribute attr, Graph graph, unsigned char* first)
                 attr.size,
                 attr.type,
                 normalise_fixed_point_values,
-                graph.stride,
+                stride,
                 first
             );
     }
@@ -74,7 +73,7 @@ void graph_kill(Graph* graph)
 
 Graph graph_init
 (
-    Shader shader,
+    Shader* shader,
     size_t vertices_size,
     float* vertices,
     size_t attribute_count,
@@ -103,18 +102,35 @@ Graph graph_init
 
     unsigned char* first = 0;
     GLboolean error = GL_FALSE;
+    size_t location_index = 0;
 
-    for (size_t i = 0; i < attribute_count; ++i)
+    for (size_t attr_index = 0; attr_index < attribute_count; ++attr_index)
     {
-        const Attribute attribute = attributes[i];
+        const Attribute attr = attributes[attr_index];
 
         // Skip nameless attributes, allowing them to act as gaps
-        if (attribute.name && *attribute.name)
+        if (attr.name && *attr.name)
         {
-            init_attr(shader, attribute, graph, first);
+            // If shader is NULL then use location indicies instead
+            GLint index = location_index++;
+
+            if (shader)
+            {
+                GLint name_index = glGetAttribLocation(shader->id, attr.name);
+                if (name_index == -1)
+                {
+                    fprintf(stderr, "Failed to find %s in shader\n", attr.name);
+                }
+                else
+                {
+                    index = name_index;
+                }
+            }
+
+            init_attr(index, attr, graph.stride, first);
         }
 
-        first += attribute.size * gl_sizeof(attribute.type);
+        first += attr.size * gl_sizeof(attr.type);
     }
 
     glEnableVertexAttribArray(0);

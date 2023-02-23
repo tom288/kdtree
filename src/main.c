@@ -14,7 +14,7 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    KDTree tree = kdtree_init(shader);
+    KDTree tree = kdtree_init(&shader);
     if (!kdtree_ok(tree))
     {
         shader_kill(&shader);

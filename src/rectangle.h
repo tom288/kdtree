@@ -7,7 +7,7 @@ typedef struct Rectangle {
     Graph graph;
 } Rectangle;
 
-Rectangle rectangle_init(Shader shader);
+Rectangle rectangle_init(Shader* shader);
 GLboolean rectangle_ok(Rectangle rect);
 void rectangle_draw(Rectangle rect);
 void rectangle_kill(Rectangle* rect);

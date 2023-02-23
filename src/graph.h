@@ -19,7 +19,7 @@ typedef struct Attribute {
 
 Graph graph_init
 (
-    Shader shader,
+    Shader* shader,
     size_t vertices_size,
     float* vertices,
     size_t attribute_count,

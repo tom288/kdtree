@@ -2,7 +2,7 @@
 #include <stdlib.h> // malloc
 #include <string.h> // memcpy
 
-Rectangle rectangle_init(Shader shader)
+Rectangle rectangle_init(Shader* shader)
 {
     const float const_vertices[] = {
         -0.5f, -0.5f,  0.0f,  0.0f,  1.0f,

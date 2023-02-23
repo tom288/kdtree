@@ -14,7 +14,7 @@ typedef struct Node {
     struct Node* children[2];
 } Node;
 
-KDTree kdtree_init(Shader shader)
+KDTree kdtree_init(Shader* shader)
 {
     // Seed the random number generator
     srand(time(NULL));
