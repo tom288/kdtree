@@ -39,7 +39,6 @@ KDTree kdtree_init(Shader* shader)
         .children = { NULL, NULL },
     };
 
-
     // Find a random child with value NULL
     // Assign a node to this child
     // Update the number of leaves

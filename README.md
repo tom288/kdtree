@@ -80,3 +80,7 @@ Use `build.sh` to build and run in debug mode
 - Add Graph functions to free and reassign vertices
 - Check malloc return values
 - Support some form of camera movement
+- Add EBO support to graph, or determine why this is a bad idea
+- Let Graph accept vertex buffer updates
+- Let Graph draw a variable number of points / tris / rects
+- Add position and size parameters to rectangle_init

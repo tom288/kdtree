@@ -19,7 +19,6 @@ typedef struct Attribute {
     GLboolean normalised;
 } Attribute;
 
-
 /// @brief Upload and label vertex data so that it can be used by the GPU
 /// @param shader Shader object to use for finding name positions, or NULL
 /// @param vertices_size Size of vertex buffer data in bytes
