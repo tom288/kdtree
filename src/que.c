@@ -1,4 +1,4 @@
-int n = 0;
+extern int WIP;
 
 /*
 // que_block_size_type = unsigned short int
