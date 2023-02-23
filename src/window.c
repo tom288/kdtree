@@ -83,13 +83,18 @@ Window* window_init()
     const GLboolean show_cursor = GL_TRUE;
     const GLboolean raw_input = GL_FALSE;
     const GLboolean cull_faces = GL_FALSE;
+    const GLboolean test_depth = GL_FALSE;
+    const GLboolean clear_buffers = GL_TRUE;
     const GLboolean vertical_sync = GL_TRUE;
 
     Window* const window = malloc(sizeof(Window));
     *window = (Window) {
         .win = NULL,
         .ok = GL_FALSE,
-        .test_depth = GL_FALSE,
+        .clear_mask = clear_buffers * (
+            GL_DEPTH_BUFFER_BIT * test_depth |
+            GL_COLOR_BUFFER_BIT
+        ),
     };
 
     if (!window_count && !glfwInit())
@@ -133,9 +138,9 @@ Window* window_init()
     }
     // This call to glfwSetWindowUserPointer allow us to use the whole window
     // struct in event callbacks, instead of just the GLFWwindow* win pointer.
-    // This line is why we pass window as a pointer, since otherwise these
-    // callbacks would reference memory of an old Window that could be freed at
-    // any time, and which is likely to hold outdated state.
+    // This line is why we pass window around as a pointer, since otherwise
+    // these callbacks would reference memory of an old Window that could be
+    // freed at any time, and which is likely to hold outdated state anyway.
     glfwSetWindowUserPointer(window->win, window);
     glfwSetKeyCallback(window->win, key_callback);
     glfwSetMouseButtonCallback(window->win, mouse_button_callback);
@@ -145,7 +150,7 @@ Window* window_init()
 
     // Configure triangle visibility
     if (cull_faces) glEnable(GL_CULL_FACE);
-    if (window->test_depth) glEnable(GL_DEPTH_TEST);
+    if (test_depth) glEnable(GL_DEPTH_TEST);
 
     // Configure additional window properties
     if (!vertical_sync) glfwSwapInterval(0);
@@ -181,5 +186,5 @@ GLboolean window_ok(Window* window)
 void window_swap(Window* window)
 {
     glfwSwapBuffers(window->win);
-    glClear(GL_COLOR_BUFFER_BIT | window->test_depth * GL_DEPTH_BUFFER_BIT);
+    if (window->clear_mask) glClear(window->clear_mask);
 }

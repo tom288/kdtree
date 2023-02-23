@@ -7,7 +7,7 @@
 typedef struct Window {
     GLFWwindow* win;
     GLboolean ok;
-    GLboolean test_depth;
+    GLbitfield clear_mask;
 } Window;
 
 Window* window_init();
