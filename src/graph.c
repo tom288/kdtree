@@ -7,7 +7,7 @@
 
 /// @brief Inform OpenGL about our attribute
 /// @param index Attribute index corresponding to graph args or shader location
-/// @param attr Attribute information
+/// @param attr Attribute
 /// @param stride The stride used in the graph VBO
 /// @param first Pointer offset for the first value of this attribute
 void init_attr(GLint index, Attribute attr, size_t stride, unsigned char* first)
@@ -59,6 +59,61 @@ void init_attr(GLint index, Attribute attr, size_t stride, unsigned char* first)
     }
 }
 
+/// @brief Inform OpenGL about every attribute
+/// @param attr_count Number of attributes
+/// @param attributes Attributes
+/// @param stride Pointer to the graph stride for the graph VBO
+/// @param shader Shader to query for attribute names, or NULL for positions
+/// @return Whether an error occurred
+GLboolean init_attrs
+(
+    size_t attr_count,
+    Attribute attributes[],
+    size_t* stride,
+    Shader* shader
+) {
+    for (size_t i = 0; i < attr_count; ++i)
+    {
+        Attribute attribute = attributes[i];
+        *stride += attribute.size * gl_sizeof(attribute.type);
+    }
+
+    unsigned char* first = 0;
+    size_t location_index = 0;
+
+    for (size_t attr_index = 0; attr_index < attr_count; ++attr_index)
+    {
+        const Attribute attr = attributes[attr_index];
+
+        // Skip nameless attributes, allowing them to act as gaps
+        if (attr.name && *attr.name)
+        {
+            // If shader is NULL then use location indicies instead
+            GLint index = location_index++;
+
+            if (shader)
+            {
+                GLint name_index = glGetAttribLocation(shader->id, attr.name);
+                if (name_index == -1)
+                {
+                    fprintf(stderr, "Failed to find %s in shader\n", attr.name);
+                    return GL_TRUE;
+                }
+                else
+                {
+                    index = name_index;
+                }
+            }
+
+            init_attr(index, attr, *stride, first);
+        }
+
+        first += attr.size * gl_sizeof(attr.type);
+    }
+
+    return GL_FALSE;
+}
+
 void graph_kill(Graph* graph)
 {
     glDeleteVertexArrays(1, &graph->vao);
@@ -76,7 +131,7 @@ Graph graph_init
     Shader* shader,
     size_t vertices_size,
     float* vertices,
-    size_t attribute_count,
+    size_t attr_count,
     Attribute attributes[]
 ) {
     Graph graph = {
@@ -94,44 +149,7 @@ Graph graph_init
     glBindBuffer(GL_ARRAY_BUFFER, graph.vbo);
     glBufferData(GL_ARRAY_BUFFER, graph.vertices_size, graph.vertices, usage);
 
-    for (size_t i = 0; i < attribute_count; ++i)
-    {
-        Attribute attribute = attributes[i];
-        graph.stride += attribute.size * gl_sizeof(attribute.type);
-    }
-
-    unsigned char* first = 0;
-    GLboolean error = GL_FALSE;
-    size_t location_index = 0;
-
-    for (size_t attr_index = 0; attr_index < attribute_count; ++attr_index)
-    {
-        const Attribute attr = attributes[attr_index];
-
-        // Skip nameless attributes, allowing them to act as gaps
-        if (attr.name && *attr.name)
-        {
-            // If shader is NULL then use location indicies instead
-            GLint index = location_index++;
-
-            if (shader)
-            {
-                GLint name_index = glGetAttribLocation(shader->id, attr.name);
-                if (name_index == -1)
-                {
-                    fprintf(stderr, "Failed to find %s in shader\n", attr.name);
-                }
-                else
-                {
-                    index = name_index;
-                }
-            }
-
-            init_attr(index, attr, graph.stride, first);
-        }
-
-        first += attr.size * gl_sizeof(attr.type);
-    }
+    GLboolean error = init_attrs(attr_count, attributes, &graph.stride, shader);
 
     glEnableVertexAttribArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
