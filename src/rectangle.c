@@ -38,6 +38,8 @@ Rectangle rectangle_init(Shader* shader)
             shader,
             vertices_size,
             vertices,
+            0,
+            NULL,
             attribute_count,
             attributes
         ),

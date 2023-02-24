@@ -6,8 +6,11 @@
 typedef struct Graph {
     GLuint vao;
     GLuint vbo;
+    GLuint ebo;
     size_t vertices_size;
     void* vertices;
+    size_t indices_size;
+    GLuint* indices;
     size_t stride;
 } Graph;
 
@@ -30,7 +33,9 @@ Graph graph_init
 (
     Shader* shader,
     size_t vertices_size,
-    float* vertices,
+    void* vertices,
+    size_t indices_size,
+    GLuint* indices,
     size_t attribute_count,
     Attribute attributes[]
 );

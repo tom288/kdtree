@@ -74,8 +74,8 @@ GLboolean init_attrs
 ) {
     for (size_t i = 0; i < attr_count; ++i)
     {
-        Attribute attribute = attributes[i];
-        *stride += attribute.size * gl_sizeof(attribute.type);
+        Attribute attr = attributes[i];
+        *stride += attr.size * gl_sizeof(attr.type);
     }
 
     unsigned char* first = 0;
@@ -120,17 +120,24 @@ void graph_kill(Graph* graph)
     graph->vao = 0;
     glDeleteBuffers(1, &graph->vbo);
     graph->vbo = 0;
+    glDeleteBuffers(1, &graph->ebo);
+    graph->ebo = 0;
     graph->vertices_size = 0;
     free(graph->vertices);
     graph->vertices = NULL;
     graph->stride = 0;
+    graph->indices_size = 0;
+    free(graph->indices);
+    graph->indices = NULL;
 }
 
 Graph graph_init
 (
     Shader* shader,
     size_t vertices_size,
-    float* vertices,
+    void* vertices,
+    size_t indices_size,
+    GLuint* indices,
     size_t attr_count,
     Attribute attributes[]
 ) {
@@ -138,16 +145,30 @@ Graph graph_init
         .vertices_size = vertices_size,
         .vertices = vertices,
         .stride = 0,
+        .indices_size = indices_size,
+        .indices = indices,
     };
 
     glGenVertexArrays(1, &graph.vao);
-    glGenBuffers(1, &graph.vbo);
     glBindVertexArray(graph.vao);
 
     const GLenum usage = GL_STATIC_DRAW;
 
+    glGenBuffers(1, &graph.vbo);
     glBindBuffer(GL_ARRAY_BUFFER, graph.vbo);
     glBufferData(GL_ARRAY_BUFFER, graph.vertices_size, graph.vertices, usage);
+
+    if (graph.indices_size && graph.indices)
+    {
+        glGenBuffers(1, &graph.ebo);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, graph.ebo);
+        glBufferData(
+            GL_ELEMENT_ARRAY_BUFFER,
+            graph.indices_size,
+            graph.indices,
+            usage
+        );
+    }
 
     GLboolean error = init_attrs(attr_count, attributes, &graph.stride, shader);
 
@@ -172,6 +193,15 @@ void graph_draw(Graph graph)
 {
     if (!graph_ok(graph)) return;
     glBindVertexArray(graph.vao);
-    glDrawArrays(GL_TRIANGLES, 0, graph.vertices_size / graph.stride);
+    if (graph.indices_size && graph.indices)
+    {
+        const GLenum index_type = GL_UNSIGNED_INT;
+        const size_t num_indices = graph.indices_size / gl_sizeof(index_type);
+        glDrawElements(GL_TRIANGLES, num_indices, index_type, 0);
+    }
+    else
+    {
+        glDrawArrays(GL_TRIANGLES, 0, graph.vertices_size / graph.stride);
+    }
     glBindVertexArray(0);
 }
