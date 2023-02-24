@@ -1,18 +1,8 @@
 #include "kdtree.h"
 #include "utility.h"
-#include <cglm/cglm.h>
 #include <stdlib.h> // malloc
 #include <string.h> // memcpy
 #include <time.h> // time
-
-typedef struct Node {
-    vec3 colour;
-    vec2 min_corner;
-    vec2 size;
-    GLboolean split_axis;
-    float split;
-    struct Node* children[2];
-} Node;
 
 KDTree kdtree_init(Shader* shader)
 {
@@ -20,7 +10,7 @@ KDTree kdtree_init(Shader* shader)
     srand(time(NULL));
 
     // Allocate enough room to draw max_leaves nodes
-    const size_t max_leaves = 1000;
+    const size_t max_leaves = 1 << 10;
     const size_t rect_vertices = 6;
     const size_t vertex_floats = 5;
     const size_t rectangle_floats = rect_vertices * vertex_floats;
