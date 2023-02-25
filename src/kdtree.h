@@ -6,6 +6,7 @@
 
 typedef struct KDTree {
     Graph graph;
+    GLboolean ok;
 } KDTree;
 
 typedef struct Node {

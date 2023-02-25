@@ -16,10 +16,24 @@ KDTree kdtree_init(Shader* shader)
     const size_t rectangle_floats = rect_vertices * vertex_floats;
     const size_t vertices_size = max_leaves * rectangle_floats * sizeof(float);
     float* const vertices = malloc(vertices_size);
+    if (!vertices)
+    {
+        fprintf(stderr, "Failed to malloc for KDTree vertices\n");
+        return (KDTree) {
+            .ok = GL_FALSE,
+        };
+    }
 
-    // Define the head of the k-d tree
-    // The head is never
+    // Define the head of the k-d tree, which is never a leaf, so no colour
     Node* const head = malloc(sizeof(Node));
+    if (!head)
+    {
+        fprintf(stderr, "Failed to malloc for KDTree head\n");
+        free(vertices);
+        return (KDTree) {
+            .ok = GL_FALSE,
+        };
+    }
     *head = (Node) {
         .colour = { 0.0f },
         .min_corner = { -1.0f, -1.0f },
@@ -28,6 +42,8 @@ KDTree kdtree_init(Shader* shader)
         .split = rand_float(),
         .children = { NULL, NULL },
     };
+
+    GLboolean ok = GL_TRUE;
 
     // Find a random child with value NULL
     // Assign a node to this child
@@ -43,6 +59,12 @@ KDTree kdtree_init(Shader* shader)
         }
 
         Node* const leaf = malloc(sizeof(Node));
+        if (!leaf)
+        {
+            fprintf(stderr, "Failed to malloc for KDTree leaf\n");
+            ok = GL_FALSE;
+            break;
+        }
         node->children[child_index] = leaf;
 
         *leaf = (Node) {
@@ -84,7 +106,7 @@ KDTree kdtree_init(Shader* shader)
     // Find a leaf
     // Add it to the buffer of vertices
     // Free the memory allocated for the leaf
-    for (size_t leaves = 0; leaves < max_leaves;) // We increment conditionally
+    for (size_t leaves = 0; ok && leaves < max_leaves;) // We ++ conditionally
     {
         Node* leaf = head;
         Node* parent = NULL;
@@ -155,7 +177,15 @@ KDTree kdtree_init(Shader* shader)
 
         free(leaf);
         if (!parent) break; // There is no longer a head
-        parent->children[child_index] = 0;
+        parent->children[child_index] = NULL;
+    }
+
+    if (!ok)
+    {
+        free(vertices);
+        return (KDTree) {
+            .ok = GL_FALSE,
+        };
     }
 
     Attribute attributes[] = {
@@ -183,11 +213,23 @@ KDTree kdtree_init(Shader* shader)
             attribute_count,
             attributes
         ),
+        .ok = GL_TRUE,
     };
 }
 
-GLboolean kdtree_ok(const KDTree tree) { return graph_ok(tree.graph); }
+GLboolean kdtree_ok(const KDTree tree)
+{
+    return tree.ok && graph_ok(tree.graph);
+}
 
-void kdtree_draw(const KDTree tree) { graph_draw(tree.graph); }
+void kdtree_draw(const KDTree tree)
+{
+    if (!tree.ok) return;
+    graph_draw(tree.graph);
+}
 
-void kdtree_kill(KDTree* tree) { graph_kill(&tree->graph); }
+void kdtree_kill(KDTree* tree)
+{
+    if (!tree->ok) return;
+    graph_kill(&tree->graph);
+}
