@@ -6,6 +6,10 @@
 int main(int argc, char* argv[])
 {
     Window* win = window_init();
+    if (!win)
+    {
+        return 1;
+    }
 
     Shader shader = shader_init("src/glsl/colour.vert", "src/glsl/colour.frag", "");
     if (!shader.ok)

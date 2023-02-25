@@ -88,6 +88,13 @@ Window* window_init()
     const GLboolean vertical_sync = GL_TRUE;
 
     Window* const window = malloc(sizeof(Window));
+
+    if (!window)
+    {
+        fprintf(stderr, "Failed to malloc for Window\n");
+        return NULL;
+    }
+
     *window = (Window) {
         .win = NULL,
         .ok = GL_FALSE,
@@ -179,12 +186,14 @@ Window* window_init()
 GLboolean window_ok(Window* window)
 {
     glfwPollEvents();
+    if (!window) return GL_FALSE;
     window->ok &= window->win && !glfwWindowShouldClose(window->win);
     return window->ok;
 }
 
 void window_swap(Window* window)
 {
+    if (!window) return;
     glfwSwapBuffers(window->win);
     if (window->clear_mask) glClear(window->clear_mask);
 }

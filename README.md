@@ -78,7 +78,6 @@ Use `build.sh` to build and run in debug mode
 - Refactor KDTree to use these data types
 - Support multiple VBOs in Graph
 - Add Graph functions to free and reassign vertices
-- Check malloc return values
 - Support some form of camera movement
 - Let Graph accept vertex buffer updates
 - Let Graph draw a variable number of points / tris / rects
