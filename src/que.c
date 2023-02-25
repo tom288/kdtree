@@ -1,118 +1,111 @@
 extern int WIP;
 
 /*
+#include "kdtree.h"
+
 // que_block_size_type = unsigned short int
-unsigned short int que_block_size = 10 // 1000 // 8 KB
+const size_t que_block_size = 10; // 1000 // 8 KB
 
 // ---
 
-unsigned short int que_block_endIndex = que_block_size - 1
+const size_t que_block_endIndex = que_block_size - 1;
 
-# the "que_block" class
-# Stores a block of nodes, used in the "que" class below.
+// the "que_block" class
+// Stores a block of nodes, used in the "que" class below.
 
-typedef struct que_block_struct
+typedef struct QueueBlock {
+	Node* block;
+	QueueBlock* prev; // towards the front of the que, the front is where items pop off
+	QueueBlock* next; // towards the back of the que, the back is where items are pushed
+} QueueBlock;
+
+QueueBlock* que_block()
 {
-	Node* block[que_block_size];
-	que_block* prev; // towards the front of the que, the front is where items pop off
-	que_block* next; // towards the back of the que, the back is where items are pushed
-} que_block;
-
-que_block_struct* que_block()
-{
-	que_struct result;
-	result.block = malloc(sizeof(Node*) * que_block_size);
-	result.prev = malloc(sizeof(que_block_struct*));
-	result.next = malloc(sizeof(que_block_struct*));
+	QueueBlock* result = malloc(sizeof(QueueBlock));
+	result->block = malloc(que_block_size * sizeof(Node*));
+	result->prev = NULL;
+	result->next = NULL;
 	return result;
 }
 
-# ---
+// the "que" class
+// It's a que of nodes implemented with a linked list,
+// to improve efficiency the nodes are stored in blocks.
 
-# the "que" class
-# It's a que of nodes implemented with a linked list,
-# to improve efficency the nodes are stored in blocks.
-
-void que_push(que_struct* self, Node* item)
+void que_push(Queue* self, Node* item)
 {
-	(&self).back_index++;
-	if ((&self).back_index > que_block_endIndex) // if the que is full
-												 // (if back_index overflows then change to "== 0")
-	{
-		(&self).back[back_index] = item; // append the new item
-		que_block* new_block = *que_block(); // the que gets a new block (another que_block_size items)
-		(&((&self).back)).next = new_block; // link up the linked list correctly
-		new_block.prev = (&self).back; // link up the linked list correctly
-		&((&self).back) = new_block; // the back of the que is now the new block
-		(&self).back_index = 0; // start at the start of the new block
+	self->back_index++;
+	if (self->back_index > que_block_endIndex) // if the que is full
+	{ // (if back_index overflows then change to "== 0")
+		self->back[self->back_index] = item; // append the new item
+		QueueBlock* new_block = que_block(); // the que gets a new block (another que_block_size items)
+		self->back->next = new_block; // link up the linked list correctly
+		new_block->prev = self->back; // link up the linked list correctly
+		self->back = new_block; // the back of the que is now the new block
+		self->back_index = 0; // start at the start of the new block
 	}
 }
 
-Node* que_pop(que_struct* self, que_block* self)
+Node* que_pop(Queue* self)
 {
-	item = (&self.front)[front_index]; // the item to pop
-	if (
-		((&((&self).front)).next == null) &&
-		((&self).front_index == back_index)
-		) {return null} // que is empty, same code as que_isEmpty()
-	(&self).front_index++;
-	if ((&self).front_index > que_block_endIndex) // if the front block of the que is empty
-	                                              // (if front_index overflows then change to "== 0")
+	Node* item = self->front[self->front_index]; // the item to pop
+	if (self->front->next == NULL && self->front_index == self->back_index)
 	{
-		if (&((&self).front)).next == null) {return null}
-		else {
-			que_block* front_old = (&self).front
-			(&self).front = &((&self).front).next; // the new front of the que
-			del front_old; // is it (del &front_old)?
-			&(self).front.prev = null;
-			(&self).back_index = 0; // start at the start of the block
+		return NULL; // que is empty, same code as que_isEmpty()
+	}
+	self->front_index++;
+	if (self->front_index > que_block_endIndex) // if the front block of the que is empty
+	{ // (if front_index overflows then change to "== 0")
+		if (self->front->next == NULL)
+		{
+			return NULL;
 		}
+
+		QueueBlock* front_old = self->front;
+		self->front = self->front->next; // the new front of the que
+		free(front_old);
+		self->front->prev = NULL;
+		self->back_index = 0; // start at the start of the block
 	}
-	return item
+	return item;
 }
 
-bool que_isEmpty(que_struct* self)
+GLboolean que_isEmpty(Queue* self)
 {
-	if (
-		((&((&self).front)).next == null) &&
-		((&self).front_index == back_index)
-		) {
-		return true
-	}
-	return false
+	return self->front->next == NULL && self->front_index == self->back_index;
 }
 
-bool que_isBug(que_struct* self)
+GLboolean que_isBug(Queue* self)
 {
 	// type/format is wrong
-	if (((&self).front == null) || ((&self).back == null) ||
-	if (((&self).push == null) || ((&self).pop == null) ||
-		((&self).isBug == null) || ((&self).isEmpty == null)
-		) {return true}
-
-	// inconsistant linking between blocks
 	if (
-		((&((&self).front)).next == null) &&
-		((&((&self).prev)).prev != null)
-		) {return true}
-	else if (
-		((&((&self).front)).next != null) &&
-		((&((&self).prev)).prev == null)
-		) else {return true}
+		self->front == NULL || self->back == NULL || self->push == NULL ||
+		self->pop == NULL || self->isBug == NULL || self->isEmpty == NULL
+	) {
+		return GL_TRUE;
+	}
+
+	// inconsistent linking between blocks
+	if ((self->front->next == NULL) != (self->back->prev == NULL))
+	{
+		return GL_TRUE;
+	}
 
 	// object confused
-	if (
-		((&((&self).front)).next == null) &&
-		((&self).front_index > (&self).back_index)
-		) {return true} // start is after the end
-	return false
+	if (self->front->next == NULL && self->front_index > self->back_index)
+	{
+		// start is after the end
+		return GL_TRUE;
+	}
+
+	return GL_FALSE;
 }
 
 // items pushed onto the back, and they pop off at the front
-typedef struct que_struct
+typedef struct Queue
 {
-	que_block* front;
-	que_block* back;
+	QueueBlock* front;
+	QueueBlock* back;
 	unsigned short int front_index; // item returned last time pop was used
 	unsigned short int back_index; // most recently pushed item
 	func* push;
@@ -121,18 +114,18 @@ typedef struct que_struct
 
 	// extra stuff
 	func* isEmpty;
-} que_struct;
+} Queue;
 
-que_struct* que()
+Queue* que()
 {
-	que_struct* result;
-	result.front = malloc(sizeof(que_block*));
-	result.back = result.front;
-	result.front_index = 0;
-	result.back_index = 0;
-	result.push = &que_push;
-	result.pop = &que_pop;
-	result.isEmpty = &que_isEmpty;
+	Queue* result = malloc(sizeof(Queue));
+	result->front = malloc(sizeof(QueueBlock));
+	result->back = result->front;
+	result->front_index = 0;
+	result->back_index = 0;
+	result->push = &que_push;
+	result->pop = &que_pop;
+	result->isEmpty = &que_isEmpty;
 	return result;
 }
 */
