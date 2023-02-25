@@ -1,4 +1,5 @@
 /.vscode/
-/.vs/
 /target/
+/libs/
 /custom.cmd
+/kdtree.code-workspace
