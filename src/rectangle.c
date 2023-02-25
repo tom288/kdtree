@@ -1,6 +1,7 @@
 #include "rectangle.h"
 #include <stdlib.h> // malloc
 #include <string.h> // memcpy
+#include <stdio.h> // memcpy
 
 Rectangle rectangle_init(Shader* shader)
 {
@@ -16,6 +17,15 @@ Rectangle rectangle_init(Shader* shader)
 
     const size_t vertices_size = sizeof(const_vertices);
     float* const vertices = malloc(vertices_size);
+
+    if (!vertices)
+    {
+        fprintf(stderr, "Failed to malloc for Rectangle vertices\n");
+        return (Rectangle) {
+            .ok = GL_FALSE,
+        };
+    }
+
     memcpy(vertices, const_vertices, vertices_size);
 
     Attribute attributes[] = {
@@ -43,11 +53,23 @@ Rectangle rectangle_init(Shader* shader)
             attribute_count,
             attributes
         ),
+        .ok = GL_TRUE,
     };
 }
 
-GLboolean rectangle_ok(const Rectangle rect) { return graph_ok(rect.graph); }
+GLboolean rectangle_ok(const Rectangle rect)
+{
+    return rect.ok && graph_ok(rect.graph);
+}
 
-void rectangle_draw(const Rectangle rect) { graph_draw(rect.graph); }
+void rectangle_draw(const Rectangle rect)
+{
+    if (!rect.ok) return;
+    graph_draw(rect.graph);
+}
 
-void rectangle_kill(Rectangle* rect) { graph_kill(&rect->graph); }
+void rectangle_kill(Rectangle* rect)
+{
+    if (!rect->ok) return;
+    graph_kill(&rect->graph);
+}

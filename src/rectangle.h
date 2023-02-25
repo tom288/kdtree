@@ -5,6 +5,7 @@
 
 typedef struct Rectangle {
     Graph graph;
+    GLboolean ok;
 } Rectangle;
 
 Rectangle rectangle_init(Shader* shader);
