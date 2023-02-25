@@ -2,4 +2,4 @@
 /target/
 /libs/
 /custom.cmd
-/kdtree.code-workspace
+*.code-workspace
