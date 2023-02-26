@@ -1,14 +1,11 @@
 extern int WIP;
 #include "kdtree.h"
 
-const size_t queue_block_size = 10; // 1000 // 8 KB
-
-// int m = 4;
-// int n = m + 1;
+const size_t queue_block_size = 10;
 
 // ---
 
-const size_t queue_block_endIndex = 9; // queue_block_size - 1;
+const size_t queue_block_endIndex = queue_block_size - 1; // queue_block_size - 1;
 
 // the "queue_block" class
 // Stores a block of nodes, used in the "queue" class below.
