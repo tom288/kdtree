@@ -80,6 +80,7 @@ GLboolean _gl_error(char* file, int line)
     return !!error_code;
 }
 
+// Be careful if refactoring this to avoid overflow on unix / macOS
 GLboolean rand_bool()
 {
     return rand() > RAND_MAX / 2;
@@ -98,18 +99,8 @@ void rand_vec3(vec3 *v)
     }
 }
 
-/// @brief Bias a float towards some value with some strength
-/// @param f Value to apply a bias to
-/// @param towards Value to bias towards
-/// @param strength Strength of bias (>= 1) or 'anti-bias' (>0, <= 1)
-/// @return Value with bias applied
 float bias_float(float f, float towards, float strength)
 {
-    f -= towards;
-    const float signum = f < 0 ? -1 : 1;
-    f *= signum;
-    f = powf(f, strength);
-    f *= signum;
-    f += towards;
-    return f;
+    const float signum = (f -= towards) < 0 ? -1 : 1;
+    return powf(f * signum, strength) * signum + towards;
 }
