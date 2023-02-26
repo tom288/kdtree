@@ -11,7 +11,7 @@ const size_t queue_block_endIndex = queue_block_size - 1; // queue_block_size - 
 // Stores a block of nodes, used in the "queue" class below.
 
 typedef struct QueueBlock {
-	Node* block;
+	Node** block; // actually means Node pointer array
 	struct QueueBlock* prev; // towards the front of the queue, the front is where items pop off
 	struct QueueBlock* next; // towards the back of the queue, the back is where items are pushed
 } QueueBlock;
@@ -55,7 +55,7 @@ void queue_push(Queue* self, Node* item)
 	self->back_index++;
 	if (self->back_index > queue_block_endIndex) // if the queue is full
 	{ // (if back_index overflows then change to "== 0")
-		self->back->block[self->back_index] = *item; // append the new item
+		self->back->block[self->back_index] = item; // append the new item
 		QueueBlock* new_block = queue_block(); // the queue gets a new block (another queue_block_size items)
 		self->back->next = new_block; // link up the linked list correctly
 		new_block->prev = self->back; // link up the linked list correctly
@@ -66,7 +66,7 @@ void queue_push(Queue* self, Node* item)
 
 Node* queue_pop(Queue* self)
 {
-	Node* item = (&(self->front->block))[self->front_index]; // the item to pop
+	Node* item = self->front->block[self->front_index]; // the item to pop
 	if (self->front->next == NULL && self->front_index == self->back_index) {
 		return NULL; // queue is empty, same code as queue_isEmpty()
 	}
@@ -102,8 +102,7 @@ GLboolean queue_isBug(Queue* self)
 
 	// object confused
 	if (self->front->next == NULL && self->front_index > self->back_index) {
-		// start is after the end
-		return GL_TRUE;
+		return GL_TRUE; // start is after the end
 	}
 
 	return GL_FALSE;
