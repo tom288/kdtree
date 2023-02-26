@@ -114,6 +114,23 @@ GLboolean init_attrs
     return GL_FALSE;
 }
 
+void graph_free_vertices(Graph* graph)
+{
+    free(graph->vertices);
+    graph->vertices = NULL;
+    graph->vertices_size = 0;
+    graph->stride = 0;
+}
+
+void graph_free_all(Graph* graph)
+{
+    free(graph->indices);
+    graph->indices = NULL;
+    graph->indices_size = 0;
+    // Vertex data is guaranteed to be meaningless
+    graph_free_vertices(graph);
+}
+
 void graph_kill(Graph* graph)
 {
     glDeleteVertexArrays(1, &graph->vao);
@@ -122,13 +139,7 @@ void graph_kill(Graph* graph)
     graph->vbo = 0;
     glDeleteBuffers(1, &graph->ebo);
     graph->ebo = 0;
-    graph->vertices_size = 0;
-    free(graph->vertices);
-    graph->vertices = NULL;
-    graph->stride = 0;
-    graph->indices_size = 0;
-    free(graph->indices);
-    graph->indices = NULL;
+    graph_free_all(graph);
 }
 
 Graph graph_init
@@ -191,7 +202,7 @@ GLboolean graph_ok(Graph graph)
 
 void graph_draw(Graph graph)
 {
-    if (!graph_ok(graph)) return;
+    if (!graph_ok(graph) || !graph.vertices_size || !graph.vertices) return;
     glBindVertexArray(graph.vao);
     if (graph.indices_size && graph.indices)
     {

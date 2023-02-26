@@ -17,10 +17,21 @@ GLboolean _gl_error(char* file, int line);
 /// @return Size in bytes
 size_t gl_sizeof(GLenum type);
 
+/// @brief Generate a random boolean
+/// @return Random boolean
 GLboolean rand_bool();
 
+/// @brief Generate a random float 0 <= f <= 1
+/// @return Random float
 float rand_float();
 
+/// @brief Assign independent random vector components 0 <= f <= 1
+/// @param v Vector to randomise
 void rand_vec3(vec3* v);
 
+/// @brief Bias a float towards some value with some strength
+/// @param f Value to apply a bias to
+/// @param towards Value to bias towards
+/// @param strength Strength of bias (>= 1) or 'anti-bias' (>0, <= 1)
+/// @return Value with bias applied
 float bias_float(float f, float towards, float strength);
