@@ -186,14 +186,23 @@ Window* window_init()
 GLboolean window_ok(Window* window)
 {
     glfwPollEvents();
-    if (!window) return GL_FALSE;
-    window->ok &= window->win && !glfwWindowShouldClose(window->win);
-    return window->ok;
+    return window
+        ? (window->ok &= window->win && !glfwWindowShouldClose(window->win))
+        : GL_FALSE;
 }
 
 void window_swap(Window* window)
 {
-    if (!window) return;
+    if (!window || !window->ok) return;
     glfwSwapBuffers(window->win);
     if (window->clear_mask) glClear(window->clear_mask);
+}
+
+GLboolean window_action(Window* window, Action action, GLboolean press)
+{
+    if (action >= CHAR_BIT * sizeof(size_t))
+    {
+        fprintf(stderr, "Action %d is too large for size_t width\n", action);
+    }
+    return (press ? window->input.press : window->input.hold) >> action & 1;
 }

@@ -40,6 +40,10 @@ Graph graph_init
     Attribute attributes[]
 );
 
+/// @brief Create an empty graph, most useful for maintaining safe error cases
+/// @return Empty graph
+Graph graph_init_empty();
+
 /// @brief Verify success of graph initialisation
 /// @param graph Graph to inspect
 /// @return Whether graph initialisation succeeded

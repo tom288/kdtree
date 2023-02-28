@@ -127,7 +127,7 @@ void graph_free_all(Graph* graph)
     free(graph->indices);
     graph->indices = NULL;
     graph->indices_size = 0;
-    // Vertex data is guaranteed to be meaningless
+    // Without index data there is no point in keeping vertex data
     graph_free_vertices(graph);
 }
 
@@ -159,6 +159,8 @@ Graph graph_init
         .indices_size = indices_size,
         .indices = indices,
     };
+
+    if (!graph.vertices || !graph.vertices_size) return graph;
 
     glGenVertexArrays(1, &graph.vao);
     glBindVertexArray(graph.vao);
@@ -193,6 +195,12 @@ Graph graph_init
     }
 
     return graph;
+}
+
+
+Graph graph_init_empty()
+{
+    return graph_init(NULL, 0, NULL, 0, NULL, 0, NULL);
 }
 
 GLboolean graph_ok(Graph graph)

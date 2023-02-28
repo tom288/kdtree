@@ -19,11 +19,11 @@ size_t gl_sizeof(GLenum type);
 
 /// @brief Generate a random boolean
 /// @return Random boolean
-GLboolean rand_bool();
+GLboolean rand_bool(void);
 
 /// @brief Generate a random float 0 <= f <= 1
 /// @return Random float
-float rand_float();
+float rand_float(void);
 
 /// @brief Assign independent random vector components 0 <= f <= 1
 /// @param v Vector to randomise
