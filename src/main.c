@@ -15,8 +15,8 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    KDTree tree = kdtree_init(&shader);
-    if (!kdtree_ok(tree))
+    Graph tree = kdtree_init(&shader);
+    if (!graph_ok(tree))
     {
         shader_kill(&shader);
         window_kill(win);
@@ -30,11 +30,11 @@ int main(int argc, char* argv[])
     // Swap the buffers and process pending events until the window is not OK
     while (window_ok(win))
     {
-        kdtree_draw(tree);
+        graph_draw(tree);
         window_swap(win);
     }
 
-    kdtree_kill(&tree);
+    graph_kill(&tree);
     shader_kill(&shader);
     window_kill(win);
 

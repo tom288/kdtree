@@ -4,7 +4,7 @@
 #include <string.h> // memcpy
 #include <time.h> // time
 
-KDTree kdtree_init(Shader* shader)
+Graph kdtree_init(Shader* shader)
 {
     // Seed the random number generator
     srand(time(NULL));
@@ -19,9 +19,7 @@ KDTree kdtree_init(Shader* shader)
     if (!vertices)
     {
         fprintf(stderr, "Failed to malloc for KDTree vertices\n");
-        return (KDTree) {
-            .ok = GL_FALSE,
-        };
+        return graph_init_empty();
     }
 
     // Define the head of the k-d tree, which is never a leaf, so no colour
@@ -30,9 +28,7 @@ KDTree kdtree_init(Shader* shader)
     {
         fprintf(stderr, "Failed to malloc for KDTree head\n");
         free(vertices);
-        return (KDTree) {
-            .ok = GL_FALSE,
-        };
+        return graph_init_empty();
     }
     *head = (Node) {
         .colour = { 0.0f },
@@ -183,9 +179,7 @@ KDTree kdtree_init(Shader* shader)
     if (!ok)
     {
         free(vertices);
-        return (KDTree) {
-            .ok = GL_FALSE,
-        };
+        return graph_init_empty();
     }
 
     Attribute attributes[] = {
@@ -203,33 +197,13 @@ KDTree kdtree_init(Shader* shader)
 
     const size_t attribute_count = sizeof(attributes) / sizeof(Attribute);
 
-    return (KDTree) {
-        .graph = graph_init(
-            shader,
-            vertices_size,
-            vertices,
-            0,
-            NULL,
-            attribute_count,
-            attributes
-        ),
-        .ok = GL_TRUE,
-    };
-}
-
-GLboolean kdtree_ok(const KDTree tree)
-{
-    return tree.ok && graph_ok(tree.graph);
-}
-
-void kdtree_draw(const KDTree tree)
-{
-    if (!tree.ok) return;
-    graph_draw(tree.graph);
-}
-
-void kdtree_kill(KDTree* tree)
-{
-    if (!tree->ok) return;
-    graph_kill(&tree->graph);
+    return graph_init(
+        shader,
+        vertices_size,
+        vertices,
+        0,
+        NULL,
+        attribute_count,
+        attributes
+    );
 }

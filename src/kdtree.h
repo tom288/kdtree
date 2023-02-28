@@ -4,11 +4,6 @@
 #include "graph.h"
 #include <cglm/cglm.h>
 
-typedef struct KDTree {
-    Graph graph;
-    GLboolean ok;
-} KDTree;
-
 typedef struct Node {
     vec3 colour;
     vec2 min_corner;
@@ -18,7 +13,4 @@ typedef struct Node {
     struct Node* children[2];
 } Node;
 
-KDTree kdtree_init(Shader* shader);
-GLboolean kdtree_ok(KDTree tree);
-void kdtree_draw(KDTree tree);
-void kdtree_kill(KDTree* tree);
+Graph kdtree_init(Shader* shader);
