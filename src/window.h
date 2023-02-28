@@ -5,6 +5,7 @@
 #include <GLFW/glfw3.h>
 #include <cglm/cglm.h>
 
+/// @brief Different discrete input actions that an agent can perform
 typedef enum Action {
     up,
     down,
@@ -12,12 +13,14 @@ typedef enum Action {
     right,
 } Action;
 
+/// @brief Input state at a given time
 typedef struct Input {
     size_t hold;
     size_t press;
     vec2 mouse;
 } Input;
 
+/// @brief All persistent information related to a visible window
 typedef struct Window {
     GLFWwindow* win;
     GLboolean ok;
@@ -25,7 +28,13 @@ typedef struct Window {
     Input input;
 } Window;
 
+/// @brief Create a window
+/// @return Window created, or NULL if malloc fails
 Window* window_init(void);
+
+/// @brief Check window status, polling input events in the process
+/// @param window Window to check
+/// @return Whether the window is ok
 GLboolean window_ok(Window* window);
 
 /// @brief Show the updated window state and optionally clear the framebuffer

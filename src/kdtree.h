@@ -4,6 +4,7 @@
 #include "graph.h"
 #include <cglm/cglm.h>
 
+/// @brief Node for kd-tree
 typedef struct Node {
     vec3 colour;
     vec2 min_corner;
@@ -13,4 +14,7 @@ typedef struct Node {
     struct Node* children[2];
 } Node;
 
+/// @brief Create a random kd-tree spanning the entire -1 to 1 range
+/// @param shader Shader to use for attribute position names
+/// @return Graph holding kd-tree data
 Graph kdtree_init(Shader* shader);
