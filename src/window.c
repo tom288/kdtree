@@ -20,8 +20,26 @@ void key_callback(GLFWwindow* win, int key, int scancode, int action, int mods)
         glfwSetWindowShouldClose(win, 1);
     }
 
-    // Window* window = glfwGetWindowUserPointer(win);
-    // if (window) ...
+    Window* window = glfwGetWindowUserPointer(win);
+    if (!window) return;
+
+    for (size_t i = 0; i < window->binding_count; ++i)
+    {
+        Binding binding = window->bindings[i];
+        if (!binding.mouse && binding.button == key)
+        {
+            if (action == GLFW_PRESS)
+            {
+                window->input.press |= binding.press << binding.action;
+                window->input.hold |= !binding.press << binding.action;
+            }
+            else if (action == GLFW_RELEASE)
+            {
+                window->input.press &= ~(binding.press << binding.action);
+                window->input.hold &= ~(!binding.press << binding.action);
+            }
+        }
+    }
 }
 
 // Mouse cursor movement callback
@@ -59,11 +77,13 @@ void error_callback(int error_code, const char* description)
 
 void window_kill(Window* window)
 {
+    if (!window) return;
     if (window->win)
     {
         glfwDestroyWindow(window->win);
         if (!--window_count) glfwTerminate();
     }
+    free(window->bindings);
     free(window);
 }
 
@@ -180,6 +200,25 @@ Window* window_init()
     {
         window->ok = GL_TRUE;
     }
+
+    window->binding_count = 4;
+    window->bindings = malloc(window->binding_count * sizeof(Binding));
+    window->bindings[0] = (Binding) {
+        .action = up,
+        .button = GLFW_KEY_W,
+    };
+    window->bindings[1] = (Binding) {
+        .action = down,
+        .button = GLFW_KEY_S,
+    };
+    window->bindings[2] = (Binding) {
+        .action = left,
+        .button = GLFW_KEY_A,
+    };
+    window->bindings[3] = (Binding) {
+        .action = right,
+        .button = GLFW_KEY_D,
+    };
     return window;
 }
 
@@ -200,7 +239,7 @@ void window_swap(Window* window)
 
 GLboolean window_action(Window* window, Action action, GLboolean press)
 {
-    if (action >= CHAR_BIT * sizeof(size_t))
+    if (action >= CHAR_BIT * sizeof(uint_fast32_t))
     {
         fprintf(stderr, "Action %d is too large for size_t width\n", action);
     }

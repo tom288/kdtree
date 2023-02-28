@@ -13,10 +13,17 @@ typedef enum Action {
     right,
 } Action;
 
+typedef struct Binding {
+    Action action;
+    uint_fast8_t mouse : 1;
+    uint_fast8_t press : 1;
+    uint_fast16_t button : 14;
+} Binding;
+
 /// @brief Input state at a given time
 typedef struct Input {
-    size_t hold;
-    size_t press;
+    uint_fast32_t hold;
+    uint_fast32_t press;
     vec2 mouse;
 } Input;
 
@@ -26,6 +33,8 @@ typedef struct Window {
     GLboolean ok;
     GLbitfield clear_mask;
     Input input;
+    size_t binding_count;
+    Binding* bindings;
 } Window;
 
 /// @brief Create a window
