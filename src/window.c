@@ -1,6 +1,7 @@
 #include "window.h"
 #include <stdio.h>
 #include <stdlib.h> // malloc, free
+#include <limits.h>
 
 static size_t window_count = 0;
 
@@ -238,6 +239,16 @@ void window_swap(Window* window)
 }
 
 GLboolean window_action(Window* window, Action action, GLboolean press)
+{   return window
+        ? (press ? window->input.press : window->input.hold) >> action & 1
+        : GL_FALSE;
+}
+
+void window_vec2(Window* window, vec2* v)
 {
-    return (press ? window->input.press : window->input.hold) >> action & 1;
+    glm_vec2_zero(*v);
+    if (window_action(window, up, GL_FALSE)) (*v)[1] -= 1.0f;
+    if (window_action(window, down, GL_FALSE)) (*v)[1] += 1.0f;
+    if (window_action(window, left, GL_FALSE)) (*v)[0] -= 1.0f;
+    if (window_action(window, right, GL_FALSE)) (*v)[0] += 1.0f;
 }

@@ -59,3 +59,9 @@ void window_kill(Window* window);
 /// @param press Whether the action must have just been pressed
 /// @return Whether the action is active
 GLboolean window_action(Window* window, Action action, GLboolean press);
+
+/// @brief Get movement input vector from window
+/// @param window Window to query
+/// @param v Vector to write movement input to
+/// @return
+void window_vec2(Window* window, vec2* v);

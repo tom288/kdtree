@@ -30,6 +30,9 @@ int main(int argc, char* argv[])
     // Swap the buffers and process pending events until the window is not OK
     while (window_ok(win))
     {
+        vec2 movement_input;
+        window_vec2(win, &movement_input);
+        printf("%f %f\n", movement_input[0], movement_input[1]);
         graph_draw(tree);
         window_swap(win);
     }
