@@ -28,16 +28,15 @@ void key_callback(GLFWwindow* win, int key, int scancode, int action, int mods)
         Binding binding = window->bindings[i];
         if (!binding.mouse && binding.button == key)
         {
-            if (action == GLFW_PRESS)
+            if (binding.action >= CHAR_BIT * sizeof(uint_fast32_t))
             {
-                window->input.press |= binding.press << binding.action;
-                window->input.hold |= !binding.press << binding.action;
+                fprintf(stderr, "Action %d too large\n", binding.action);
             }
-            else if (action == GLFW_RELEASE)
-            {
-                window->input.press &= ~(binding.press << binding.action);
-                window->input.hold &= ~(!binding.press << binding.action);
-            }
+            window->input.press |= (action == GLFW_PRESS) << binding.action;
+            window->input.hold |= (action == GLFW_PRESS) << binding.action;
+            const GLboolean release = action == GLFW_RELEASE;
+            window->input.press &= ~(release << binding.action);
+            window->input.hold &= ~(release << binding.action);
         }
     }
 }
@@ -224,6 +223,7 @@ Window* window_init()
 
 GLboolean window_ok(Window* window)
 {
+    window->input.press = 0;
     glfwPollEvents();
     return window
         ? (window->ok &= window->win && !glfwWindowShouldClose(window->win))
@@ -239,9 +239,5 @@ void window_swap(Window* window)
 
 GLboolean window_action(Window* window, Action action, GLboolean press)
 {
-    if (action >= CHAR_BIT * sizeof(uint_fast32_t))
-    {
-        fprintf(stderr, "Action %d is too large for size_t width\n", action);
-    }
     return (press ? window->input.press : window->input.hold) >> action & 1;
 }

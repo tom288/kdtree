@@ -16,8 +16,7 @@ typedef enum Action {
 typedef struct Binding {
     Action action;
     uint_fast8_t mouse : 1;
-    uint_fast8_t press : 1;
-    uint_fast16_t button : 14;
+    uint_fast16_t button : 15;
 } Binding;
 
 /// @brief Input state at a given time
