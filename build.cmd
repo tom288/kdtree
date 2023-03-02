@@ -1,7 +1,7 @@
 @echo off
 
 set exe_name=debug.exe
-set flags=-Og -D DEBUG
+set flags=-Og -ggdb3 -D DEBUG
 echo BUILDING...
 call common.cmd
 
