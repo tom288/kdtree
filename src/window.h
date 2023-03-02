@@ -11,6 +11,10 @@ typedef enum Action {
     down,
     left,
     right,
+    zoom_in,
+    zoom_out,
+    clockwise,
+    anticlockwise,
 } Action;
 
 typedef struct Binding {

@@ -18,3 +18,8 @@ typedef struct Node {
 /// @param shader Shader to use for attribute position names
 /// @return Graph holding kd-tree data
 Graph kdtree_init(Shader* shader);
+
+
+/// @brief Display information about a particular node
+/// @param shader
+void node_info(Node* node);

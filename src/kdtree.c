@@ -10,7 +10,7 @@ Graph kdtree_init(Shader* shader)
     srand(time(NULL));
 
     // Allocate enough room to draw max_leaves nodes
-    const size_t max_leaves = 1 << 10;
+    const size_t max_leaves = 1 << 16;
     const size_t rect_vertices = 6;
     const size_t vertex_floats = 5;
     const size_t rectangle_floats = rect_vertices * vertex_floats;
@@ -205,5 +205,19 @@ Graph kdtree_init(Shader* shader)
         NULL,
         attribute_count,
         attributes
+    );
+}
+
+void node_info(Node* node)
+{
+    printf("Node %llu info:\n", (size_t)node / sizeof(Node));
+    if (!node) return;
+    printf("Min corner %f %f\n", node->min_corner[0], node->min_corner[1]);
+    printf("Size %f %f\n", node->size[0], node->size[1]);
+    printf("Split %c %f\n", node->split_axis ? 'Y' : 'X', node->split);
+    printf(
+        "Children %llu %llu\n\n",
+        (size_t)node->children[0] / sizeof(Node),
+        (size_t)node->children[1] / sizeof(Node)
     );
 }
