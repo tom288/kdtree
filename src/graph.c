@@ -10,7 +10,7 @@
 /// @param attr Attribute
 /// @param stride The stride used in the graph VBO
 /// @param first Pointer offset for the first value of this attribute
-void init_attr(GLint index, Attribute attr, size_t stride, unsigned char* first)
+void init_attribute(GLint index, Attribute attr, size_t stride, GLubyte* first)
 {
     const GLboolean force_cast_to_float = GL_FALSE;
     const GLboolean normalise_fixed_point_values = GL_FALSE;
@@ -60,28 +60,28 @@ void init_attr(GLint index, Attribute attr, size_t stride, unsigned char* first)
 }
 
 /// @brief Inform OpenGL about every attribute
-/// @param attr_count Number of attributes
+/// @param attribute_count Number of attributes
 /// @param attributes Attributes
 /// @param stride Pointer to the graph stride for the graph VBO
 /// @param shader Shader to query for attribute names, or NULL for positions
 /// @return Whether an error occurred
-GLboolean init_attrs
+GLboolean init_attributes
 (
-    size_t attr_count,
+    size_t attribute_count,
     Attribute attributes[],
     size_t* stride,
     Shader* shader
 ) {
-    for (size_t i = 0; i < attr_count; ++i)
+    for (size_t i = 0; i < attribute_count; ++i)
     {
         const Attribute attr = attributes[i];
         *stride += attr.size * gl_sizeof(attr.type);
     }
 
-    unsigned char* first = 0;
+    GLubyte* first = 0;
     size_t location_index = 0;
 
-    for (size_t attr_index = 0; attr_index < attr_count; ++attr_index)
+    for (size_t attr_index = 0; attr_index < attribute_count; ++attr_index)
     {
         const Attribute attr = attributes[attr_index];
 
@@ -93,7 +93,10 @@ GLboolean init_attrs
 
             if (shader)
             {
-                const GLint name_index = glGetAttribLocation(shader->id, attr.name);
+                const GLint name_index = glGetAttribLocation(
+                    shader->id,
+                    attr.name
+                );
                 if (name_index == -1)
                 {
                     fprintf(stderr, "Failed to find %s in shader\n", attr.name);
@@ -105,7 +108,7 @@ GLboolean init_attrs
                 }
             }
 
-            init_attr(index, attr, *stride, first);
+            init_attribute(index, attr, *stride, first);
         }
 
         first += attr.size * gl_sizeof(attr.type);
@@ -149,7 +152,7 @@ Graph graph_init
     void* vertices,
     size_t indices_size,
     GLuint* indices,
-    size_t attr_count,
+    size_t attribute_count,
     Attribute attributes[]
 ) {
     Graph graph = {
@@ -183,7 +186,12 @@ Graph graph_init
         );
     }
 
-    const GLboolean error = init_attrs(attr_count, attributes, &graph.stride, shader);
+    const GLboolean error = init_attributes(
+        attribute_count,
+        attributes,
+        &graph.stride,
+        shader
+    );
 
     glEnableVertexAttribArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
