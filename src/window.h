@@ -17,10 +17,11 @@ typedef enum Action {
     anticlockwise,
 } Action;
 
+/// @brief Binding from input to action
 typedef struct Binding {
-    Action action;
     uint_fast8_t mouse : 1;
     uint_fast16_t button : 15;
+    Action action;
 } Binding;
 
 /// @brief Input state at a given time
@@ -28,6 +29,7 @@ typedef struct Input {
     uint_fast32_t hold;
     uint_fast32_t press;
     vec2 mouse;
+    float scroll;
 } Input;
 
 /// @brief All persistent information related to a visible window
@@ -38,6 +40,9 @@ typedef struct Window {
     Input input;
     size_t binding_count;
     Binding* bindings;
+    vec2 size;
+    double last_frame_timestamp;
+    double delta_time;
 } Window;
 
 /// @brief Create a window
@@ -66,6 +71,19 @@ GLboolean window_action(Window* window, Action action, GLboolean press);
 
 /// @brief Get movement input vector from window
 /// @param window Window to query
-/// @param v Vector to write movement input to
-/// @return
-void window_vec2(Window* window, vec2* v);
+/// @param dest Vector to write movement input to
+void window_movement_input(Window* window, vec2 dest);
+
+/// @brief Obtain window size in pixels
+/// @param window Window to query
+/// @param dest Vector to write window size to
+void window_size(Window* window, vec2 dest);
+
+/// @brief Reset window frame times
+/// @param window Window to reset
+void window_reset_time(Window* window);
+
+/// @brief Obtain time in seconds between recent frames for a given window
+/// @param window Window to query
+/// @return Seconds between frames
+double window_delta_time(Window* window);

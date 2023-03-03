@@ -91,11 +91,11 @@ float rand_float()
     return (float)rand() / (float)RAND_MAX;
 }
 
-void rand_vec3(vec3 *v)
+void rand_vec3(vec3 v)
 {
     for (size_t i = 0; i < 3; ++i)
     {
-        (*v)[i] = rand_float();
+        v[i] = rand_float();
     }
 }
 

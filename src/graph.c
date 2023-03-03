@@ -74,7 +74,7 @@ GLboolean init_attrs
 ) {
     for (size_t i = 0; i < attr_count; ++i)
     {
-        Attribute attr = attributes[i];
+        const Attribute attr = attributes[i];
         *stride += attr.size * gl_sizeof(attr.type);
     }
 
@@ -93,7 +93,7 @@ GLboolean init_attrs
 
             if (shader)
             {
-                GLint name_index = glGetAttribLocation(shader->id, attr.name);
+                const GLint name_index = glGetAttribLocation(shader->id, attr.name);
                 if (name_index == -1)
                 {
                     fprintf(stderr, "Failed to find %s in shader\n", attr.name);
@@ -183,7 +183,7 @@ Graph graph_init
         );
     }
 
-    GLboolean error = init_attrs(attr_count, attributes, &graph.stride, shader);
+    const GLboolean error = init_attrs(attr_count, attributes, &graph.stride, shader);
 
     glEnableVertexAttribArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -196,7 +196,6 @@ Graph graph_init
 
     return graph;
 }
-
 
 Graph graph_init_empty()
 {

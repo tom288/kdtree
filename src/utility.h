@@ -27,7 +27,7 @@ float rand_float(void);
 
 /// @brief Assign independent random vector components 0 <= f <= 1
 /// @param v Vector to randomise
-void rand_vec3(vec3* v);
+void rand_vec3(vec3 v);
 
 /// @brief Bias a float towards some value with some strength
 /// @param f Value to apply a bias to

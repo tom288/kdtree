@@ -21,12 +21,12 @@ void key_callback(GLFWwindow* win, int key, int scancode, int action, int mods)
         glfwSetWindowShouldClose(win, 1);
     }
 
-    Window* window = glfwGetWindowUserPointer(win);
+    Window* const window = glfwGetWindowUserPointer(win);
     if (!window) return;
 
     for (size_t i = 0; i < window->binding_count; ++i)
     {
-        Binding binding = window->bindings[i];
+        const Binding binding = window->bindings[i];
         if (!binding.mouse && binding.button == key)
         {
             if (binding.action >= CHAR_BIT * sizeof(uint_fast32_t))
@@ -122,6 +122,13 @@ Window* window_init()
             GL_DEPTH_BUFFER_BIT * test_depth |
             GL_COLOR_BUFFER_BIT
         ),
+        .input = (Input) {
+            .hold = 0,
+            .press = 0,
+            .mouse = { 0.0f, 0.0f },
+            .scroll = 0.0,
+        },
+        .size = { width, height }
     };
 
     if (!window_count && !glfwInit())
@@ -204,20 +211,20 @@ Window* window_init()
     window->binding_count = 4;
     window->bindings = malloc(window->binding_count * sizeof(Binding));
     window->bindings[0] = (Binding) {
-        .action = up,
         .button = GLFW_KEY_W,
+        .action = up,
     };
     window->bindings[1] = (Binding) {
-        .action = down,
         .button = GLFW_KEY_S,
+        .action = down,
     };
     window->bindings[2] = (Binding) {
-        .action = left,
         .button = GLFW_KEY_A,
+        .action = left,
     };
     window->bindings[3] = (Binding) {
-        .action = right,
         .button = GLFW_KEY_D,
+        .action = right,
     };
     return window;
 }
@@ -225,6 +232,7 @@ Window* window_init()
 GLboolean window_ok(Window* window)
 {
     window->input.press = 0;
+    window->input.scroll = 0;
     glfwPollEvents();
     return window
         ? (window->ok &= window->win && !glfwWindowShouldClose(window->win))
@@ -236,6 +244,11 @@ void window_swap(Window* window)
     if (!window || !window->ok) return;
     glfwSwapBuffers(window->win);
     if (window->clear_mask) glClear(window->clear_mask);
+
+    const double max_delta = 1.0f / 32.0f;
+    double time = glfwGetTime();
+    window->delta_time = __min(time - window->last_frame_timestamp, max_delta);
+    window->last_frame_timestamp = time;
 }
 
 GLboolean window_action(Window* window, Action action, GLboolean press)
@@ -244,11 +257,27 @@ GLboolean window_action(Window* window, Action action, GLboolean press)
         : GL_FALSE;
 }
 
-void window_vec2(Window* window, vec2* v)
+void window_movement_input(Window* window, vec2 dest)
 {
-    glm_vec2_zero(*v);
-    if (window_action(window, up, GL_FALSE)) (*v)[1] -= 1.0f;
-    if (window_action(window, down, GL_FALSE)) (*v)[1] += 1.0f;
-    if (window_action(window, left, GL_FALSE)) (*v)[0] -= 1.0f;
-    if (window_action(window, right, GL_FALSE)) (*v)[0] += 1.0f;
+    glm_vec2_zero(dest);
+    if (window_action(window, up, GL_FALSE)) dest[1] += 1.0f;
+    if (window_action(window, down, GL_FALSE)) dest[1] -= 1.0f;
+    if (window_action(window, left, GL_FALSE)) dest[0] -= 1.0f;
+    if (window_action(window, right, GL_FALSE)) dest[0] += 1.0f;
+}
+
+void window_size(Window* window, vec2 dest)
+{
+    glm_vec2_copy(window->size, dest);
+}
+
+void window_reset_time(Window* window)
+{
+    window->last_frame_timestamp = glfwGetTime();
+    window->delta_time = 0.0f;
+}
+
+double window_delta_time(Window* window)
+{
+    return window->delta_time;
 }

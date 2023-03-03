@@ -72,7 +72,7 @@ Graph kdtree_init(Shader* shader)
             .children = { NULL, NULL },
         };
 
-        rand_vec3(&leaf->colour);
+        rand_vec3(leaf->colour);
 
         if (node->children[!child_index])
         {
