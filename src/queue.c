@@ -100,7 +100,6 @@ GLboolean queue_isBug(Queue* self)
 size_t queue_len_blocks(Queue* self)
 {
 	int len = 0;
-	bool cont = true;
 	QueueBlock* block = self->front;
 	while (block != NULL) {
 		block = block->next;
