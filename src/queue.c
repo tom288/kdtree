@@ -1,4 +1,5 @@
 extern int WIP;
+#include "queue.h"
 #include "kdtree.h"
 
 const size_t queue_block_size = 10;
@@ -9,12 +10,6 @@ const size_t queue_block_endIndex = queue_block_size - 1; // queue_block_size - 
 
 // the "queue_block" class
 // Stores a block of nodes, used in the "queue" class below.
-
-typedef struct QueueBlock {
-	Node** block; // actually means Node pointer array
-	struct QueueBlock* prev; // towards the front of the queue, the front is where items pop off
-	struct QueueBlock* next; // towards the back of the queue, the back is where items are pushed
-} QueueBlock;
 
 QueueBlock* queue_block()
 {
@@ -32,18 +27,12 @@ QueueBlock* queue_block()
 // to improve efficiency the nodes are stored in blocks.
 
 // items pushed onto the back, and they pop off at the front
-typedef struct Queue
-{
-	QueueBlock* front;
-	QueueBlock* back;
-	unsigned short int front_index; // item returned last time pop was used
-	unsigned short int back_index; // most recently pushed item
-} Queue;
 
 Queue* queue()
 {
 	Queue* result = malloc(sizeof(Queue));
 	result->front = malloc(sizeof(QueueBlock));
+	result->front = queue_block();
 	result->back = result->front;
 	result->front_index = 0;
 	result->back_index = 0;
@@ -72,7 +61,7 @@ Node* queue_pop(Queue* self)
 	}
 	self->front_index++;
 	if (self->front_index > queue_block_endIndex) // if the front block of the queue is empty
-	{                                           // (if front_index overflows then change to "== 0")
+	{                                             // (if front_index overflows then change to "== 0")
 		if (self->front->next == NULL) return NULL;
 		QueueBlock* front_old = self->front;
 		self->front = self->front->next; // the new front of the queue
@@ -106,4 +95,26 @@ GLboolean queue_isBug(Queue* self)
 	}
 
 	return GL_FALSE;
+}
+
+size_t queue_len_blocks(Queue* self)
+{
+	int len = 0;
+	bool cont = true;
+	QueueBlock* block = self->front;
+	while (block != NULL) {
+		block = block->next;
+		len++;
+	}
+	return len;
+}
+
+size_t queue_len_items(Queue* self)
+{
+	size_t len = queue_len_blocks(self);
+	if (len == 0) return 0;
+	else if (len == 1) len = 0;
+	else len -= 2; // discount the end blocks
+	len *= queue_block_size;
+	return len + self->back_index - self->front_index;
 }
