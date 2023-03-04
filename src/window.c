@@ -95,6 +95,7 @@ Window* window_init()
     int width = 1920;
     int height = 1080;
     const GLboolean full_screen = GL_FALSE;
+    const GLboolean calc_window_size = GL_TRUE;
     const char* title = "Rectangle";
 
     GLFWmonitor* monitor = NULL;
@@ -157,6 +158,13 @@ Window* window_init()
         const GLFWvidmode* mode = glfwGetVideoMode(monitor);
         width = mode->width;
         height = mode->height;
+    }
+    else if (calc_window_size)
+    {
+        GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+        const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+        width = mode->width * 3 / 4;
+        height = mode->height * 3 / 4;
     }
 
     // Create window and put it in focus
