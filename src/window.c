@@ -92,11 +92,11 @@ Window* window_init()
     const GLboolean resizable = GL_FALSE;
     const int msaa_samples = 16;
 
-    const int width = 1920;
-    const int height = 1080;
+    int width = 1920;
+    int height = 1080;
+    const GLboolean full_screen = GL_FALSE;
     const char* title = "Rectangle";
 
-    // These two are not currently used
     GLFWmonitor* monitor = NULL;
     GLFWwindow* share_window = NULL;
 
@@ -149,6 +149,15 @@ Window* window_init()
 #ifdef __APPLE__
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, 1);
 #endif
+
+    // Calculate full-screen size
+    if (full_screen)
+    {
+        monitor = glfwGetPrimaryMonitor();
+        const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+        width = mode->width;
+        height = mode->height;
+    }
 
     // Create window and put it in focus
     window->win = glfwCreateWindow(
