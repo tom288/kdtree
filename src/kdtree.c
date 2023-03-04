@@ -4,13 +4,13 @@
 #include <string.h> // memcpy
 #include <time.h> // time
 
-KDTree kdtree_init(Shader* shader)
+Graph kdtree_init(Shader* shader)
 {
     // Seed the random number generator
     srand(time(NULL));
 
     // Allocate enough room to draw max_leaves nodes
-    const size_t max_leaves = 1 << 10;
+    const size_t max_leaves = 1 << 16;
     const size_t rect_vertices = 6;
     const size_t vertex_floats = 5;
     const size_t rectangle_floats = rect_vertices * vertex_floats;
@@ -19,9 +19,7 @@ KDTree kdtree_init(Shader* shader)
     if (!vertices)
     {
         fprintf(stderr, "Failed to malloc for KDTree vertices\n");
-        return (KDTree) {
-            .ok = GL_FALSE,
-        };
+        return graph_init_empty();
     }
 
     // Define the head of the k-d tree, which is never a leaf, so no colour
@@ -30,9 +28,7 @@ KDTree kdtree_init(Shader* shader)
     {
         fprintf(stderr, "Failed to malloc for KDTree head\n");
         free(vertices);
-        return (KDTree) {
-            .ok = GL_FALSE,
-        };
+        return graph_init_empty();
     }
     *head = (Node) {
         .colour = { 0.0f },
@@ -76,7 +72,7 @@ KDTree kdtree_init(Shader* shader)
             .children = { NULL, NULL },
         };
 
-        rand_vec3(&leaf->colour);
+        rand_vec3(leaf->colour);
 
         if (node->children[!child_index])
         {
@@ -183,9 +179,7 @@ KDTree kdtree_init(Shader* shader)
     if (!ok)
     {
         free(vertices);
-        return (KDTree) {
-            .ok = GL_FALSE,
-        };
+        return graph_init_empty();
     }
 
     Attribute attributes[] = {
@@ -203,33 +197,27 @@ KDTree kdtree_init(Shader* shader)
 
     const size_t attribute_count = sizeof(attributes) / sizeof(Attribute);
 
-    return (KDTree) {
-        .graph = graph_init(
-            shader,
-            vertices_size,
-            vertices,
-            0,
-            NULL,
-            attribute_count,
-            attributes
-        ),
-        .ok = GL_TRUE,
-    };
+    return graph_init(
+        shader,
+        vertices_size,
+        vertices,
+        0,
+        NULL,
+        attribute_count,
+        attributes
+    );
 }
 
-GLboolean kdtree_ok(const KDTree tree)
+void node_info(Node* node)
 {
-    return tree.ok && graph_ok(tree.graph);
-}
-
-void kdtree_draw(const KDTree tree)
-{
-    if (!tree.ok) return;
-    graph_draw(tree.graph);
-}
-
-void kdtree_kill(KDTree* tree)
-{
-    if (!tree->ok) return;
-    graph_kill(&tree->graph);
+    printf("Node %llu info:\n", (uint64_t)node / sizeof(Node));
+    if (!node) return;
+    printf("Min corner %f %f\n", node->min_corner[0], node->min_corner[1]);
+    printf("Size %f %f\n", node->size[0], node->size[1]);
+    printf("Split %c %f\n", node->split_axis ? 'Y' : 'X', node->split);
+    printf(
+        "Children %llu %llu\n\n",
+        (uint64_t)node->children[0] / sizeof(Node),
+        (uint64_t)node->children[1] / sizeof(Node)
+    );
 }

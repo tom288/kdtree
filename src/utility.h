@@ -19,15 +19,15 @@ size_t gl_sizeof(GLenum type);
 
 /// @brief Generate a random boolean
 /// @return Random boolean
-GLboolean rand_bool();
+GLboolean rand_bool(void);
 
 /// @brief Generate a random float 0 <= f <= 1
 /// @return Random float
-float rand_float();
+float rand_float(void);
 
 /// @brief Assign independent random vector components 0 <= f <= 1
 /// @param v Vector to randomise
-void rand_vec3(vec3* v);
+void rand_vec3(vec3 v);
 
 /// @brief Bias a float towards some value with some strength
 /// @param f Value to apply a bias to
@@ -35,3 +35,9 @@ void rand_vec3(vec3* v);
 /// @param strength Strength of bias (>= 1) or 'anti-bias' (>0, <= 1)
 /// @return Value with bias applied
 float bias_float(float f, float towards, float strength);
+
+/// @brief Take the minimum of two doubles
+/// @param x 
+/// @param y 
+/// @return Minimum double
+double min_d(double x, double y);

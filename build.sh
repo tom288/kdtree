@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -e
+
 if [ "$(uname)" == "Darwin" ]; then
     OpenGL="-framework OpenGL"
 elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
@@ -15,7 +17,7 @@ fi
 mkdir -p target
 
 # Build
-gcc src/*.c -o target/debug -Og -D DEBUG \
+gcc src/*.c -o target/debug -Og -ggdb3 -D DEBUG \
 -std=c17 -Wall -Wextra -pedantic -Wno-unused-parameter \
 -lglfw -lGLEW $OpenGL
 

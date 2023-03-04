@@ -6,34 +6,34 @@
 // value as defined in glew.h, rather than the macro string itself.
 size_t gl_sizeof(GLenum type)
 {
-	switch (type)
-	{
-		case GL_BYTE:
-		case GL_UNSIGNED_BYTE:
-			return sizeof(GLbyte);
-		case GL_SHORT:
-		case GL_UNSIGNED_SHORT:
-			return sizeof(GLshort);
-		case GL_INT_2_10_10_10_REV:
-		case GL_INT:
-		case GL_UNSIGNED_INT_2_10_10_10_REV:
-		case GL_UNSIGNED_INT:
-			return sizeof(GLint);
-		case GL_FLOAT:
-			return sizeof(GLfloat);
-		case GL_DOUBLE:
-			return sizeof(GLdouble);
-		case GL_FIXED:
-			return sizeof(GLfixed);
-		case GL_HALF_FLOAT:
-			return sizeof(GLhalf);
+    switch (type)
+    {
+        case GL_BYTE:
+        case GL_UNSIGNED_BYTE:
+            return sizeof(GLbyte);
+        case GL_SHORT:
+        case GL_UNSIGNED_SHORT:
+            return sizeof(GLshort);
+        case GL_INT_2_10_10_10_REV:
+        case GL_INT:
+        case GL_UNSIGNED_INT_2_10_10_10_REV:
+        case GL_UNSIGNED_INT:
+            return sizeof(GLint);
+        case GL_FLOAT:
+            return sizeof(GLfloat);
+        case GL_DOUBLE:
+            return sizeof(GLdouble);
+        case GL_FIXED:
+            return sizeof(GLfixed);
+        case GL_HALF_FLOAT:
+            return sizeof(GLhalf);
         default:
             fprintf(stderr, "gl_sizeof unknown type with value 0x%X\n", type);
-	}
+    }
 
     // Zero is likely to make error cases fatal, but by returning a safer value
     // like 4 we'd be making these cases impossible to programmatically detect.
-	return 0;
+    return 0;
 }
 
 GLboolean _gl_error(char* file, int line)
@@ -91,11 +91,11 @@ float rand_float()
     return (float)rand() / (float)RAND_MAX;
 }
 
-void rand_vec3(vec3 *v)
+void rand_vec3(vec3 v)
 {
-    for (size_t i = 0; i < 3; i++)
+    for (size_t i = 0; i < 3; ++i)
     {
-        (*v)[i] = rand_float();
+        v[i] = rand_float();
     }
 }
 
@@ -103,4 +103,9 @@ float bias_float(float f, float towards, float strength)
 {
     const float signum = (f -= towards) < 0 ? -1 : 1;
     return powf(f * signum, strength) * signum + towards;
+}
+
+double min_d(double x, double y)
+{
+    return x < y ? x : y;
 }

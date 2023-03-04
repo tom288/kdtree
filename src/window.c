@@ -1,6 +1,8 @@
 #include "window.h"
+#include "utility.h"
 #include <stdio.h>
 #include <stdlib.h> // malloc, free
+#include <limits.h>
 
 static size_t window_count = 0;
 
@@ -20,8 +22,25 @@ void key_callback(GLFWwindow* win, int key, int scancode, int action, int mods)
         glfwSetWindowShouldClose(win, 1);
     }
 
-    // Window* window = glfwGetWindowUserPointer(win);
-    // if (window) ...
+    Window* const window = glfwGetWindowUserPointer(win);
+    if (!window) return;
+
+    for (size_t i = 0; i < window->binding_count; ++i)
+    {
+        const Binding binding = window->bindings[i];
+        if (!binding.mouse && binding.button == key)
+        {
+            if (binding.action >= CHAR_BIT * sizeof(uint_fast32_t))
+            {
+                fprintf(stderr, "Action %d too large\n", binding.action);
+            }
+            window->input.press |= (action == GLFW_PRESS) << binding.action;
+            window->input.hold |= (action == GLFW_PRESS) << binding.action;
+            const GLboolean release = action == GLFW_RELEASE;
+            window->input.press &= ~(release << binding.action);
+            window->input.hold &= ~(release << binding.action);
+        }
+    }
 }
 
 // Mouse cursor movement callback
@@ -59,11 +78,13 @@ void error_callback(int error_code, const char* description)
 
 void window_kill(Window* window)
 {
+    if (!window) return;
     if (window->win)
     {
         glfwDestroyWindow(window->win);
         if (!--window_count) glfwTerminate();
     }
+    free(window->bindings);
     free(window);
 }
 
@@ -72,11 +93,12 @@ Window* window_init()
     const GLboolean resizable = GL_FALSE;
     const int msaa_samples = 16;
 
-    const int width = 1920;
-    const int height = 1080;
+    int width = 1920;
+    int height = 1080;
+    const GLboolean full_screen = GL_FALSE;
+    const GLboolean calc_window_size = GL_TRUE;
     const char* title = "Rectangle";
 
-    // These two are not currently used
     GLFWmonitor* monitor = NULL;
     GLFWwindow* share_window = NULL;
 
@@ -102,6 +124,13 @@ Window* window_init()
             GL_DEPTH_BUFFER_BIT * test_depth |
             GL_COLOR_BUFFER_BIT
         ),
+        .input = (Input) {
+            .hold = 0,
+            .press = 0,
+            .mouse = { 0.0f, 0.0f },
+            .scroll = 0.0,
+        },
+        .size = { width, height }
     };
 
     if (!window_count && !glfwInit())
@@ -122,6 +151,22 @@ Window* window_init()
 #ifdef __APPLE__
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, 1);
 #endif
+
+    // Calculate full-screen size
+    if (full_screen)
+    {
+        monitor = glfwGetPrimaryMonitor();
+        const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+        width = mode->width;
+        height = mode->height;
+    }
+    else if (calc_window_size)
+    {
+        GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+        const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+        width = mode->width * 3 / 4;
+        height = mode->height * 3 / 4;
+    }
 
     // Create window and put it in focus
     window->win = glfwCreateWindow(
@@ -180,20 +225,77 @@ Window* window_init()
     {
         window->ok = GL_TRUE;
     }
+
+    window->binding_count = 4;
+    window->bindings = malloc(window->binding_count * sizeof(Binding));
+    window->bindings[0] = (Binding) {
+        .button = GLFW_KEY_W,
+        .action = up,
+    };
+    window->bindings[1] = (Binding) {
+        .button = GLFW_KEY_S,
+        .action = down,
+    };
+    window->bindings[2] = (Binding) {
+        .button = GLFW_KEY_A,
+        .action = left,
+    };
+    window->bindings[3] = (Binding) {
+        .button = GLFW_KEY_D,
+        .action = right,
+    };
     return window;
 }
 
 GLboolean window_ok(Window* window)
 {
+    window->input.press = 0;
+    window->input.scroll = 0;
     glfwPollEvents();
-    if (!window) return GL_FALSE;
-    window->ok &= window->win && !glfwWindowShouldClose(window->win);
-    return window->ok;
+    return window
+        ? (window->ok &= window->win && !glfwWindowShouldClose(window->win))
+        : GL_FALSE;
 }
 
 void window_swap(Window* window)
 {
-    if (!window) return;
+    if (!window || !window->ok) return;
     glfwSwapBuffers(window->win);
     if (window->clear_mask) glClear(window->clear_mask);
+
+    const double max_delta = 1.0 / 32.0;
+    double time = glfwGetTime();
+    window->delta_time = min_d(time - window->last_frame_timestamp, max_delta);
+    window->last_frame_timestamp = time;
+}
+
+GLboolean window_action(Window* window, Action action, GLboolean press)
+{   return window
+        ? (press ? window->input.press : window->input.hold) >> action & 1
+        : GL_FALSE;
+}
+
+void window_movement_input(Window* window, vec2 dest)
+{
+    glm_vec2_zero(dest);
+    if (window_action(window, up, GL_FALSE)) dest[1] += 1.0f;
+    if (window_action(window, down, GL_FALSE)) dest[1] -= 1.0f;
+    if (window_action(window, left, GL_FALSE)) dest[0] -= 1.0f;
+    if (window_action(window, right, GL_FALSE)) dest[0] += 1.0f;
+}
+
+void window_size(Window* window, vec2 dest)
+{
+    glm_vec2_copy(window->size, dest);
+}
+
+void window_reset_time(Window* window)
+{
+    window->last_frame_timestamp = glfwGetTime();
+    window->delta_time = 0.0f;
+}
+
+double window_delta_time(Window* window)
+{
+    return window->delta_time;
 }

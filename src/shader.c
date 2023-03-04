@@ -89,10 +89,7 @@ GLuint compile(char* path, GLenum type)
     GLuint id = glCreateShader(type);
     glShaderSource(id, 1, (const GLchar**)&buffer, NULL);
     glCompileShader(id);
-    if (compile_error(id, 0, path))
-    {
-        id = 0;
-    }
+    if (compile_error(id, 0, path)) id = 0;
 
     // Free the memory containing the file content
     free(buffer);
