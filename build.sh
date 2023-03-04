@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -e
+
 if [ "$(uname)" == "Darwin" ]; then
     OpenGL="-framework OpenGL"
 elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then

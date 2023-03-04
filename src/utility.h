@@ -35,3 +35,9 @@ void rand_vec3(vec3 v);
 /// @param strength Strength of bias (>= 1) or 'anti-bias' (>0, <= 1)
 /// @return Value with bias applied
 float bias_float(float f, float towards, float strength);
+
+/// @brief Take the minimum of two doubles
+/// @param x 
+/// @param y 
+/// @return Minimum double
+double min_d(double x, double y);

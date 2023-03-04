@@ -210,14 +210,14 @@ Graph kdtree_init(Shader* shader)
 
 void node_info(Node* node)
 {
-    printf("Node %llu info:\n", (size_t)node / sizeof(Node));
+    printf("Node %llu info:\n", (uint64_t)node / sizeof(Node));
     if (!node) return;
     printf("Min corner %f %f\n", node->min_corner[0], node->min_corner[1]);
     printf("Size %f %f\n", node->size[0], node->size[1]);
     printf("Split %c %f\n", node->split_axis ? 'Y' : 'X', node->split);
     printf(
         "Children %llu %llu\n\n",
-        (size_t)node->children[0] / sizeof(Node),
-        (size_t)node->children[1] / sizeof(Node)
+        (uint64_t)node->children[0] / sizeof(Node),
+        (uint64_t)node->children[1] / sizeof(Node)
     );
 }

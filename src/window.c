@@ -1,4 +1,5 @@
 #include "window.h"
+#include "utility.h"
 #include <stdio.h>
 #include <stdlib.h> // malloc, free
 #include <limits.h>
@@ -262,9 +263,9 @@ void window_swap(Window* window)
     glfwSwapBuffers(window->win);
     if (window->clear_mask) glClear(window->clear_mask);
 
-    const double max_delta = 1.0f / 32.0f;
+    const double max_delta = 1.0 / 32.0;
     double time = glfwGetTime();
-    window->delta_time = __min(time - window->last_frame_timestamp, max_delta);
+    window->delta_time = min_d(time - window->last_frame_timestamp, max_delta);
     window->last_frame_timestamp = time;
 }
 

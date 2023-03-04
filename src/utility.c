@@ -104,3 +104,8 @@ float bias_float(float f, float towards, float strength)
     const float signum = (f -= towards) < 0 ? -1 : 1;
     return powf(f * signum, strength) * signum + towards;
 }
+
+double min_d(double x, double y)
+{
+    return x < y ? x : y;
+}
