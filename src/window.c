@@ -226,7 +226,7 @@ Window* window_init()
         window->ok = GL_TRUE;
     }
 
-    window->binding_count = 4;
+    window->binding_count = 6;
     window->bindings = malloc(window->binding_count * sizeof(Binding));
     window->bindings[0] = (Binding) {
         .button = GLFW_KEY_W,
@@ -243,6 +243,14 @@ Window* window_init()
     window->bindings[3] = (Binding) {
         .button = GLFW_KEY_D,
         .action = right,
+    };
+    window->bindings[4] = (Binding) {
+        .button = GLFW_KEY_E,
+        .action = clockwise,
+    };
+    window->bindings[5] = (Binding) {
+        .button = GLFW_KEY_Q,
+        .action = anticlockwise,
     };
     return window;
 }
