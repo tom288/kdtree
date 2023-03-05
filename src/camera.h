@@ -40,7 +40,7 @@ void camera_step(
 /// @param dest Destination for calculation result
 void camera_screen_to_world(Camera camera, vec2 screen_coordinate, vec2 dest);
 
-/// @brief Use a particular camera for a particular shader
+/// @brief Assign camera parameters to shader uniforms
 /// @param camera Camera to use
 /// @param shader Shader to use camera for
 void camera_use(Camera camera, Shader shader);

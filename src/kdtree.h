@@ -19,6 +19,6 @@ typedef struct Node {
 /// @return Graph holding kd-tree data
 Graph kdtree_init(Shader* shader);
 
-/// @brief Display information about a particular node
-/// @param shader
+/// @brief Display node information
+/// @param node Node to display
 void node_info(Node* node);

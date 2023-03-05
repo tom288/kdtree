@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include <stdlib.h> // malloc, free
 #include <limits.h>
+#define STB_DS_IMPLEMENTATION
+#include <stb_ds.h>
 
 static size_t window_count = 0;
 
@@ -25,9 +27,9 @@ void key_callback(GLFWwindow* win, int key, int scancode, int action, int mods)
     Window* const window = glfwGetWindowUserPointer(win);
     if (!window) return;
 
-    for (size_t i = 0; i < window->binding_count; ++i)
+    for (size_t i = 0; i < arrlenu(window->binds); ++i)
     {
-        const Binding binding = window->bindings[i];
+        const Binding binding = window->binds[i];
         if (!binding.mouse && binding.button == key)
         {
             if (binding.action >= CHAR_BIT * sizeof(uint_fast32_t))
@@ -84,7 +86,7 @@ void window_kill(Window* window)
         glfwDestroyWindow(window->win);
         if (!--window_count) glfwTerminate();
     }
-    free(window->bindings);
+    arrfree(window->binds);
     free(window);
 }
 
@@ -130,7 +132,8 @@ Window* window_init()
             .mouse = { 0.0f, 0.0f },
             .scroll = 0.0,
         },
-        .size = { width, height }
+        .size = { width, height },
+        .binds = NULL,
     };
 
     if (!window_count && !glfwInit())
@@ -226,40 +229,39 @@ Window* window_init()
         window->ok = GL_TRUE;
     }
 
-    window->binding_count = 8;
-    window->bindings = malloc(window->binding_count * sizeof(Binding));
-    window->bindings[0] = (Binding) {
+    arrput(window->binds, ((Binding) {
         .button = GLFW_KEY_W,
         .action = up,
-    };
-    window->bindings[1] = (Binding) {
+    }));
+    arrput(window->binds, ((Binding) {
         .button = GLFW_KEY_S,
         .action = down,
-    };
-    window->bindings[2] = (Binding) {
+    }));
+    arrput(window->binds, ((Binding) {
         .button = GLFW_KEY_A,
         .action = left,
-    };
-    window->bindings[3] = (Binding) {
+    }));
+    arrput(window->binds, ((Binding) {
         .button = GLFW_KEY_D,
         .action = right,
-    };
-     window->bindings[4] = (Binding) {
+    }));
+    arrput(window->binds, ((Binding) {
         .button = GLFW_KEY_LEFT_SHIFT,
         .action = zoom_in,
-    };
-    window->bindings[5] = (Binding) {
+    }));
+    arrput(window->binds, ((Binding) {
         .button = GLFW_KEY_LEFT_CONTROL,
         .action = zoom_out,
-    };
-    window->bindings[6] = (Binding) {
+    }));
+    arrput(window->binds, ((Binding) {
         .button = GLFW_KEY_E,
         .action = clockwise,
-    };
-    window->bindings[7] = (Binding) {
+    }));
+    arrput(window->binds, ((Binding) {
         .button = GLFW_KEY_Q,
         .action = anticlockwise,
-    };
+    }));
+
     return window;
 }
 

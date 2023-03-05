@@ -38,8 +38,7 @@ typedef struct {
     GLboolean ok;
     GLbitfield clear_mask;
     Input input;
-    size_t binding_count;
-    Binding* bindings;
+    Binding* binds;
     vec2 size;
     double last_frame_timestamp;
     double delta_time;
