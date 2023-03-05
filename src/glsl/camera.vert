@@ -20,7 +20,7 @@ mat2 rotate(float angle)
 
 void main()
 {
-    gl_Position = vec4((position - camera_position) / camera_scale, 0.0, 1.0);
-    gl_Position.xy *= rotate(camera_rotation);
+    vec2 rotated = (position - camera_position) * rotate(camera_rotation);
+    gl_Position = vec4(rotated / camera_scale, 0.0, 1.0);
     frag_colour = colour;
 }
