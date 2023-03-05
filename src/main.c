@@ -38,7 +38,16 @@ int main(int argc, char* argv[])
     {
         vec2 movement_input;
         window_movement_input(win, movement_input);
-        camera_step(&camera, movement_input, window_delta_time(win));
+
+        vec2 camera_input;
+        window_camera_input(win, camera_input);
+
+        camera_step(
+            &camera,
+            movement_input,
+            camera_input,
+            window_delta_time(win)
+        );
         camera_use(camera, shader);
 
         graph_draw(tree);

@@ -74,6 +74,11 @@ GLboolean window_action(Window* window, Action action, GLboolean press);
 /// @param dest Vector to write movement input to
 void window_movement_input(Window* window, vec2 dest);
 
+/// @brief Get camera input vector from window
+/// @param window Window to query
+/// @param dest Vector to write camera input to
+void window_camera_input(Window* window, vec2 dest);
+
 /// @brief Obtain window size in pixels
 /// @param window Window to query
 /// @param dest Vector to write window size to

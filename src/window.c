@@ -226,7 +226,7 @@ Window* window_init()
         window->ok = GL_TRUE;
     }
 
-    window->binding_count = 6;
+    window->binding_count = 8;
     window->bindings = malloc(window->binding_count * sizeof(Binding));
     window->bindings[0] = (Binding) {
         .button = GLFW_KEY_W,
@@ -244,11 +244,19 @@ Window* window_init()
         .button = GLFW_KEY_D,
         .action = right,
     };
-    window->bindings[4] = (Binding) {
+     window->bindings[4] = (Binding) {
+        .button = GLFW_KEY_LEFT_SHIFT,
+        .action = zoom_in,
+    };
+    window->bindings[5] = (Binding) {
+        .button = GLFW_KEY_LEFT_CONTROL,
+        .action = zoom_out,
+    };
+    window->bindings[6] = (Binding) {
         .button = GLFW_KEY_E,
         .action = clockwise,
     };
-    window->bindings[5] = (Binding) {
+    window->bindings[7] = (Binding) {
         .button = GLFW_KEY_Q,
         .action = anticlockwise,
     };
@@ -290,6 +298,15 @@ void window_movement_input(Window* window, vec2 dest)
     if (window_action(window, down, GL_FALSE)) dest[1] -= 1.0f;
     if (window_action(window, left, GL_FALSE)) dest[0] -= 1.0f;
     if (window_action(window, right, GL_FALSE)) dest[0] += 1.0f;
+}
+
+void window_camera_input(Window* window, vec2 dest)
+{
+    glm_vec2_zero(dest);
+    if (window_action(window, zoom_in, GL_FALSE)) dest[1] -= 1.0f;
+    if (window_action(window, zoom_out, GL_FALSE)) dest[1] += 1.0f;
+    if (window_action(window, clockwise, GL_FALSE)) dest[0] += 1.0f;
+    if (window_action(window, anticlockwise, GL_FALSE)) dest[0] -= 1.0f;
 }
 
 void window_size(Window* window, vec2 dest)
