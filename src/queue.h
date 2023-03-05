@@ -17,8 +17,7 @@ QueueBlock* queue_block();
 // to improve efficiency the nodes are stored in blocks.
 
 // items pushed onto the back, and they pop off at the front
-typedef struct Queue
-{
+typedef struct {
 	QueueBlock* front;
 	QueueBlock* back;
 	unsigned short int front_index; // item returned last time pop was used

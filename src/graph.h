@@ -3,7 +3,7 @@
 #include "shader.h"
 
 /// @brief VRAM and RAM vertex data pair
-typedef struct Graph {
+typedef struct {
     GLuint vao;
     GLuint vbo;
     GLuint ebo;
@@ -15,7 +15,7 @@ typedef struct Graph {
 } Graph;
 
 /// @brief Vertex attribute
-typedef struct Attribute {
+typedef struct {
     char* name;
     size_t size;
     GLenum type;

@@ -4,7 +4,7 @@
 #include <cglm/cglm.h>
 
 /// @brief Orthographic camera
-typedef struct Camera {
+typedef struct {
     // Kinematics
     vec2 position;
     vec2 velocity;

@@ -4,7 +4,7 @@
 #include <GL/glew.h>
 
 /// @brief Shader program object usable for drawing primitives
-typedef struct Shader {
+typedef struct {
     /// @brief Shader program ID
     GLuint id;
     /// @brief Whether the shader is fit for use
