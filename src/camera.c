@@ -24,13 +24,14 @@ void camera_step(
     const float scale = powf(3.0f, camera->scale_power);
     glm_vec2_scale(camera->base_size, scale, camera->scaled_size);
     camera->speed = glm_vec2_norm(camera->scaled_size) * 0.6f;
+    // Rotation
+    camera->rotation += camera_input[0] * delta_time * -1.5f;
     // Translation
     vec2 movement_delta;
     glm_vec2_normalize_to(movement_input, movement_delta);
+    glm_vec2_rotate(movement_delta, camera->rotation, movement_delta);
     glm_vec2_scale(movement_delta, delta_time * camera->speed, movement_delta);
     glm_vec2_add(movement_delta, camera->position, camera->position);
-    // Rotation
-    camera->rotation += camera_input[0] * delta_time;
 }
 
 void camera_screen_to_world(Camera camera, vec2 screen_coordinate, vec2 dest)
