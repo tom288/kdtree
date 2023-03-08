@@ -3,6 +3,55 @@
 #include <stdlib.h> // malloc
 #include <string.h> // memcpy
 #include <time.h> // time
+#include <stb_ds.h>
+#include <time.h>
+
+const size_t rect_vertices = 6;
+const size_t vertex_floats = 5;
+const size_t rectangle_floats = rect_vertices * vertex_floats;
+
+void dfs_bake_leaves(Node* node, float* vertices, size_t* leaves)
+{
+    Node* child = NULL;
+
+    for (size_t i = 0; i < 2; ++i)
+    {
+        if (node->children[i])
+        {
+            child = node->children[i];
+            dfs_bake_leaves(child, vertices, leaves);
+        }
+    }
+
+    if (child) return;
+
+    for (size_t vertex = 0; vertex < rect_vertices; ++vertex)
+    {
+        for (size_t floats = 0; floats < vertex_floats; ++floats)
+        {
+            float f;
+            if (floats < 2)
+            {
+                f = node->min_corner[floats];
+                if (
+                    (floats == 0 && vertex % 2 > 0) ||
+                    (floats == 1 && vertex > 0 && vertex < 4)
+                ) {
+                    f += node->size[floats];
+                }
+            }
+            else
+            {
+                f = node->colour[floats - 2];
+            }
+
+            vertices[
+                *leaves * rectangle_floats + vertex * vertex_floats + floats
+            ] = f;
+        }
+    }
+    (*leaves)++;
+}
 
 Graph kdtree_init(Shader* shader)
 {
@@ -10,36 +59,22 @@ Graph kdtree_init(Shader* shader)
     srand(time(NULL));
 
     // Allocate enough room to draw max_leaves nodes
-    const size_t max_leaves = 1 << 16;
-    const size_t rect_vertices = 6;
-    const size_t vertex_floats = 5;
-    const size_t rectangle_floats = rect_vertices * vertex_floats;
-    const size_t vertices_size = max_leaves * rectangle_floats * sizeof(float);
-    float* const vertices = malloc(vertices_size);
-    if (!vertices)
-    {
-        fprintf(stderr, "Failed to malloc for KDTree vertices\n");
-        return graph_init_empty();
-    }
+    const size_t max_leaves = 1 << 22;
+
+    Node* nodes = NULL;
+    // Guess the amount of memory needed to avoid both waste and growth
+    arrsetcap(nodes, max_leaves * 3);
 
     // Define the head of the k-d tree, which is never a leaf, so no colour
-    Node* const head = malloc(sizeof(Node));
-    if (!head)
-    {
-        fprintf(stderr, "Failed to malloc for KDTree head\n");
-        free(vertices);
-        return graph_init_empty();
-    }
-    *head = (Node) {
+    arrput(nodes, ((Node) {
         .colour = { 0.0f },
         .min_corner = { -1.0f, -1.0f },
         .size = { 2.0f, 2.0f },
         .split_axis = rand_bool(),
         .split = rand_float(),
         .children = { NULL, NULL },
-    };
-
-    GLboolean ok = GL_TRUE;
+    }));
+    Node* head = &nodes[0];
 
     // Find a random child with value NULL
     // Assign a node to this child
@@ -54,24 +89,17 @@ Graph kdtree_init(Shader* shader)
             node = node->children[child_index];
         }
 
-        Node* const leaf = malloc(sizeof(Node));
-        if (!leaf)
-        {
-            fprintf(stderr, "Failed to malloc for KDTree leaf\n");
-            ok = GL_FALSE;
-            break;
-        }
-        node->children[child_index] = leaf;
-
-        *leaf = (Node) {
+        arrput(nodes, ((Node) {
             .colour = { 0.0f },
             .min_corner = { node->min_corner[0], node->min_corner[1] },
             .size = { node->size[0], node->size[1] },
             .split_axis = rand_bool(),
             .split = bias_float(rand_float(), 0.5, 2.0f),
             .children = { NULL, NULL },
-        };
+        }));
 
+        Node* leaf = &arrlast(nodes);
+        node->children[child_index] = leaf;
         rand_vec3(leaf->colour);
 
         if (node->children[!child_index])
@@ -95,92 +123,27 @@ Graph kdtree_init(Shader* shader)
         }
     }
 
-    // Now that we have our tree we can use it to fill our vertices buffer.
-    // We could not do this before because we did not know which nodes would
-    // end up being leaves and would therefore need to be drawn.
+    clock_t begin = clock();
 
-    // Find a leaf
-    // Add it to the buffer of vertices
-    // Free the memory allocated for the leaf
-    for (size_t leaves = 0; ok && leaves < max_leaves;) // We ++ conditionally
+    const size_t vertices_size = max_leaves * rectangle_floats * sizeof(float);
+    float* const vertices = malloc(vertices_size);
+
+    if (!vertices)
     {
-        Node* leaf = head;
-        Node* parent = NULL;
-        GLboolean child_index = GL_FALSE;
-
-        while (leaf->children[0] || leaf->children[1])
-        {
-            parent = leaf;
-            child_index = !leaf->children[0];
-            leaf = child_index
-                ? leaf->children[1]
-                : leaf->children[0];
-        }
-
-        if (leaf->colour[0] < 0)
-        {
-            free(leaf);
-            parent->children[child_index] = NULL;
-            continue;
-        }
-
-        for (size_t vertex = 0; vertex < rect_vertices; ++vertex)
-        {
-            for (size_t floats = 0; floats < vertex_floats; ++floats)
-            {
-                float f;
-                if (floats < 2)
-                {
-                    f = leaf->min_corner[floats];
-                    if (
-                        (floats == 0 && vertex % 2 > 0) ||
-                        (floats == 1 && vertex > 0 && vertex < 4)
-                    ) {
-                        f += leaf->size[floats];
-                    }
-                }
-                else
-                {
-                    f = leaf->colour[floats - 2];
-                }
-
-                vertices[
-                    leaves * rectangle_floats + vertex * vertex_floats + floats
-                ] = f;
-            }
-        }
-        ++leaves;
-
-        free(leaf);
-        parent->children[child_index] = NULL;
-    }
-
-    // Free all remaining nodes
-    while (GL_TRUE)
-    {
-        Node* leaf = head;
-        Node* parent = NULL;
-        GLboolean child_index;
-
-        while (leaf->children[0] || leaf->children[1])
-        {
-            parent = leaf;
-            child_index = !leaf->children[0];
-            leaf = child_index
-                ? leaf->children[1]
-                : leaf->children[0];
-        }
-
-        free(leaf);
-        if (!parent) break; // There is no longer a head
-        parent->children[child_index] = NULL;
-    }
-
-    if (!ok)
-    {
-        free(vertices);
+        fprintf(stderr, "Failed to malloc for KDTree vertices\n");
         return graph_init_empty();
     }
+
+    // Iterate over leaves
+    size_t leaves = 0;
+    dfs_bake_leaves(nodes, vertices, &leaves);
+
+    clock_t end = clock();
+    double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
+    printf("%f\n", time_spent);
+
+    // Free all remaining nodes
+    arrfree(nodes);
 
     Attribute attributes[] = {
         {
