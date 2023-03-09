@@ -148,7 +148,6 @@ Graph kdtree_init(Shader* shader)
         shader,
         GL_FLOAT,
         vertices,
-        0,
         NULL,
         attribute_count,
         attributes

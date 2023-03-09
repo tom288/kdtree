@@ -126,9 +126,7 @@ void graph_free_vertices(Graph* graph)
 
 void graph_free_all(Graph* graph)
 {
-    free(graph->indices);
-    graph->indices = NULL;
-    graph->indices_size = 0;
+    arrfree(graph->indices);
     // Without index data there is no point in keeping vertex data
     graph_free_vertices(graph);
 }
@@ -144,21 +142,21 @@ void graph_kill(Graph* graph)
     graph_free_all(graph);
 }
 
+const GLenum index_type = GL_UNSIGNED_INT;
+
 Graph graph_init
 (
     Shader* shader,
     GLenum vertex_type,
     void* vertices,
-    size_t indices_size,
     GLuint* indices,
     size_t attribute_count,
     Attribute attributes[]
 ) {
     Graph graph = {
         .vertices = vertices,
-        .stride = 0,
-        .indices_size = indices_size,
         .indices = indices,
+        .stride = 0,
     };
 
     if (!arrlen(graph.vertices)) return graph;
@@ -172,13 +170,13 @@ Graph graph_init
     glBindBuffer(GL_ARRAY_BUFFER, graph.vbo);
     glBufferData(GL_ARRAY_BUFFER, arrlen(graph.vertices) * gl_sizeof(vertex_type), graph.vertices, usage);
 
-    if (graph.indices_size && graph.indices)
+    if (arrlen(graph.indices))
     {
         glGenBuffers(1, &graph.ebo);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, graph.ebo);
         glBufferData(
             GL_ELEMENT_ARRAY_BUFFER,
-            graph.indices_size,
+            arrlen(graph.indices) * gl_sizeof(index_type),
             graph.indices,
             usage
         );
@@ -207,7 +205,7 @@ Graph graph_init
 
 Graph graph_init_empty()
 {
-    return graph_init(NULL, GL_FLOAT, NULL, 0, NULL, 0, NULL);
+    return graph_init(NULL, GL_FLOAT, NULL, NULL, 0, NULL);
 }
 
 GLboolean graph_ok(Graph graph)
@@ -219,11 +217,9 @@ void graph_draw(Graph graph)
 {
     if (!graph_ok(graph) || !arrlen(graph.vertices)) return;
     glBindVertexArray(graph.vao);
-    if (graph.indices_size && graph.indices)
+    if (arrlen(graph.indices))
     {
-        const GLenum index_type = GL_UNSIGNED_INT;
-        const size_t num_indices = graph.indices_size / gl_sizeof(index_type);
-        glDrawElements(GL_TRIANGLES, num_indices, index_type, 0);
+        glDrawElements(GL_TRIANGLES, arrlen(graph.indices), index_type, 0);
     }
     else
     {
