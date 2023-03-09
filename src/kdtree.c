@@ -57,7 +57,7 @@ Graph kdtree_init(Shader* shader)
     srand(time(NULL));
 
     // Allocate enough room to draw max_leaves nodes
-    const size_t max_leaves = 1 << 22;
+    const size_t max_leaves = 1 << 16;
 
     Node* nodes = NULL;
     // Guess the amount of memory needed to avoid both waste and growth
@@ -121,17 +121,11 @@ Graph kdtree_init(Shader* shader)
         }
     }
 
-    clock_t begin = clock();
-
     const size_t vertices_size = max_leaves * rectangle_floats * sizeof(float);
     float* vertices = NULL;
     arrsetcap(vertices, max_leaves * rectangle_floats);
     size_t leaves = 0;
     dfs_bake_leaves(nodes, &vertices, &leaves);
-
-    clock_t end = clock();
-    double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
-    printf("%f\n", time_spent);
 
     // Free all remaining nodes
     arrfree(nodes);

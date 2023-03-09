@@ -3,7 +3,7 @@
 set -e
 
 if [ "$(uname)" == "Darwin" ]; then
-    OpenGL="-framework OpenGL"
+    OpenGL="-framework OpenGL -I ../stb"
 elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
     OpenGL="-lGL"
 else
