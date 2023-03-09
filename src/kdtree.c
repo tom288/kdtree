@@ -10,7 +10,7 @@ const size_t rect_vertices = 6;
 const size_t vertex_floats = 5;
 const size_t rectangle_floats = rect_vertices * vertex_floats;
 
-void dfs_bake_leaves(Node* node, float* vertices, size_t* leaves)
+void dfs_bake_leaves(Node* node, float** vertices, size_t* leaves)
 {
     Node* child = NULL;
 
@@ -45,9 +45,7 @@ void dfs_bake_leaves(Node* node, float* vertices, size_t* leaves)
                 f = node->colour[floats - 2];
             }
 
-            vertices[
-                *leaves * rectangle_floats + vertex * vertex_floats + floats
-            ] = f;
+            arrput(*vertices, f);
         }
     }
     (*leaves)++;
@@ -126,17 +124,10 @@ Graph kdtree_init(Shader* shader)
     clock_t begin = clock();
 
     const size_t vertices_size = max_leaves * rectangle_floats * sizeof(float);
-    float* const vertices = malloc(vertices_size);
-
-    if (!vertices)
-    {
-        fprintf(stderr, "Failed to malloc for KDTree vertices\n");
-        return graph_init_empty();
-    }
-
-    // Iterate over leaves
+    float* vertices = NULL;
+    arrsetcap(vertices, max_leaves * rectangle_floats);
     size_t leaves = 0;
-    dfs_bake_leaves(nodes, vertices, &leaves);
+    dfs_bake_leaves(nodes, &vertices, &leaves);
 
     clock_t end = clock();
     double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;

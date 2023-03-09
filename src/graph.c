@@ -4,6 +4,7 @@
 #include <GL/glew.h>
 #include <stdio.h>
 #include <stdlib.h> // free
+#include <stb_ds.h>
 
 /// @brief Inform OpenGL about our attribute
 /// @param index Attribute index corresponding to graph args or shader location
@@ -119,7 +120,7 @@ GLboolean init_attributes
 
 void graph_free_vertices(Graph* graph)
 {
-    free(graph->vertices);
+    arrfree(graph->vertices);
     graph->vertices = NULL;
     graph->vertices_size = 0;
     graph->stride = 0;
