@@ -7,7 +7,6 @@ typedef struct {
     GLuint vao;
     GLuint vbo;
     GLuint ebo;
-    size_t vertices_size;
     void* vertices;
     size_t indices_size;
     GLuint* indices;
@@ -24,7 +23,7 @@ typedef struct {
 
 /// @brief Upload and label vertex data so that it can be used by the GPU
 /// @param shader Shader object to use for finding name positions, or NULL
-/// @param vertices_size Size of vertex buffer data in bytes
+/// @param vertex_type Type of vertex buffer data
 /// @param vertices Vertex buffer data
 /// @param attribute_count Number of vertex attributes
 /// @param attributes Vertex attributes
@@ -32,7 +31,7 @@ typedef struct {
 Graph graph_init
 (
     Shader* shader,
-    size_t vertices_size,
+    GLenum vertex_type,
     void* vertices,
     size_t indices_size,
     GLuint* indices,

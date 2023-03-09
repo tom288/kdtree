@@ -2,6 +2,7 @@
 #include <stdlib.h> // malloc
 #include <string.h> // memcpy
 #include <stdio.h> // memcpy
+#include <stb_ds.h>
 
 Graph rectangle_init(Shader* shader)
 {
@@ -15,16 +16,9 @@ Graph rectangle_init(Shader* shader)
          0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
     };
 
-    const size_t vertices_size = sizeof(const_vertices);
-    float* const vertices = malloc(vertices_size);
-
-    if (!vertices)
-    {
-        fprintf(stderr, "Failed to malloc for Rectangle vertices\n");
-        return graph_init_empty();
-    }
-
-    memcpy(vertices, const_vertices, vertices_size);
+    float* vertices = NULL;
+    arrsetlen(vertices, sizeof(const_vertices) / sizeof(*const_vertices));
+    memcpy(vertices, const_vertices, sizeof(const_vertices));
 
     Attribute attributes[] = {
         {
@@ -43,7 +37,7 @@ Graph rectangle_init(Shader* shader)
 
     return graph_init(
         shader,
-        vertices_size,
+        GL_FLOAT,
         vertices,
         0,
         NULL,

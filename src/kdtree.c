@@ -121,7 +121,6 @@ Graph kdtree_init(Shader* shader)
         }
     }
 
-    const size_t vertices_size = max_leaves * rectangle_floats * sizeof(float);
     float* vertices = NULL;
     arrsetcap(vertices, max_leaves * rectangle_floats);
     size_t leaves = 0;
@@ -147,7 +146,7 @@ Graph kdtree_init(Shader* shader)
 
     return graph_init(
         shader,
-        vertices_size,
+        GL_FLOAT,
         vertices,
         0,
         NULL,

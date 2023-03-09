@@ -74,9 +74,6 @@ Use `build.sh` to build and run in debug mode
 
 ## Next Steps
 
-- Include some useful data types like vector, queue, stack
-- Refactor KDTree to use these data types
 - Add Graph functions to free and reassign vertices
-- Support some form of camera movement
 - Let Graph accept vertex buffer updates
 - Let Graph draw a variable number of points / tris / rects

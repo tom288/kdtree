@@ -121,8 +121,6 @@ GLboolean init_attributes
 void graph_free_vertices(Graph* graph)
 {
     arrfree(graph->vertices);
-    graph->vertices = NULL;
-    graph->vertices_size = 0;
     graph->stride = 0;
 }
 
@@ -149,7 +147,7 @@ void graph_kill(Graph* graph)
 Graph graph_init
 (
     Shader* shader,
-    size_t vertices_size,
+    GLenum vertex_type,
     void* vertices,
     size_t indices_size,
     GLuint* indices,
@@ -157,14 +155,13 @@ Graph graph_init
     Attribute attributes[]
 ) {
     Graph graph = {
-        .vertices_size = vertices_size,
         .vertices = vertices,
         .stride = 0,
         .indices_size = indices_size,
         .indices = indices,
     };
 
-    if (!graph.vertices || !graph.vertices_size) return graph;
+    if (!arrlen(graph.vertices)) return graph;
 
     glGenVertexArrays(1, &graph.vao);
     glBindVertexArray(graph.vao);
@@ -173,7 +170,7 @@ Graph graph_init
 
     glGenBuffers(1, &graph.vbo);
     glBindBuffer(GL_ARRAY_BUFFER, graph.vbo);
-    glBufferData(GL_ARRAY_BUFFER, graph.vertices_size, graph.vertices, usage);
+    glBufferData(GL_ARRAY_BUFFER, arrlen(graph.vertices) * gl_sizeof(vertex_type), graph.vertices, usage);
 
     if (graph.indices_size && graph.indices)
     {
@@ -194,6 +191,8 @@ Graph graph_init
         shader
     );
 
+    graph.stride /= gl_sizeof(vertex_type);
+
     glEnableVertexAttribArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
@@ -208,7 +207,7 @@ Graph graph_init
 
 Graph graph_init_empty()
 {
-    return graph_init(NULL, 0, NULL, 0, NULL, 0, NULL);
+    return graph_init(NULL, GL_FLOAT, NULL, 0, NULL, 0, NULL);
 }
 
 GLboolean graph_ok(Graph graph)
@@ -218,7 +217,7 @@ GLboolean graph_ok(Graph graph)
 
 void graph_draw(Graph graph)
 {
-    if (!graph_ok(graph) || !graph.vertices_size || !graph.vertices) return;
+    if (!graph_ok(graph) || !arrlen(graph.vertices)) return;
     glBindVertexArray(graph.vao);
     if (graph.indices_size && graph.indices)
     {
@@ -228,7 +227,7 @@ void graph_draw(Graph graph)
     }
     else
     {
-        glDrawArrays(GL_TRIANGLES, 0, graph.vertices_size / graph.stride);
+        glDrawArrays(GL_TRIANGLES, 0, arrlen(graph.vertices) / graph.stride);
     }
     glBindVertexArray(0);
 }
