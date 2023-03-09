@@ -27,7 +27,7 @@ void key_callback(GLFWwindow* win, int key, int scancode, int action, int mods)
     Window* const window = glfwGetWindowUserPointer(win);
     if (!window) return;
 
-    for (size_t i = 0; i < arrlenuu(window->binds); ++i)
+    for (size_t i = 0; i < arrlenu(window->binds); ++i)
     {
         const Binding binding = window->binds[i];
         if (!binding.mouse && binding.button == key)
