@@ -25,7 +25,6 @@ typedef struct {
 /// @param vertex_type Type of vertex buffer data
 /// @param vertices Vertex buffer data
 /// @param indices Element buffer data
-/// @param attribute_count Number of vertex attributes
 /// @param attributes Vertex attributes
 /// @return Graph
 Graph graph_init
@@ -34,8 +33,7 @@ Graph graph_init
     GLenum vertex_type,
     void* vertices,
     GLuint* indices,
-    size_t attribute_count,
-    Attribute attributes[]
+    Attribute* attributes
 );
 
 /// @brief Create an empty graph, most useful for maintaining safe error cases

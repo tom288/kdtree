@@ -129,27 +129,25 @@ Graph kdtree_init(Shader* shader)
     // Free all remaining nodes
     arrfree(nodes);
 
-    Attribute attributes[] = {
-        {
-            .name = "position",
-            .size = 2,
-            .type = GL_FLOAT,
-        },
-        {
-            .name = "colour",
-            .size = 3,
-            .type = GL_FLOAT,
-        },
-    };
+    Attribute* attributes = NULL;
 
-    const size_t attribute_count = sizeof(attributes) / sizeof(Attribute);
+    arrput(attributes, ((Attribute) {
+        .name = "position",
+        .size = 2,
+        .type = GL_FLOAT,
+    }));
+
+    arrput(attributes, ((Attribute) {
+        .name = "colour",
+        .size = 3,
+        .type = GL_FLOAT,
+    }));
 
     return graph_init(
         shader,
         GL_FLOAT,
         vertices,
         NULL,
-        attribute_count,
         attributes
     );
 }
