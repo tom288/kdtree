@@ -86,6 +86,27 @@ GLboolean rand_bool()
     return rand() > RAND_MAX / 2;
 }
 
+size_t rand_int(size_t sides, GLboolean fair)
+{
+    if (sides <= 1) return 0;
+
+    size_t random = rand();
+    size_t options = RAND_MAX;
+    while (sides > options)
+    {
+        options *= RAND_MAX;
+        random *= RAND_MAX;
+        random += rand();
+    }
+
+    if (fair && random - random % sides + sides > options)
+    {
+        return rand_int(sides, fair);
+    }
+
+    return random % sides;
+}
+
 float rand_float()
 {
     return (float)rand() / (float)RAND_MAX;

@@ -41,3 +41,9 @@ float bias_float(float f, float towards, float strength);
 /// @param y 
 /// @return Minimum double
 double min_d(double x, double y);
+
+/// @brief Roll a random dice to get a number between 0 and sides - 1
+/// @param sides Number of sides
+/// @param fair Whether to ensure the roll is fair for all values of sides
+/// @return A random number between 0 and sides - 1
+size_t rand_int(size_t sides, GLboolean fair);
