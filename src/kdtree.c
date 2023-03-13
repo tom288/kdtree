@@ -1,7 +1,7 @@
+#define __USE_MINGW_ANSI_STDIO 1 // Make MinGW printf support size_t with %zu
 #include "kdtree.h"
 #include "utility.h"
 #include <stdlib.h> // malloc
-#include <string.h> // memcpy
 #include <time.h> // time
 #include <stb_ds.h>
 #include <time.h>
@@ -10,6 +10,9 @@ const size_t rect_vertices = 6;
 const size_t vertex_floats = 5;
 const size_t rectangle_floats = rect_vertices * vertex_floats;
 
+// It is important that we pass a pointer to an array of vertices, because
+// the stb macros like arrput will write to the pointer for reallocation. By
+// passing a float* instead we would have dangling pointer issues outside.
 void dfs_bake_leaves(Node* node, float** vertices, size_t* leaves)
 {
     Node* child = NULL;
@@ -154,14 +157,14 @@ Graph kdtree_init(Shader* shader)
 
 void node_info(Node* node)
 {
-    printf("Node %llu info:\n", (uint64_t)node / sizeof(Node));
+    printf("Node %zu info:\n", (size_t)node / sizeof(Node));
     if (!node) return;
     printf("Min corner %f %f\n", node->min_corner[0], node->min_corner[1]);
     printf("Size %f %f\n", node->size[0], node->size[1]);
     printf("Split %c %f\n", node->split_axis ? 'Y' : 'X', node->split);
     printf(
-        "Children %llu %llu\n\n",
-        (uint64_t)node->children[0] / sizeof(Node),
-        (uint64_t)node->children[1] / sizeof(Node)
+        "Children %zu %zu\n\n",
+        (size_t)node->children[0] / sizeof(Node),
+        (size_t)node->children[1] / sizeof(Node)
     );
 }
