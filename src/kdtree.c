@@ -28,7 +28,7 @@ Graph kdtree_init(Shader* shader)
         .min_corner = { -1.0f, -1.0f },
         .size = { 2.0f, 2.0f },
         .split_axis = rand_bool(),
-        .split = 0.5f,
+        .split = bias_float(rand_float(), 0.5, 2.0f),
         .children = { NULL, NULL },
     }));
 
@@ -100,10 +100,7 @@ Graph kdtree_init(Shader* shader)
                         f += node.size[floats];
                     }
                 }
-                else
-                {
-                    f = node.colour[floats - 2];
-                }
+                else f = node.colour[floats - 2];
 
                 arrput(vertices, f);
             }
