@@ -22,7 +22,7 @@ Graph kdtree_init(Shader* shader)
     Node* nodes = NULL;
     arrsetcap(nodes, max_leaves * 1.65f);
 
-    // Define the head of the k-d tree, which is never a leaf, so no colour
+    // Define the head of the k-d tree, which is never a leaf, so has no colour
     arrput(nodes, ((Node) {
         .colour = { 0.0f },
         .min_corner = { -1.0f, -1.0f },

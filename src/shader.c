@@ -25,7 +25,11 @@ GLint compile_error(GLuint id, int is_program, char* path)
         if (!ok)
         {
             glGetProgramInfoLog(id, max_length, NULL, log);
-            fprintf(stderr, "Failed to link shader program (vertex shader %s)", path);
+            fprintf(
+                stderr,
+                "Failed to link shader program (vertex shader %s)",
+                path
+            );
         }
     }
     else
@@ -38,10 +42,7 @@ GLint compile_error(GLuint id, int is_program, char* path)
         }
     }
 
-    if (!ok)
-    {
-        fprintf(stderr, "\n%s\n", log);
-    }
+    if (!ok) fprintf(stderr, "\n%s\n", log);
 
     return !ok;
 }
