@@ -47,7 +47,8 @@ GLboolean graph_ok(Graph graph);
 
 /// @brief Draw contents of graph
 /// @param graph Graph to draw
-void graph_draw(Graph graph);
+/// @param mode Kind of primitive to render
+void graph_draw(Graph graph, GLenum mode);
 
 /// @brief Free graph vertices, without changing GPU data
 /// @param graph Graph of vertices to free

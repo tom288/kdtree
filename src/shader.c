@@ -108,7 +108,7 @@ void shader_kill(Shader* shader)
 }
 
 // The geometry path is made optional by having checks for values NULL and ""
-Shader shader_init(char* vertex, char* fragment, char* geometry)
+Shader shader_init(char* vertex, char* geometry, char* fragment)
 {
     const GLuint vert = compile(vertex, GL_VERTEX_SHADER);
     const GLuint frag = compile(fragment, GL_FRAGMENT_SHADER);

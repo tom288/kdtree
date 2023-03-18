@@ -85,26 +85,9 @@ Graph kdtree_init(Shader* shader)
 
         if (node.children[GL_FALSE] || node.children[GL_TRUE]) continue;
 
-        for (size_t vertex = 0; vertex < rect_vertices; ++vertex)
-        {
-            for (size_t floats = 0; floats < vertex_floats; ++floats)
-            {
-                float f;
-                if (floats < 2)
-                {
-                    f = node.min_corner[floats];
-                    if (
-                        (floats == 0 && vertex % 2 > 0) ||
-                        (floats == 1 && vertex > 0 && vertex < 4)
-                    ) {
-                        f += node.size[floats];
-                    }
-                }
-                else f = node.colour[floats - 2];
-
-                arrput(vertices, f);
-            }
-        }
+        for (size_t i = 0; i < 2; ++i) arrput(vertices, node.min_corner[i]);
+        for (size_t i = 0; i < 2; ++i) arrput(vertices, node.size[i]);
+        for (size_t i = 0; i < 3; ++i) arrput(vertices, node.colour[i]);
     }
 
     // Free all remaining nodes
@@ -113,7 +96,13 @@ Graph kdtree_init(Shader* shader)
     Attribute* attributes = NULL;
 
     arrput(attributes, ((Attribute) {
-        .name = "position",
+        .name = "min_corner",
+        .size = 2,
+        .type = GL_FLOAT,
+    }));
+
+    arrput(attributes, ((Attribute) {
+        .name = "size",
         .size = 2,
         .type = GL_FLOAT,
     }));

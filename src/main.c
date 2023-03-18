@@ -8,7 +8,11 @@ int main(int argc, char* argv[])
     Window* win = window_init();
     if (!win) return 1;
 
-    Shader shader = shader_init("src/glsl/camera.vert", "src/glsl/colour.frag", "");
+    Shader shader = shader_init(
+        "src/glsl/rectangle.vert",
+        "src/glsl/rectangle.geom",
+        "src/glsl/colour.frag"
+    );
     if (!shader.ok)
     {
         window_kill(win);
@@ -49,8 +53,8 @@ int main(int argc, char* argv[])
             window_delta_time(win)
         );
         camera_use(camera, shader);
-
-        graph_draw(tree);
+        // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        graph_draw(tree, GL_POINTS);
         window_swap(win);
     }
 

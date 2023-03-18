@@ -211,17 +211,17 @@ GLboolean graph_ok(Graph graph)
     return !!graph.vao;
 }
 
-void graph_draw(Graph graph)
+void graph_draw(Graph graph, GLenum mode)
 {
     if (!graph_ok(graph) || !arrlenu(graph.vertices)) return;
     glBindVertexArray(graph.vao);
     if (arrlenu(graph.indices))
     {
-        glDrawElements(GL_TRIANGLES, arrlenu(graph.indices), index_type, 0);
+        glDrawElements(mode, arrlenu(graph.indices), index_type, 0);
     }
     else
     {
-        glDrawArrays(GL_TRIANGLES, 0, arrlenu(graph.vertices) / graph.stride);
+        glDrawArrays(mode, 0, arrlenu(graph.vertices) / graph.stride);
     }
     glBindVertexArray(0);
 }
