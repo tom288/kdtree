@@ -5,11 +5,11 @@
 /// @brief VRAM and RAM vertex data pair
 typedef struct {
     GLuint vao;
-    GLuint vbo;
+    GLuint* vbos;
     GLuint ebo;
-    void* vertices;
+    void** vertices;
     GLuint* indices;
-    size_t stride;
+    size_t* strides;
 } Graph;
 
 /// @brief Vertex attribute
@@ -22,7 +22,7 @@ typedef struct {
 
 /// @brief Upload and label vertex data so that it can be used by the GPU
 /// @param shader Shader object to use for finding name positions, or NULL
-/// @param vertex_type Type of vertex buffer data
+/// @param vertex_types Types of vertex buffer data
 /// @param vertices Vertex buffer data
 /// @param indices Element buffer data
 /// @param attributes Vertex attributes
@@ -30,10 +30,10 @@ typedef struct {
 Graph graph_init
 (
     Shader* shader,
-    GLenum vertex_type,
-    void* vertices,
+    GLenum* vertex_types,
+    void** vertices,
     GLuint* indices,
-    Attribute* attributes
+    Attribute** attributes
 );
 
 /// @brief Create an empty graph, most useful for maintaining safe error cases

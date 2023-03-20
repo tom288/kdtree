@@ -6,10 +6,6 @@
 #include <stb_ds.h>
 #include <time.h>
 
-const size_t rect_vertices = 6;
-const size_t vertex_floats = 5;
-const size_t rectangle_floats = rect_vertices * vertex_floats;
-
 Graph kdtree_init(Shader* shader)
 {
     // Seed the random number generator
@@ -76,46 +72,55 @@ Graph kdtree_init(Shader* shader)
         }
     }
 
-    float* vertices = NULL;
-    arrsetcap(vertices, max_leaves * rectangle_floats);
+    GLenum* vertex_types = NULL;
+    arrput(vertex_types, GL_FLOAT);
+
+    float* vertex_floats = NULL;
+    arrsetcap(vertex_floats, max_leaves * 7);
 
     for (size_t i = 0; i < arrlenu(nodes); ++i)
     {
-        const Node node = nodes[i];
+        const Node n = nodes[i];
 
-        if (node.children[GL_FALSE] || node.children[GL_TRUE]) continue;
+        if (n.children[GL_FALSE] || n.children[GL_TRUE]) continue;
 
-        for (size_t i = 0; i < 2; ++i) arrput(vertices, node.min_corner[i]);
-        for (size_t i = 0; i < 2; ++i) arrput(vertices, node.size[i]);
-        for (size_t i = 0; i < 3; ++i) arrput(vertices, node.colour[i]);
+        for (size_t i = 0; i < 2; ++i) arrput(vertex_floats, n.min_corner[i]);
+        for (size_t i = 0; i < 2; ++i) arrput(vertex_floats, n.size[i]);
+        for (size_t i = 0; i < 3; ++i) arrput(vertex_floats, n.colour[i]);
     }
 
     // Free all remaining nodes
     arrfree(nodes);
 
-    Attribute* attributes = NULL;
+    void** vertices = NULL;
+    arrput(vertices, vertex_floats);
 
-    arrput(attributes, ((Attribute) {
+    Attribute* float_attributes = NULL;
+
+    arrput(float_attributes, ((Attribute) {
         .name = "min_corner",
         .size = 2,
         .type = GL_FLOAT,
     }));
 
-    arrput(attributes, ((Attribute) {
+    arrput(float_attributes, ((Attribute) {
         .name = "size",
         .size = 2,
         .type = GL_FLOAT,
     }));
 
-    arrput(attributes, ((Attribute) {
+    arrput(float_attributes, ((Attribute) {
         .name = "colour",
         .size = 3,
         .type = GL_FLOAT,
     }));
 
+    Attribute** attributes = NULL;
+    arrput(attributes, float_attributes);
+
     return graph_init(
         shader,
-        GL_FLOAT,
+        vertex_types,
         vertices,
         NULL,
         attributes
