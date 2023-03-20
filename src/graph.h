@@ -22,7 +22,6 @@ typedef struct {
 
 /// @brief Upload and label vertex data so that it can be used by the GPU
 /// @param shader Shader object to use for finding name positions, or NULL
-/// @param vertex_types Types of vertex buffer data
 /// @param vertices Vertex buffer data
 /// @param indices Element buffer data
 /// @param attributes Vertex attributes
@@ -30,7 +29,6 @@ typedef struct {
 Graph graph_init
 (
     Shader* shader,
-    GLenum* vertex_types,
     void** vertices,
     GLuint* indices,
     Attribute** attributes

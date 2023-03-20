@@ -145,12 +145,9 @@ void graph_kill(Graph* graph)
     graph_free_all(graph);
 }
 
-const GLenum index_type = GL_UNSIGNED_INT;
-
 Graph graph_init
 (
     Shader* shader,
-    GLenum* vertex_types,
     void** vertices,
     GLuint* indices,
     Attribute** attributes
@@ -180,7 +177,7 @@ Graph graph_init
         glBindBuffer(GL_ARRAY_BUFFER, graph.vbos[i]);
         glBufferData(
             GL_ARRAY_BUFFER,
-            arrlenu(graph.vertices[i]) * gl_sizeof(vertex_types[i]),
+            arrlenu(graph.vertices[i]) * gl_sizeof(attributes[i][0].type),
             graph.vertices[i],
             usage
         );
@@ -191,9 +188,8 @@ Graph graph_init
             shader
         );
 
+        graph.strides[i] /= gl_sizeof(attributes[i][0].type);
         arrfree(attributes[i]);
-
-        graph.strides[i] /= gl_sizeof(vertex_types[i]);
     }
 
     arrfree(attributes);
@@ -204,7 +200,7 @@ Graph graph_init
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, graph.ebo);
         glBufferData(
             GL_ELEMENT_ARRAY_BUFFER,
-            arrlenu(graph.indices) * gl_sizeof(index_type),
+            arrlenu(graph.indices) * sizeof(*graph.indices),
             graph.indices,
             usage
         );
@@ -224,7 +220,7 @@ Graph graph_init
 
 Graph graph_init_empty()
 {
-    return graph_init(NULL, NULL, NULL, NULL, NULL);
+    return graph_init(NULL, NULL, NULL, NULL);
 }
 
 GLboolean graph_ok(Graph graph)
@@ -242,7 +238,7 @@ void graph_draw(Graph graph, GLenum mode)
 
     if (arrlenu(graph.indices))
     {
-        glDrawElements(mode, arrlenu(graph.indices), index_type, 0);
+        glDrawElements(mode, arrlenu(graph.indices), sizeof(*graph.indices), 0);
     }
     else
     {

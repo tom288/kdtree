@@ -16,9 +16,6 @@ Graph rectangle_init(Shader* shader)
          0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
     };
 
-    GLenum* vertex_types = NULL;
-    arrput(vertex_types, GL_FLOAT);
-
     float* vertex_floats = NULL;
     arrsetlen(vertex_floats, sizeof(const_vertices) / sizeof(*const_vertices));
     memcpy(vertex_floats, const_vertices, sizeof(const_vertices));
@@ -45,7 +42,6 @@ Graph rectangle_init(Shader* shader)
 
     return graph_init(
         shader,
-        vertex_types,
         vertices,
         NULL,
         attributes

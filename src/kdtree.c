@@ -71,10 +71,6 @@ Graph kdtree_init(Shader* shader)
         }
     }
 
-    GLenum* vertex_types = NULL;
-    arrput(vertex_types, GL_FLOAT);
-    arrput(vertex_types, GL_UNSIGNED_BYTE);
-
     float* vertex_floats = NULL;
     arrsetcap(vertex_floats, max_leaves * 4);
     GLubyte* vertex_colours = NULL;
@@ -98,15 +94,15 @@ Graph kdtree_init(Shader* shader)
     arrput(vertices, vertex_floats);
     arrput(vertices, vertex_colours);
 
-    Attribute* float_attributes = NULL;
+    Attribute* layout_attributes = NULL;
 
-    arrput(float_attributes, ((Attribute) {
+    arrput(layout_attributes, ((Attribute) {
         .name = "min_corner",
         .size = 2,
         .type = GL_FLOAT,
     }));
 
-    arrput(float_attributes, ((Attribute) {
+    arrput(layout_attributes, ((Attribute) {
         .name = "size",
         .size = 2,
         .type = GL_FLOAT,
@@ -121,12 +117,11 @@ Graph kdtree_init(Shader* shader)
     }));
 
     Attribute** attributes = NULL;
-    arrput(attributes, float_attributes);
+    arrput(attributes, layout_attributes);
     arrput(attributes, colour_attributes);
 
     return graph_init(
         shader,
-        vertex_types,
         vertices,
         NULL,
         attributes
