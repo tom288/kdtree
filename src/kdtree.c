@@ -39,7 +39,7 @@ Graph kdtree_init(Shader* shader)
         if (node->children[child_index]) child_index ^= 1;
 
         arrput(nodes, ((Node) {
-            .colour = { 0.0f },
+            .colour = { rand() & 255, rand() & 255, rand() & 255 },
             .min_corner = { node->min_corner[0], node->min_corner[1] },
             .size = { node->size[0], node->size[1] },
             .split_axis = rand_bool(),
@@ -48,7 +48,6 @@ Graph kdtree_init(Shader* shader)
         }));
 
         Node* leaf = &arrlast(nodes);
-        rand_vec3(leaf->colour);
         const GLboolean axis = node->split_axis;
 
         if (child_index)
@@ -74,9 +73,12 @@ Graph kdtree_init(Shader* shader)
 
     GLenum* vertex_types = NULL;
     arrput(vertex_types, GL_FLOAT);
+    arrput(vertex_types, GL_UNSIGNED_BYTE);
 
     float* vertex_floats = NULL;
-    arrsetcap(vertex_floats, max_leaves * 7);
+    arrsetcap(vertex_floats, max_leaves * 4);
+    GLubyte* vertex_colours = NULL;
+    arrsetcap(vertex_floats, max_leaves * 3);
 
     for (size_t i = 0; i < arrlenu(nodes); ++i)
     {
@@ -86,7 +88,7 @@ Graph kdtree_init(Shader* shader)
 
         for (size_t i = 0; i < 2; ++i) arrput(vertex_floats, n.min_corner[i]);
         for (size_t i = 0; i < 2; ++i) arrput(vertex_floats, n.size[i]);
-        for (size_t i = 0; i < 3; ++i) arrput(vertex_floats, n.colour[i]);
+        for (size_t i = 0; i < 3; ++i) arrput(vertex_colours, n.colour[i]);
     }
 
     // Free all remaining nodes
@@ -94,6 +96,7 @@ Graph kdtree_init(Shader* shader)
 
     void** vertices = NULL;
     arrput(vertices, vertex_floats);
+    arrput(vertices, vertex_colours);
 
     Attribute* float_attributes = NULL;
 
@@ -109,14 +112,17 @@ Graph kdtree_init(Shader* shader)
         .type = GL_FLOAT,
     }));
 
-    arrput(float_attributes, ((Attribute) {
+    Attribute* colour_attributes = NULL;
+
+    arrput(colour_attributes, ((Attribute) {
         .name = "colour",
         .size = 3,
-        .type = GL_FLOAT,
+        .type = GL_UNSIGNED_BYTE,
     }));
 
     Attribute** attributes = NULL;
     arrput(attributes, float_attributes);
+    arrput(attributes, colour_attributes);
 
     return graph_init(
         shader,

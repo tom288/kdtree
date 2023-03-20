@@ -6,7 +6,7 @@
 
 /// @brief Node for kd-tree
 typedef struct Node {
-    vec3 colour;
+    GLubyte colour[3];
     vec2 min_corner;
     vec2 size;
     GLboolean split_axis;

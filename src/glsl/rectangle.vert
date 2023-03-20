@@ -2,7 +2,7 @@
 
 in vec2 min_corner;
 in vec2 size;
-in vec3 colour;
+in uvec3 colour;
 
 struct Rectangle
 {
@@ -17,5 +17,5 @@ void main()
 {
     rectangle.min_corner = min_corner;
     rectangle.size = size;
-    rectangle.color = colour;
+    rectangle.color = colour / 255.0;
 }
