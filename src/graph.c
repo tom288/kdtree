@@ -124,7 +124,6 @@ void graph_free_vertices(Graph* graph)
         arrfree(graph->vertices[i]);
     }
     arrfree(graph->vertices);
-    arrfree(graph->strides);
 }
 
 void graph_free_all(Graph* graph)
@@ -142,6 +141,7 @@ void graph_kill(Graph* graph)
     arrfree(graph->vbos);
     glDeleteBuffers(1, &graph->ebo);
     graph->ebo = 0;
+    arrfree(graph->strides);
     graph_free_all(graph);
 }
 
