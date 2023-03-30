@@ -117,6 +117,64 @@ GLboolean init_attributes
     return GL_FALSE;
 }
 
+void graph_update_vertices(Graph* graph, void** vertices)
+{
+    if (!graph->vao)
+    {
+        fprintf(stderr, "VAO is not initialized :(");
+        return;
+    }
+    if (!arrlenu(graph->vbos))
+    {
+        fprintf(stderr, "VBOs are not initialized :(");
+        return;
+    }
+    if (arrlenu(graph->vbos) != arrlenu(vertices))
+    {
+        fprintf(
+            stderr,
+            "%zu VBOs but %zu vertices",
+            arrlenu(graph->vbos),
+            arrlenu(vertices)
+        );
+        return;
+    }
+
+    graph_free_vertices(graph);
+    graph->vertices = vertices;
+
+    // Get the current buffer size
+    size_t size = 0;
+    GLint64 ssize;
+    glBindBuffer(GL_ARRAY_BUFFER, graph->vbos[0]);
+    glGetBufferParameteri64v(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &ssize);
+    size = (unsigned)ssize;
+
+    const size_t TEMP_ATTR_SIZE_MAP[2] = { gl_sizeof(GL_FLOAT), gl_sizeof(GL_UNSIGNED_BYTE) };
+
+    size_t size_needed = arrlenu(vertices[0]) * TEMP_ATTR_SIZE_MAP[0];
+
+    // If we already have enough size then avoid reallocation
+    // Reallocate if we have much more than we need
+    const GLboolean reuse = size >= size_needed &&
+        (size < size_needed * 2 || size - size_needed < 64);
+
+    for (size_t i = 0; i < arrlenu(graph->vbos); ++i)
+    {
+        glBindBuffer(GL_ARRAY_BUFFER, graph->vbos[i]);
+        if (reuse)
+        {
+            glBufferSubData(GL_ARRAY_BUFFER, 0, arrlenu(vertices[i]) * TEMP_ATTR_SIZE_MAP[i], vertices[i]);
+        }
+        else
+        {
+            glBufferData(GL_ARRAY_BUFFER, arrlenu(vertices[i]) * TEMP_ATTR_SIZE_MAP[i], vertices[i], GL_STATIC_DRAW);
+        }
+    }
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
 void graph_free_vertices(Graph* graph)
 {
     for (size_t i = 0; i < arrlenu(graph->vertices); ++i)

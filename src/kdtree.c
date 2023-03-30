@@ -6,14 +6,8 @@
 #include <stb_ds.h>
 #include <time.h>
 
-Graph kdtree_init(Shader* shader)
+Node* gen_random_nodes(size_t max_leaves)
 {
-    // Seed the random number generator
-    srand(time(NULL));
-
-    // Allocate enough room to draw max_leaves nodes
-    const size_t max_leaves = 1 << 16;
-
     // Guess the amount of memory needed to avoid both waste and growth
     Node* nodes = NULL;
     arrsetcap(nodes, max_leaves * 1.65f);
@@ -71,6 +65,14 @@ Graph kdtree_init(Shader* shader)
         }
     }
 
+    return nodes;
+}
+
+void** gen_random_vertices()
+{
+    const size_t max_leaves = 1 << 16;
+    const Node* nodes = gen_random_nodes(max_leaves);
+
     float* vertex_floats = NULL;
     arrsetcap(vertex_floats, max_leaves * 4);
     GLubyte* vertex_colours = NULL;
@@ -93,6 +95,15 @@ Graph kdtree_init(Shader* shader)
     void** vertices = NULL;
     arrput(vertices, vertex_floats);
     arrput(vertices, vertex_colours);
+
+    return vertices;
+}
+
+Graph kdtree_init(Shader* shader)
+{
+    // Seed the random number generator
+    srand(time(NULL));
+    void* vertices = gen_random_vertices();
 
     Attribute* layout_attributes = NULL;
 
@@ -126,6 +137,11 @@ Graph kdtree_init(Shader* shader)
         NULL,
         attributes
     );
+}
+
+void kdtree_randomise(Graph *tree)
+{
+    graph_update_vertices(tree, gen_random_vertices());
 }
 
 void node_info(Node* node)

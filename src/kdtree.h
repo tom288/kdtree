@@ -19,6 +19,10 @@ typedef struct Node {
 /// @return Graph holding kd-tree data
 Graph kdtree_init(Shader* shader);
 
+/// @brief Randomise a kd-tree
+/// @param tree Tree to be randomised
+void kdtree_randomise(Graph *tree);
+
 /// @brief Display node information
 /// @param node Node to display
 void node_info(Node* node);

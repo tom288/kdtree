@@ -56,6 +56,7 @@ int main(int argc, char* argv[])
         // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         graph_draw(tree, GL_POINTS);
         window_swap(win);
+        kdtree_randomise(&tree);
     }
 
     graph_kill(&tree);
