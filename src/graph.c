@@ -119,36 +119,16 @@ GLboolean init_attributes
 
 void graph_update_vertices(Graph* graph, void** vertices)
 {
-    if (!graph->vao)
-    {
-        fprintf(stderr, "VAO is not initialized :(");
-        return;
-    }
-    if (!arrlenu(graph->vbos))
-    {
-        fprintf(stderr, "VBOs are not initialized :(");
-        return;
-    }
-    if (arrlenu(graph->vbos) != arrlenu(vertices))
-    {
-        fprintf(
-            stderr,
-            "%zu VBOs but %zu vertices",
-            arrlenu(graph->vbos),
-            arrlenu(vertices)
-        );
-        return;
-    }
+    if (!graph->vao || !arrlenu(graph->vbos)) return;
 
     graph_free_vertices(graph);
     graph->vertices = vertices;
 
     // Get the current buffer size
-    size_t size = 0;
-    GLint64 ssize;
+    GLint64 signed_size;
     glBindBuffer(GL_ARRAY_BUFFER, graph->vbos[0]);
-    glGetBufferParameteri64v(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &ssize);
-    size = (unsigned)ssize;
+    glGetBufferParameteri64v(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &signed_size);
+    size_t size = (unsigned)signed_size;
 
     const size_t TEMP_ATTR_SIZE_MAP[2] = { gl_sizeof(GL_FLOAT), gl_sizeof(GL_UNSIGNED_BYTE) };
 
