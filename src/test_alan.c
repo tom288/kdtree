@@ -1,7 +1,7 @@
 extern int WIP;
 #include "kdtree.h"
 #include "queue.h"
-#include "strStuff.h"
+#include "str_util.h"
 #include <stb_ds.h>
 
 Queue* worldTreeQueue; // ongoing generating of the worlds nodes
@@ -63,9 +63,9 @@ NodeType** readRules()
     char* const file = readWorld();
     bool ok = true;
     uint32_t fileIndexStart;
-    fileIndexStart = strStuff_identical(strStuff_trim(file, 0, 19), "code starts here:\n\n") ? 19 :
-        strStuff_identical(strStuff_trim(file, 0, 24), "---\n\ncode starts here") ? 24 :
-        strStuff_skipUntilThenSkip(file, "\n---\n\ncode starts here:\n\n", 0);
+    fileIndexStart = string_identical(string_trim(file, 0, 19), "code starts here:\n\n") ? 19 :
+        string_identical(string_trim(file, 0, 24), "---\n\ncode starts here") ? 24 :
+        string_skipUntilThenSkip(file, "\n---\n\ncode starts here:\n\n", 0);
     uint32_t fileIndex = fileIndexStart;
     NodeType* types = NULL; // nodeType array
 
@@ -75,22 +75,22 @@ NodeType** readRules()
         arrput(types, ((NodeType) {.type = 0}));
 
         // read typename
-        prevFileIndex = strStuff_skipUntilWhitespace(file, fileIndex);
+        prevFileIndex = string_skipUntilWhitespace(file, fileIndex);
         for (uint32_t nodeIndex = 0; nodeIndex < arrlenu(types); nodeIndex++) {
-            if (strStuff_identical(types[nodeIndex].typeName,
-                strStuff_trim(file, fileIndex, prevFileIndex - fileIndex))) {
+            if (string_identical(types[nodeIndex].typeName,
+                string_trim(file, fileIndex, prevFileIndex - fileIndex))) {
                 arrlast(types).type = nodeIndex;
             }
         }
-        fileIndex = strStuff_skipWhitespace(file, prevFileIndex);
+        fileIndex = string_skipWhitespace(file, prevFileIndex);
 
         // read col
         for (uint8_t n = 0; n < 3; n++) {
             vec3 col;
             for (uint8_t channel = 0; channel < 2; channel++) {
-                prevFileIndex = strStuff_skipUntilWhitespace(file, fileIndex);
+                prevFileIndex = string_skipUntilWhitespace(file, fileIndex);
                 col[channel] = strtof(&(file[fileIndex]), &(file[prevFileIndex]));
-                fileIndex = strStuff_skipWhitespace(file, prevFileIndex);
+                fileIndex = string_skipWhitespace(file, prevFileIndex);
             }
             arrlast(types).col = col;
         }
@@ -100,26 +100,26 @@ NodeType** readRules()
         while (fileIndex == prevFileIndex) // until double line break keep reading replacement rule lines
         {
             // read oriention
-            arrlast(types).replacements[replacementCount]->orientation = strStuff_unexpected(file, "left", fileIndex);
+            arrlast(types).replacements[replacementCount]->orientation = string_unexpected(file, "left", fileIndex);
             fileIndex++;
 
             // read proportion
-            prevFileIndex = strStuff_skipUntilWhitespace(file, fileIndex);
+            prevFileIndex = string_skipUntilWhitespace(file, fileIndex);
             arrlast(types).replacements[replacementCount]->splitPercent =
                 strtof(&(file[fileIndex]), &(file[prevFileIndex]));
             fileIndex++;
 
             for (uint8_t n = 0; n < 2; n++) {
                 // read typename
-                prevFileIndex = strStuff_skipUntilWhitespace(file, fileIndex);
+                prevFileIndex = string_skipUntilWhitespace(file, fileIndex);
                 for (uint32_t nodeIndex = 0; nodeIndex < arrlenu(types); nodeIndex++) {
-                    if (strStuff_identical(arrlast(types).typeName,
-                        strStuff_trim(file, fileIndex, prevFileIndex - fileIndex))) {
+                    if (string_identical(arrlast(types).typeName,
+                        string_trim(file, fileIndex, prevFileIndex - fileIndex))) {
                         arrlast(types).type = nodeIndex;
                     }
                 }
-                prevFileIndex = strStuff_skipLineBreak(file, prevFileIndex);
-                fileIndex = strStuff_skipLineBreak(file, prevFileIndex);
+                prevFileIndex = string_skipLineBreak(file, prevFileIndex);
+                fileIndex = string_skipLineBreak(file, prevFileIndex);
             }
 
             replacementCount++;
