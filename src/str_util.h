@@ -1,7 +1,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-/// @brief yields the length of a string
+/// @brief yields the length of a string, use strlen() instead
 /// @param str string to be measured
 /// @return length of the string
 uint32_t string_len(char* str);
@@ -13,7 +13,7 @@ uint32_t string_len(char* str);
 /// @return the trimmed string
 char* string_substr(char* str, uint32_t startIndex, uint32_t len);
 
-/// @brief checks if two strings are identical (strcmp)
+/// @brief checks if two strings are identical, use strcmp instead
 /// @param str1 the first string to be compared
 /// @param str2 the second string to be compared
 /// @return true if the strings are identical, false otherwise
@@ -39,7 +39,7 @@ typedef struct string_slice {
 string_slice string_skipChars(char* str, char* string_skipChars, uint32_t startIndex);
 string_slice string_skipWhitespace(char* str, uint32_t startIndex);
 string_slice string_skipUntilWhitespace(char* str, uint32_t startIndex);
-string_slice string_skipUntilThenSkipWhitespace(char* str, char* expected, uint32_t startIndex);
+string_slice string_after_expected(char* str, char* expected, uint32_t startIndex);
 
 // ---
 
