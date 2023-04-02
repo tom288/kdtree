@@ -3,4 +3,3 @@
 /libs/
 /custom.cmd
 *.code-workspace
-src/test_alan.c

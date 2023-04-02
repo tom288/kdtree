@@ -1,0 +1,45 @@
+Up to 2^32 node types, they are delimited by an empty line,
+they do not need to appear in order.
+
+they use this format:
+
+string: type name
+integer 0 to 100: red, green, blue
+0 to 2^32 replacement rules
+
+replacement rules use this format:
+
+(top/left: split direction) (integer 1 to 99: split percent) (node type name) (node type name)
+
+
+for example
+
+world
+0 80 0
+top 50 room garden
+top 50 garden garden
+
+garden
+0 200 0
+
+---
+
+code starts here:
+
+world
+0 80 0
+top 50 room garden
+top 50 garden garden
+
+garden
+0 200 0
+
+room
+80 80 60
+left 20 sofas room2
+
+sofas
+60 80 60
+
+room2
+80 80 60
