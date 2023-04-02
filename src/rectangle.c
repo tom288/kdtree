@@ -16,27 +16,32 @@ Graph rectangle_init(Shader* shader)
          0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
     };
 
-    float* vertices = NULL;
-    arrsetlen(vertices, sizeof(const_vertices) / sizeof(*const_vertices));
-    memcpy(vertices, const_vertices, sizeof(const_vertices));
+    float* vertex_floats = NULL;
+    arrsetlen(vertex_floats, sizeof(const_vertices) / sizeof(*const_vertices));
+    memcpy(vertex_floats, const_vertices, sizeof(const_vertices));
 
-    Attribute* attributes = NULL;
+    void** vertices = NULL;
+    arrput(vertices, vertex_floats);
 
-    arrput(attributes, ((Attribute) {
+    Attribute* float_attributes = NULL;
+
+    arrput(float_attributes, ((Attribute) {
         .name = "position",
         .size = 2,
         .type = GL_FLOAT,
     }));
 
-    arrput(attributes, ((Attribute) {
+    arrput(float_attributes, ((Attribute) {
         .name = "colour",
         .size = 3,
         .type = GL_FLOAT,
     }));
 
+    Attribute** attributes = NULL;
+    arrput(attributes, float_attributes);
+
     return graph_init(
         shader,
-        GL_FLOAT,
         vertices,
         NULL,
         attributes

@@ -6,7 +6,7 @@
 
 /// @brief Node for kd-tree
 typedef struct Node {
-    vec3 colour;
+    GLubyte colour[3];
     vec2 min_corner;
     vec2 size;
     GLboolean split_axis;
@@ -18,6 +18,10 @@ typedef struct Node {
 /// @param shader Shader to use for attribute position names
 /// @return Graph holding kd-tree data
 Graph kdtree_init(Shader* shader);
+
+/// @brief Randomise a kd-tree
+/// @param tree Tree to be randomised
+void kdtree_randomise(Graph *tree);
 
 /// @brief Display node information
 /// @param node Node to display

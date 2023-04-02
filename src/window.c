@@ -211,6 +211,8 @@ Window* window_init()
     if (!vertical_sync) glfwSwapInterval(0);
     if (msaa_samples) glEnable(GL_MULTISAMPLE);
 
+    // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
     // This assignment to glewExperimental used to be necessary for older
     // versions of GLEW (<=1.13), but may now be redundant, I haven't checked
     glewExperimental = GL_TRUE;

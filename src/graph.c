@@ -71,6 +71,7 @@ GLboolean init_attributes
     size_t* stride,
     Shader* shader
 ) {
+    *stride = 0;
     for (size_t i = 0; i < arrlenu(attributes); ++i)
     {
         const Attribute attr = attributes[i];
@@ -87,7 +88,7 @@ GLboolean init_attributes
         // Skip nameless attributes, allowing them to act as gaps
         if (attr.name && *attr.name)
         {
-            // If shader is NULL then use location indicies instead
+            // If shader is NULL then use location indices instead
             GLint index = location_index++;
 
             if (shader)
@@ -116,10 +117,49 @@ GLboolean init_attributes
     return GL_FALSE;
 }
 
+void graph_update_vertices(Graph* graph, void** vertices, GLenum* types)
+{
+    if (!graph->vao || !arrlenu(graph->vbos)) return;
+
+    graph_free_vertices(graph);
+    graph->vertices = vertices;
+
+    // Get the current buffer size
+    GLint64 signed_size;
+    glBindBuffer(GL_ARRAY_BUFFER, graph->vbos[0]);
+    glGetBufferParameteri64v(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &signed_size);
+    size_t size = (unsigned)signed_size;
+    size_t size_needed = arrlenu(vertices[0]) * gl_sizeof(types[0]);
+
+    // If we already have enough size then avoid reallocation
+    // Reallocate if we have much more than we need
+    const GLboolean reuse = size >= size_needed &&
+        (size < size_needed * 2 || size - size_needed < 64);
+
+    for (size_t i = 0; i < arrlenu(graph->vbos); ++i)
+    {
+        const size_t size = arrlenu(vertices[i]) * gl_sizeof(types[i]);
+        glBindBuffer(GL_ARRAY_BUFFER, graph->vbos[i]);
+        if (reuse)
+        {
+            glBufferSubData(GL_ARRAY_BUFFER, 0, size, vertices[i]);
+        }
+        else
+        {
+            glBufferData(GL_ARRAY_BUFFER, size, vertices[i], GL_STATIC_DRAW);
+        }
+    }
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
 void graph_free_vertices(Graph* graph)
 {
+    for (size_t i = 0; i < arrlenu(graph->vertices); ++i)
+    {
+        arrfree(graph->vertices[i]);
+    }
     arrfree(graph->vertices);
-    graph->stride = 0;
 }
 
 void graph_free_all(Graph* graph)
@@ -133,27 +173,26 @@ void graph_kill(Graph* graph)
 {
     glDeleteVertexArrays(1, &graph->vao);
     graph->vao = 0;
-    glDeleteBuffers(1, &graph->vbo);
-    graph->vbo = 0;
+    glDeleteBuffers(arrlenu(graph->vbos), graph->vbos);
+    arrfree(graph->vbos);
     glDeleteBuffers(1, &graph->ebo);
     graph->ebo = 0;
+    arrfree(graph->strides);
     graph_free_all(graph);
 }
-
-const GLenum index_type = GL_UNSIGNED_INT;
 
 Graph graph_init
 (
     Shader* shader,
-    GLenum vertex_type,
-    void* vertices,
+    void** vertices,
     GLuint* indices,
-    Attribute* attributes
+    Attribute** attributes
 ) {
     Graph graph = {
+        .vbos = NULL,
         .vertices = vertices,
         .indices = indices,
-        .stride = 0,
+        .strides = NULL,
     };
 
     if (!arrlenu(graph.vertices)) return graph;
@@ -163,9 +202,33 @@ Graph graph_init
 
     const GLenum usage = GL_STATIC_DRAW;
 
-    glGenBuffers(1, &graph.vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, graph.vbo);
-    glBufferData(GL_ARRAY_BUFFER, arrlenu(graph.vertices) * gl_sizeof(vertex_type), graph.vertices, usage);
+    arrsetlen(graph.vbos, arrlenu(graph.vertices));
+    glGenBuffers(arrlenu(graph.vertices), graph.vbos);
+    arrsetlen(graph.strides, arrlenu(graph.vertices));
+
+    GLboolean error = GL_FALSE;
+
+    for (size_t i = 0; i < arrlenu(graph.vertices); ++i)
+    {
+        glBindBuffer(GL_ARRAY_BUFFER, graph.vbos[i]);
+        glBufferData(
+            GL_ARRAY_BUFFER,
+            arrlenu(graph.vertices[i]) * gl_sizeof(attributes[i][0].type),
+            graph.vertices[i],
+            usage
+        );
+
+        error |= init_attributes(
+            attributes[i],
+            &(graph.strides[i]),
+            shader
+        );
+
+        graph.strides[i] /= gl_sizeof(attributes[i][0].type);
+        arrfree(attributes[i]);
+    }
+
+    arrfree(attributes);
 
     if (arrlenu(graph.indices))
     {
@@ -173,21 +236,11 @@ Graph graph_init
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, graph.ebo);
         glBufferData(
             GL_ELEMENT_ARRAY_BUFFER,
-            arrlenu(graph.indices) * gl_sizeof(index_type),
+            arrlenu(graph.indices) * sizeof(*graph.indices),
             graph.indices,
             usage
         );
     }
-
-    const GLboolean error = init_attributes(
-        attributes,
-        &graph.stride,
-        shader
-    );
-
-    arrfree(attributes);
-
-    graph.stride /= gl_sizeof(vertex_type);
 
     glEnableVertexAttribArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -203,25 +256,30 @@ Graph graph_init
 
 Graph graph_init_empty()
 {
-    return graph_init(NULL, GL_FLOAT, NULL, NULL, NULL);
+    return graph_init(NULL, NULL, NULL, NULL);
 }
 
 GLboolean graph_ok(Graph graph)
 {
-    return !!graph.vao;
+    return graph.vao
+        && arrlenu(graph.vertices)
+        && arrlenu(graph.vertices[0])
+        && arrlenu(graph.strides);
 }
 
 void graph_draw(Graph graph, GLenum mode)
 {
-    if (!graph_ok(graph) || !arrlenu(graph.vertices)) return;
+    if (!graph_ok(graph)) return;
     glBindVertexArray(graph.vao);
+
     if (arrlenu(graph.indices))
     {
-        glDrawElements(mode, arrlenu(graph.indices), index_type, 0);
+        glDrawElements(mode, arrlenu(graph.indices), sizeof(*graph.indices), 0);
     }
     else
     {
-        glDrawArrays(mode, 0, arrlenu(graph.vertices) / graph.stride);
+        glDrawArrays(mode, 0, arrlenu(graph.vertices[0]) / graph.strides[0]);
     }
+
     glBindVertexArray(0);
 }

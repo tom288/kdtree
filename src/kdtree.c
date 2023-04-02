@@ -6,18 +6,8 @@
 #include <stb_ds.h>
 #include <time.h>
 
-const size_t rect_vertices = 6;
-const size_t vertex_floats = 5;
-const size_t rectangle_floats = rect_vertices * vertex_floats;
-
-Graph kdtree_init(Shader* shader)
+Node* gen_random_nodes(size_t max_leaves)
 {
-    // Seed the random number generator
-    srand(time(NULL));
-
-    // Allocate enough room to draw max_leaves nodes
-    const size_t max_leaves = 1 << 16;
-
     // Guess the amount of memory needed to avoid both waste and growth
     Node* nodes = NULL;
     arrsetcap(nodes, max_leaves * 1.65f);
@@ -43,7 +33,7 @@ Graph kdtree_init(Shader* shader)
         if (node->children[child_index]) child_index ^= 1;
 
         arrput(nodes, ((Node) {
-            .colour = { 0.0f },
+            .colour = { rand() & 255, rand() & 255, rand() & 255 },
             .min_corner = { node->min_corner[0], node->min_corner[1] },
             .size = { node->size[0], node->size[1] },
             .split_axis = rand_bool(),
@@ -52,7 +42,6 @@ Graph kdtree_init(Shader* shader)
         }));
 
         Node* leaf = &arrlast(nodes);
-        rand_vec3(leaf->colour);
         const GLboolean axis = node->split_axis;
 
         if (child_index)
@@ -76,50 +65,87 @@ Graph kdtree_init(Shader* shader)
         }
     }
 
-    float* vertices = NULL;
-    arrsetcap(vertices, max_leaves * rectangle_floats);
+    return nodes;
+}
+
+void** gen_random_vertices()
+{
+    const size_t max_leaves = 1 << 16;
+    const Node* nodes = gen_random_nodes(max_leaves);
+
+    float* vertex_floats = NULL;
+    arrsetcap(vertex_floats, max_leaves * 4);
+    GLubyte* vertex_colours = NULL;
+    arrsetcap(vertex_floats, max_leaves * 3);
 
     for (size_t i = 0; i < arrlenu(nodes); ++i)
     {
-        const Node node = nodes[i];
+        const Node n = nodes[i];
 
-        if (node.children[GL_FALSE] || node.children[GL_TRUE]) continue;
+        if (n.children[GL_FALSE] || n.children[GL_TRUE]) continue;
 
-        for (size_t i = 0; i < 2; ++i) arrput(vertices, node.min_corner[i]);
-        for (size_t i = 0; i < 2; ++i) arrput(vertices, node.size[i]);
-        for (size_t i = 0; i < 3; ++i) arrput(vertices, node.colour[i]);
+        for (size_t i = 0; i < 2; ++i) arrput(vertex_floats, n.min_corner[i]);
+        for (size_t i = 0; i < 2; ++i) arrput(vertex_floats, n.size[i]);
+        for (size_t i = 0; i < 3; ++i) arrput(vertex_colours, n.colour[i]);
     }
 
     // Free all remaining nodes
     arrfree(nodes);
 
-    Attribute* attributes = NULL;
+    void** vertices = NULL;
+    arrput(vertices, vertex_floats);
+    arrput(vertices, vertex_colours);
 
-    arrput(attributes, ((Attribute) {
+    return vertices;
+}
+
+Graph kdtree_init(Shader* shader)
+{
+    // Seed the random number generator
+    srand(time(NULL));
+    void* vertices = gen_random_vertices();
+
+    Attribute* layout_attributes = NULL;
+
+    arrput(layout_attributes, ((Attribute) {
         .name = "min_corner",
         .size = 2,
         .type = GL_FLOAT,
     }));
 
-    arrput(attributes, ((Attribute) {
+    arrput(layout_attributes, ((Attribute) {
         .name = "size",
         .size = 2,
         .type = GL_FLOAT,
     }));
 
-    arrput(attributes, ((Attribute) {
+    Attribute* colour_attributes = NULL;
+
+    arrput(colour_attributes, ((Attribute) {
         .name = "colour",
         .size = 3,
-        .type = GL_FLOAT,
+        .type = GL_UNSIGNED_BYTE,
     }));
+
+    Attribute** attributes = NULL;
+    arrput(attributes, layout_attributes);
+    arrput(attributes, colour_attributes);
 
     return graph_init(
         shader,
-        GL_FLOAT,
         vertices,
         NULL,
         attributes
     );
+}
+
+void kdtree_randomise(Graph *tree)
+{
+    GLenum* types = NULL;
+    arrput(types, GL_FLOAT);
+    arrput(types, GL_UNSIGNED_BYTE);
+    graph_update_vertices(tree, gen_random_vertices(), types);
+    arrfree(types);
 }
 
 void node_info(Node* node)

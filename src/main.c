@@ -53,9 +53,9 @@ int main(int argc, char* argv[])
             window_delta_time(win)
         );
         camera_use(camera, shader);
-        // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         graph_draw(tree, GL_POINTS);
         window_swap(win);
+        kdtree_randomise(&tree);
     }
 
     graph_kill(&tree);

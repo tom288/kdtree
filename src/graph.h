@@ -5,11 +5,11 @@
 /// @brief VRAM and RAM vertex data pair
 typedef struct {
     GLuint vao;
-    GLuint vbo;
+    GLuint* vbos;
     GLuint ebo;
-    void* vertices;
+    void** vertices;
     GLuint* indices;
-    size_t stride;
+    size_t* strides;
 } Graph;
 
 /// @brief Vertex attribute
@@ -22,7 +22,6 @@ typedef struct {
 
 /// @brief Upload and label vertex data so that it can be used by the GPU
 /// @param shader Shader object to use for finding name positions, or NULL
-/// @param vertex_type Type of vertex buffer data
 /// @param vertices Vertex buffer data
 /// @param indices Element buffer data
 /// @param attributes Vertex attributes
@@ -30,10 +29,9 @@ typedef struct {
 Graph graph_init
 (
     Shader* shader,
-    GLenum vertex_type,
-    void* vertices,
+    void** vertices,
     GLuint* indices,
-    Attribute* attributes
+    Attribute** attributes
 );
 
 /// @brief Create an empty graph, most useful for maintaining safe error cases
@@ -49,6 +47,12 @@ GLboolean graph_ok(Graph graph);
 /// @param graph Graph to draw
 /// @param mode Kind of primitive to render
 void graph_draw(Graph graph, GLenum mode);
+
+/// @brief Free old graph vertices and assign new vertices
+/// @param graph Graph to update
+/// @param vertices Vertices to use
+/// @param types Types of vertices to reassign
+void graph_update_vertices(Graph* graph, void** vertices, GLenum* types);
 
 /// @brief Free graph vertices, without changing GPU data
 /// @param graph Graph of vertices to free
