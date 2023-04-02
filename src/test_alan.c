@@ -6,7 +6,7 @@ extern int WIP;
 
 Queue* worldTreeQueue; // ongoing generating of the worlds nodes
 Queue* worldTreeExtant; // finished nodes
-Queue* worldTreeExtinct; // culled nodes that may still be usefull
+Queue* worldTreeExtinct; // culled nodes that may still be useful
 
 typedef struct Replacement {
     // world.txt --> top 50 room garden
@@ -99,7 +99,7 @@ NodeType** readRules()
         uint32_t replacementCount = 0;
         while (fileIndex == prevFileIndex) // until double line break keep reading replacement rule lines
         {
-            // read oriention
+            // read orientation
             arrlast(types).replacements[replacementCount]->orientation = string_unexpected(file, "left", fileIndex);
             fileIndex++;
 
