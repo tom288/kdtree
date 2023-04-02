@@ -117,7 +117,7 @@ GLboolean init_attributes
     return GL_FALSE;
 }
 
-void graph_update_vertices(Graph* graph, void** vertices)
+void graph_update_vertices(Graph* graph, void** vertices, GLenum* types)
 {
     if (!graph->vao || !arrlenu(graph->vbos)) return;
 
@@ -129,10 +129,7 @@ void graph_update_vertices(Graph* graph, void** vertices)
     glBindBuffer(GL_ARRAY_BUFFER, graph->vbos[0]);
     glGetBufferParameteri64v(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &signed_size);
     size_t size = (unsigned)signed_size;
-
-    const size_t TEMP_ATTR_SIZE_MAP[2] = { gl_sizeof(GL_FLOAT), gl_sizeof(GL_UNSIGNED_BYTE) };
-
-    size_t size_needed = arrlenu(vertices[0]) * TEMP_ATTR_SIZE_MAP[0];
+    size_t size_needed = arrlenu(vertices[0]) * gl_sizeof(types[0]);
 
     // If we already have enough size then avoid reallocation
     // Reallocate if we have much more than we need
@@ -141,14 +138,15 @@ void graph_update_vertices(Graph* graph, void** vertices)
 
     for (size_t i = 0; i < arrlenu(graph->vbos); ++i)
     {
+        const size_t size = arrlenu(vertices[i]) * gl_sizeof(types[i]);
         glBindBuffer(GL_ARRAY_BUFFER, graph->vbos[i]);
         if (reuse)
         {
-            glBufferSubData(GL_ARRAY_BUFFER, 0, arrlenu(vertices[i]) * TEMP_ATTR_SIZE_MAP[i], vertices[i]);
+            glBufferSubData(GL_ARRAY_BUFFER, 0, size, vertices[i]);
         }
         else
         {
-            glBufferData(GL_ARRAY_BUFFER, arrlenu(vertices[i]) * TEMP_ATTR_SIZE_MAP[i], vertices[i], GL_STATIC_DRAW);
+            glBufferData(GL_ARRAY_BUFFER, size, vertices[i], GL_STATIC_DRAW);
         }
     }
 

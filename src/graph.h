@@ -51,7 +51,8 @@ void graph_draw(Graph graph, GLenum mode);
 /// @brief Free old graph vertices and assign new vertices
 /// @param graph Graph to update
 /// @param vertices Vertices to use
-void graph_update_vertices(Graph* graph, void** vertices);
+/// @param types Types of vertices to reassign
+void graph_update_vertices(Graph* graph, void** vertices, GLenum* types);
 
 /// @brief Free graph vertices, without changing GPU data
 /// @param graph Graph of vertices to free

@@ -141,7 +141,11 @@ Graph kdtree_init(Shader* shader)
 
 void kdtree_randomise(Graph *tree)
 {
-    graph_update_vertices(tree, gen_random_vertices());
+    GLenum* types = NULL;
+    arrput(types, GL_FLOAT);
+    arrput(types, GL_UNSIGNED_BYTE);
+    graph_update_vertices(tree, gen_random_vertices(), types);
+    arrfree(types);
 }
 
 void node_info(Node* node)
