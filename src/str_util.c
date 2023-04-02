@@ -5,6 +5,10 @@
 #include <stdbool.h>
 #include <stdlib.h> // malloc, free
 
+uint32_t string_len(char* str) {
+    return strlen(str);
+}
+
 char* string_trim(char* str, uint32_t startIndex, uint32_t len) {
     uint32_t endIndex = startIndex + len;
     char* result = malloc(len + 1);
@@ -45,7 +49,7 @@ uint32_t string_skipUntilThenSkipWhitespace(char* str, char* expected, uint32_t 
         free(str2);
         n++;
     } while (condition);
-    return string_skipWhitespace(str, result + expected_len);
+    return string_skipWhitespace(str, n);
 }
 
 uint32_t string_skipUntilWhitespace(char* str, uint32_t startIndex) {
@@ -74,16 +78,15 @@ uint32_t string_skipLineBreak(char* str, uint32_t startIndex) {
 // ---
 
 uint32_t string_skipChars(char* str, char* skipChars, uint32_t startIndex) {
-    char space[2] = "\n\r"; // line breaks, cannot be returned
-    uint8_t spaceLen = len(space) - 1;
+    uint8_t skipCharsLen = strlen(skipChars) - 1; // string_len()
     uint32_t n = startIndex;
     uint8_t m;
     bool ok = true;
     uint8_t match = 0;
     while (ok = true) {
         match = 0;
-        for (m = 0; m < spaceLen; m++) {
-            if (str[n] == space[m]) match++;
+        for (m = 0; m < skipCharsLen; m++) {
+            if (str[n] == skipChars[m]) match++;
             if (str[n] == '\0') ok = false;
         }
         if (match == 0) {ok = false;}
