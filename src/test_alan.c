@@ -63,8 +63,8 @@ NodeType** readRules()
     char* const file = readWorld();
     bool ok = true;
     uint32_t fileIndexStart;
-    fileIndexStart = string_identical(string_trim(file, 0, 19), "code starts here:\n\n") ? 19 :
-        string_identical(string_trim(file, 0, 24), "---\n\ncode starts here") ? 24 :
+    fileIndexStart = strcmp(string_substr(file, 0, 19), "code starts here:\n\n") ? 19 :
+        strcmp(string_substr(file, 0, 24), "---\n\ncode starts here") ? 24 :
         string_skipUntilThenSkip(file, "\n---\n\ncode starts here:\n\n", 0);
     uint32_t fileIndex = fileIndexStart;
     NodeType* types = NULL; // nodeType array
@@ -77,8 +77,8 @@ NodeType** readRules()
         // read typename
         prevFileIndex = string_skipUntilWhitespace(file, fileIndex);
         for (uint32_t nodeIndex = 0; nodeIndex < arrlenu(types); nodeIndex++) {
-            if (string_identical(types[nodeIndex].typeName,
-                string_trim(file, fileIndex, prevFileIndex - fileIndex))) {
+            if (strcmp(types[nodeIndex].typeName,
+                string_substr(file, fileIndex, prevFileIndex - fileIndex))) {
                 arrlast(types).type = nodeIndex;
             }
         }
@@ -100,7 +100,9 @@ NodeType** readRules()
         while (fileIndex == prevFileIndex) // until double line break keep reading replacement rule lines
         {
             // read oriention
-            arrlast(types).replacements[replacementCount]->orientation = string_unexpected(file, "left", fileIndex);
+            char* substr = string_substr(file, fileIndex, 0);
+            arrlast(types).replacements[replacementCount]->orientation = strcmp(substr, "left");
+            free(substr);
             fileIndex++;
 
             // read proportion
@@ -113,8 +115,8 @@ NodeType** readRules()
                 // read typename
                 prevFileIndex = string_skipUntilWhitespace(file, fileIndex);
                 for (uint32_t nodeIndex = 0; nodeIndex < arrlenu(types); nodeIndex++) {
-                    if (string_identical(arrlast(types).typeName,
-                        string_trim(file, fileIndex, prevFileIndex - fileIndex))) {
+                    if (strcmp(arrlast(types).typeName,
+                        string_substr(file, fileIndex, prevFileIndex - fileIndex))) {
                         arrlast(types).type = nodeIndex;
                     }
                 }
