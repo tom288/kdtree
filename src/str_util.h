@@ -29,6 +29,8 @@ bool string_identical(char* str1, char* str2);
 /// first: 1
 /// last: 6
 /// firstAfter: 7
+/// If the slice ends on the last character of the string,
+/// then firstAfter will be the strings ending null character (/0).
 typedef struct string_slice {
     uint32_t index_first;
     uint32_t index_firstAfter;
