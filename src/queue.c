@@ -14,10 +14,18 @@ const size_t queue_block_endIndex = queue_block_size - 1; // queue_block_size - 
 QueueBlock* queue_block()
 {
 	QueueBlock* result = malloc(sizeof(QueueBlock));
-	result->block = malloc(queue_block_size * sizeof(Node*));
-	result->prev = NULL;
-	result->next = NULL;
+	// This implicitly assigns 0 (NULL) to members which are not mentioned
+	*result = (QueueBlock) {
+		.block = malloc(queue_block_size * sizeof(Node*)),
+	};
 	return result;
+}
+
+void queue_block_free(QueueBlock* block)
+{
+	free(block->block);
+	block->block = NULL;
+	free(block);
 }
 
 // ---
@@ -34,8 +42,8 @@ Queue* queue()
 	result->front = malloc(sizeof(QueueBlock));
 	result->front = queue_block();
 	result->back = result->front;
-	result->front_index = 0;
-	result->back_index = 0;
+	result->front_node_index = 0;
+	result->back_node_index = 0;
 	return result;
 }
 
