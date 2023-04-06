@@ -55,7 +55,10 @@ int main(int argc, char* argv[])
         camera_use(camera, shader);
         graph_draw(tree, GL_POINTS);
         window_swap(win);
-        kdtree_randomise(&tree);
+        if (movement_input[0])
+        {
+            kdtree_randomise(&tree);
+        }
     }
 
     graph_kill(&tree);

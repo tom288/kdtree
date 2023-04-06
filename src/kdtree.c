@@ -6,11 +6,36 @@
 #include <stb_ds.h>
 #include <time.h>
 
-Node* gen_random_nodes(size_t max_leaves)
+Node node_child(Node parent, GLboolean child_index)
+{
+    Node child = {
+        .colour = { rand() & 255, rand() & 255, rand() & 255 },
+        .min_corner = { parent.min_corner[0], parent.min_corner[1] },
+        .size = { parent.size[0], parent.size[1] },
+        .split_axis = rand_bool(),
+        .split = bias_float(rand_float(), 0.5, 2.0f),
+        .children = { NULL, NULL },
+    };
+
+    const GLboolean axis = parent.split_axis;
+    float split = parent.split;
+    
+    if (child_index)
+    {
+        child.min_corner[axis] += parent.size[axis] * split;
+        split = 1.0f - split;
+    }
+    child.size[axis] *= split;
+
+    return child;
+}
+
+Node* gen_random_nodes(float min_area)
 {
     // Guess the amount of memory needed to avoid both waste and growth
     Node* nodes = NULL;
-    arrsetcap(nodes, max_leaves * 1.65f);
+    size_t expected_node_count = 6.0f / min_area;
+    arrsetcap(nodes, expected_node_count);
 
     // Define the head of the k-d tree, which is never a leaf, so has no colour
     arrput(nodes, ((Node) {
@@ -22,47 +47,20 @@ Node* gen_random_nodes(size_t max_leaves)
         .children = { NULL, NULL },
     }));
 
-    // Find a random child with value NULL
-    // Assign a node to this child
-    // Update the number of leaves
-    for (size_t leaves = arrlenu(nodes); leaves < max_leaves;)
+    size_t num_nodes_finished = 0;
+
+    // Expand all nodes until they are finished
+    while (arrlenu(nodes) > num_nodes_finished)
     {
-        size_t random_index = rand_int(arrlen(nodes), GL_TRUE);
-        Node* node = &nodes[random_index];
-        GLboolean child_index = rand_bool();
-        if (node->children[child_index]) child_index ^= 1;
-
-        arrput(nodes, ((Node) {
-            .colour = { rand() & 255, rand() & 255, rand() & 255 },
-            .min_corner = { node->min_corner[0], node->min_corner[1] },
-            .size = { node->size[0], node->size[1] },
-            .split_axis = rand_bool(),
-            .split = bias_float(rand_float(), 0.5, 2.0f),
-            .children = { NULL, NULL },
-        }));
-
-        Node* leaf = &arrlast(nodes);
-        const GLboolean axis = node->split_axis;
-
-        if (child_index)
+        const Node node = nodes[num_nodes_finished];
+        if (node.size[0] * node.size[1] <= min_area)
         {
-            leaf->min_corner[axis] += node->size[axis] * node->split;
-            leaf->size[axis] *= (1 - node->split);
-        }
-        else
-        {
-            leaf->size[axis] *= node->split;
+            num_nodes_finished++;
+            continue;
         }
 
-        if (node->children[!child_index])
-        {
-            arrdelswap(nodes, random_index);
-            ++leaves;
-        }
-        else
-        {
-            node->children[child_index] = leaf;
-        }
+        arrput(nodes, node_child(node, 0));
+        nodes[num_nodes_finished] = node_child(node, 1);
     }
 
     return nodes;
@@ -70,19 +68,18 @@ Node* gen_random_nodes(size_t max_leaves)
 
 void** gen_random_vertices()
 {
-    const size_t max_leaves = 1 << 16;
-    const Node* nodes = gen_random_nodes(max_leaves);
+    const size_t target_node_count = 1000000;
+    const float min_area = 5.992f / target_node_count;
+    const Node* nodes = gen_random_nodes(min_area);
 
     float* vertex_floats = NULL;
-    arrsetcap(vertex_floats, max_leaves * 4);
+    arrsetcap(vertex_floats, arrlenu(nodes) * 4);
     GLubyte* vertex_colours = NULL;
-    arrsetcap(vertex_floats, max_leaves * 3);
+    arrsetcap(vertex_floats, arrlenu(nodes) * 3);
 
     for (size_t i = 0; i < arrlenu(nodes); ++i)
     {
         const Node n = nodes[i];
-
-        if (n.children[GL_FALSE] || n.children[GL_TRUE]) continue;
 
         for (size_t i = 0; i < 2; ++i) arrput(vertex_floats, n.min_corner[i]);
         for (size_t i = 0; i < 2; ++i) arrput(vertex_floats, n.size[i]);
