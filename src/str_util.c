@@ -5,36 +5,28 @@
 #include <stdbool.h>
 #include <stdlib.h> // malloc, free
 
-uint32_t string_len(char* str) {
-    return strlen(str);
-}
-
-char* string_substr(char* str, uint32_t startIndex, uint32_t len) {
-    size_t length = len;
-    if (length <= startIndex) length = strlen(str) - startIndex;
-    char* result = malloc(length + 1);
-    memcpy(result, str[startIndex], length);
-    result[length] = '\0';
-    return result;
+uint32_t string_len(string_slice str) {
+    return str.firstAfter - str.first;
 }
 
 // ---
 
-uint32_t string_skipChars(char* str, char* skipChars, uint32_t startIndex) {
-    uint32_t i = startIndex;
-    for (; str[i] != '\0'; ++i)
-    {
+string_slice string_skipChars(string_slice str, char* skipChars) {
+    char* c = str.first;
+    for (; *c != '\0'; ++c) {
         bool skip = false;
         for (uint8_t m = 0; m < strlen(skipChars); m++) {
-            if (str[i] == skipChars[m])
-            {
+            if (*c == skipChars[m]) {
                 skip = true;
                 break;
             }
         }
         if (!skip) break;
     }
-    return i;
+    string_slice result;
+    result.first = c;
+    result.firstAfter = str.firstAfter;
+    return result;
 }
 
 uint32_t string_skipWhitespace(char* str, uint32_t startIndex) {
