@@ -23,11 +23,10 @@ typedef struct NodeType {
     char* typeName; // for use only when reading world.txt
 } NodeType;
 
-char* readWorld()
+char* read_file_into_buffer(char* path)
 {
     char* const buffer;
     {
-        char path = "world.txt";
         FILE* const file = fopen(path, "rb");
         if (!file) {
             fprintf(stderr, "Failed to fopen ");
@@ -60,7 +59,7 @@ char* readWorld()
 // top 50 garden garden
 NodeType** readRules()
 {
-    char* const file = readWorld();
+    char* const file = read_file_into_buffer("world.txt");
     bool ok = true;
     uint32_t fileIndexStart;
     fileIndexStart = strcmp(string_substr(file, 0, 19), "code starts here:\n\n") ? 19 :
@@ -72,14 +71,14 @@ NodeType** readRules()
     // start again at the start of the file to fill in "types"
     while (file[fileIndex] != '\0') { // until end of file
         uint32_t prevFileIndex; // for comparison when I skip parts
-        arrput(types, ((NodeType) {.type = 0}));
+        const NodeType* last = arraddnptr(types, 1);
 
         // read typename
         prevFileIndex = string_skipUntilWhitespace(file, fileIndex);
         for (uint32_t nodeIndex = 0; nodeIndex < arrlenu(types); nodeIndex++) {
             if (strcmp(types[nodeIndex].typeName,
                 string_substr(file, fileIndex, prevFileIndex - fileIndex))) {
-                arrlast(types).type = nodeIndex;
+                last->type = nodeIndex;
             }
         }
         fileIndex = string_skipWhitespace(file, prevFileIndex);
@@ -92,7 +91,7 @@ NodeType** readRules()
                 col[channel] = strtof(&(file[fileIndex]), &(file[prevFileIndex]));
                 fileIndex = string_skipWhitespace(file, prevFileIndex);
             }
-            arrlast(types).col = col;
+            last->col = col;
         }
 
         prevFileIndex = fileIndex;
