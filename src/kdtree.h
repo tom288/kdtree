@@ -11,7 +11,6 @@ typedef struct Node {
     vec2 size;
     GLboolean split_axis;
     float split;
-    struct Node* children[2];
 } Node;
 
 /// @brief Create a random kd-tree spanning the entire -1 to 1 range

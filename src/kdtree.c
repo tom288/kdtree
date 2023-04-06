@@ -1,10 +1,8 @@
 #define __USE_MINGW_ANSI_STDIO 1 // Make MinGW printf support size_t with %zu
 #include "kdtree.h"
 #include "utility.h"
-#include <stdlib.h> // malloc
 #include <time.h> // time
 #include <stb_ds.h>
-#include <time.h>
 
 Node node_child(Node parent, GLboolean child_index)
 {
@@ -14,12 +12,11 @@ Node node_child(Node parent, GLboolean child_index)
         .size = { parent.size[0], parent.size[1] },
         .split_axis = rand_bool(),
         .split = bias_float(rand_float(), 0.5, 2.0f),
-        .children = { NULL, NULL },
     };
 
     const GLboolean axis = parent.split_axis;
     float split = parent.split;
-    
+
     if (child_index)
     {
         child.min_corner[axis] += parent.size[axis] * split;
@@ -39,12 +36,11 @@ Node* gen_random_nodes(float min_area)
 
     // Define the head of the k-d tree, which is never a leaf, so has no colour
     arrput(nodes, ((Node) {
-        .colour = { 0.0f },
+        .colour = { 0 },
         .min_corner = { -1.0f, -1.0f },
         .size = { 2.0f, 2.0f },
         .split_axis = rand_bool(),
         .split = bias_float(rand_float(), 0.5, 2.0f),
-        .children = { NULL, NULL },
     }));
 
     size_t num_nodes_finished = 0;
@@ -53,14 +49,12 @@ Node* gen_random_nodes(float min_area)
     while (arrlenu(nodes) > num_nodes_finished)
     {
         const Node node = nodes[num_nodes_finished];
-        if (node.size[0] * node.size[1] <= min_area)
+        if (node.size[0] * node.size[1] > min_area)
         {
-            num_nodes_finished++;
-            continue;
+            arrput(nodes, node_child(node, 0));
+            nodes[num_nodes_finished] = node_child(node, 1);
         }
-
-        arrput(nodes, node_child(node, 0));
-        nodes[num_nodes_finished] = node_child(node, 1);
+        else num_nodes_finished++;
     }
 
     return nodes;
@@ -68,7 +62,7 @@ Node* gen_random_nodes(float min_area)
 
 void** gen_random_vertices()
 {
-    const size_t target_node_count = 1000000;
+    const size_t target_node_count = 1000 * 1000;
     const float min_area = 5.992f / target_node_count;
     const Node* nodes = gen_random_nodes(min_area);
 
@@ -152,9 +146,4 @@ void node_info(Node* node)
     printf("Min corner %f %f\n", node->min_corner[0], node->min_corner[1]);
     printf("Size %f %f\n", node->size[0], node->size[1]);
     printf("Split %c %f\n", node->split_axis ? 'Y' : 'X', node->split);
-    printf(
-        "Children %zu %zu\n\n",
-        (size_t)node->children[0] / sizeof(Node),
-        (size_t)node->children[1] / sizeof(Node)
-    );
 }

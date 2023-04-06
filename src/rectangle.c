@@ -1,7 +1,4 @@
 #include "rectangle.h"
-#include <stdlib.h> // malloc
-#include <string.h> // memcpy
-#include <stdio.h> // memcpy
 #include <stb_ds.h>
 
 Graph rectangle_init(Shader* shader)
