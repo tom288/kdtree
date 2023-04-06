@@ -30,20 +30,30 @@ bool string_identical(string_slice str1, string_slice str2);
 
 // ---
 
-/// @brief returns a smaller slice, the start of the slice moves forward to skip any occurrence of the provided characters
-/// @param str1 the first string to be compared
-/// @param str2 the second string to be compared
-/// @return true if the strings are identical, false otherwise
-string_slice string_skipChars(string_slice str, char* string_skipChars);
+/// @brief returns a shorter slice, the start of the slice moves forward to the first character that's not in skipChars
+/// @param str the slice to be shortened
+/// @param skipChars shorten the slice until a character not in these characters is reached
+/// @return the shorter slice, the start of the slice moves forward to the first character that's not in skipChars
+string_slice string_skipChars(string_slice str, char* skipChars);
 
+/// @brief returns a shorter slice, the start of the slice moves forward to the first non whitespace character
+/// @param str the slice to be shortened
+/// @return the shorter slice, the start of the slice moves forward to the first non whitespace character
 string_slice string_skipWhitespace(string_slice str);
-string_slice string_skipUntilWhitespace(string_slice str, uint32_t startIndex);
-string_slice string_after_expected(string_slice str, char* expected);
+
+/// @brief returns a shorter slice, the start of the slice moves forward to the first character that's whitespace
+/// @param str the slice to be shortened
+/// @return the shorter slice, the start of the slice moves forward to the first character that's whitespace
+string_slice string_skipNonWhitespace(string_slice str);
 
 // ---
 
+/// @brief returns a shorter slice, the start of the slice moves forward to the first character after the expected text
+/// text before the expected text is also not included
+/// @param str the slice to be shortened
+/// @return the shorter slice, the start of the slice moves forward to the first character after the expected text
+string_slice string_after_expected(string_slice str, char* expected);
+
 /// @brief skips a line break
 /// @param str the string to be processed
-/// @param startIndex the index where the comparison begins
-/// @return the index of the first character after the line break
-uint32_t string_skipLineBreak(char* str, uint32_t startIndex);
+string_slice string_skipLineBreak(string_slice str);

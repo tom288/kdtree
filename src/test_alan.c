@@ -132,6 +132,9 @@ NodeType** readRules()
 
 void processQueue(Queue* self)
 {
+    // toDo: seeded randomness from nodes X Y width height
+    // xor((int32)X, (int32)Y >> 8, (int32)width >> 16, (int32)height >> 24)
+
     uint16_t iters = 100;
 
     NodeType* types = readRules(); // reading in node types text file
