@@ -53,6 +53,13 @@ Window* window_init(void);
 /// @return Whether the window is ok
 GLboolean window_ok(Window* window);
 
+/// @brief Set the clear colour and clear the window
+/// @param window The window to modify
+/// @param r Amount of red
+/// @param g Amount of green
+/// @param b Amount of blue
+void window_clear_colour(Window* window, GLclampf r, GLclampf g, GLclampf b);
+
 /// @brief Show the updated window state and optionally clear the framebuffer
 /// @param window Window to update
 void window_swap(Window* window);

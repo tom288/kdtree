@@ -29,7 +29,7 @@ int main(int argc, char* argv[])
 
     shader_use(shader);
     // Choose the background colour
-    glClearColor(0.1f, 0.0f, 0.3f, 0.0f);
+    window_clear_colour(win, 0.1f, 0.0f, 0.3f);
 
     vec2 win_size;
     window_size(win, win_size);
