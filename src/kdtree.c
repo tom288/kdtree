@@ -60,12 +60,8 @@ Node* gen_random_nodes(float min_area)
     return nodes;
 }
 
-void** gen_random_vertices()
+void** gen_vertices(Node* nodes)
 {
-    const size_t target_node_count = 1000 * 1000;
-    const float min_area = 5.992f / target_node_count;
-    const Node* nodes = gen_random_nodes(min_area);
-
     float* vertex_floats = NULL;
     arrsetcap(vertex_floats, arrlenu(nodes) * 4);
     GLubyte* vertex_colours = NULL;
@@ -88,6 +84,14 @@ void** gen_random_vertices()
     arrput(vertices, vertex_colours);
 
     return vertices;
+}
+
+void** gen_random_vertices()
+{
+    const size_t target_node_count = 1000 * 1000;
+    const float min_area = 5.992f / target_node_count;
+    Node* nodes = gen_random_nodes(min_area);
+    return gen_vertices(nodes);
 }
 
 Graph kdtree_init(Shader* shader)
