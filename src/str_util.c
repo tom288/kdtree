@@ -9,53 +9,30 @@ uint32_t string_len(string_slice str) {
     return str.firstAfter - str.first;
 }
 
-// ---
-
-string_slice string_skipChars(string_slice str, char* skipChars) {
-    char* c = str.first;
-    for (; *c != '\0'; ++c) {
-        bool skip = false;
-        for (uint8_t m = 0; m < strlen(skipChars); m++) {
-            if (*c == skipChars[m]) {
-                skip = true;
-                break;
-            }
-        }
-        if (!skip) break;
-    }
-    string_slice result;
-    result.first = c;
-    result.firstAfter = str.firstAfter;
+bool string_identical(string_slice str1, string_slice str2) {
+    char prev[2] = {str1.firstAfter, str2.firstAfter};
+    str1.firstAfter = '\0';
+    str2.firstAfter = '\0';
+    bool result = strcmp(str1.first, str2.first);
+    str1.firstAfter = prev[0];
+    str2.firstAfter = prev[1];
     return result;
 }
 
-string_slice string_skipWhitespace(string_slice str) {
-    return string_skipChars(str, " \n\t\v\b\r\f");
-}
-
-string_slice string_skipNonWhitespace(string_slice str) {
-    char whiteSpaceEOS[7] = " \n\t\v\b\r\f";
+string_slice string_wordAfter(string_slice str) {
+    char whiteSpace[8] = " \n\t\v\b\r\f";
+    char nonWhiteSpace[126 - 33];
+    for(uint8_t n = 'A'; n <= '~'; n++) nonWhiteSpace[n] = n;
+    nonWhiteSpace[92] = '\0';
     string_slice result;
-    result.first = strpbrk(str.first, whiteSpaceEOS) + 1;
-    result.firstAfter = str.firstAfter;
+    result.first = strpbrk(str.firstAfter, whiteSpace) + 1;
+    result.firstAfter = strpbrk(str.first, nonWhiteSpace) + 1;
     return result;
 }
-
-// ---
 
 string_slice string_after_expected(string_slice str, char* expected) {
     string_slice result;
     result.first = strstr(str.first, expected) + strlen(expected);
     result.firstAfter = str.firstAfter;
-    return result;
-}
-
-string_slice string_skipLineBreak(string_slice str) {
-    // "/r/n" or "/n"
-    string_slice result;
-    result.first = str.first;
-    result.firstAfter = str.firstAfter;
-    if (str.first == '\r') result.first++;
-    if (str.first == "\n") result.first++;
     return result;
 }
