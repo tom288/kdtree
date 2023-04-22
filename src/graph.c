@@ -119,10 +119,15 @@ GLboolean init_attributes
 
 void graph_update_vertices(Graph* graph, void** vertices, GLenum* types)
 {
-    if (!graph->vao || !arrlenu(graph->vbos)) return;
-
     graph_free_vertices(graph);
+    if (!graph->vao) return;
     graph->vertices = vertices;
+
+    if (!arrlenu(graph->vbos))
+    {
+        arrsetlen(graph->vbos, arrlenu(graph->vertices));
+        glGenBuffers(arrlenu(graph->vertices), graph->vbos);
+    }
 
     // Get the current buffer size
     GLint64 signed_size;
@@ -146,6 +151,7 @@ void graph_update_vertices(Graph* graph, void** vertices, GLenum* types)
         }
         else
         {
+            // TODO allocate a little extra to reduce resize frequency
             glBufferData(GL_ARRAY_BUFFER, size, vertices[i], GL_STATIC_DRAW);
         }
     }
@@ -190,20 +196,25 @@ Graph graph_init
 ) {
     Graph graph = {
         .vbos = NULL,
-        .vertices = vertices,
+        .vertices = NULL,
         .indices = indices,
         .strides = NULL,
     };
 
-    if (!arrlenu(graph.vertices)) return graph;
+    if (!arrlenu(vertices)) return graph;
 
     glGenVertexArrays(1, &graph.vao);
     glBindVertexArray(graph.vao);
 
-    const GLenum usage = GL_STATIC_DRAW;
+    GLenum* types = NULL;
+    arrsetlen(types, arrlenu(attributes));
+    for (size_t i = 0; i < arrlenu(types); ++i) 
+    {
+        types[i] = attributes[i][0].type;
+    }
+    graph_update_vertices(&graph, vertices, types);
+    arrfree(types);
 
-    arrsetlen(graph.vbos, arrlenu(graph.vertices));
-    glGenBuffers(arrlenu(graph.vertices), graph.vbos);
     arrsetlen(graph.strides, arrlenu(graph.vertices));
 
     GLboolean error = GL_FALSE;
@@ -211,12 +222,6 @@ Graph graph_init
     for (size_t i = 0; i < arrlenu(graph.vertices); ++i)
     {
         glBindBuffer(GL_ARRAY_BUFFER, graph.vbos[i]);
-        glBufferData(
-            GL_ARRAY_BUFFER,
-            arrlenu(graph.vertices[i]) * gl_sizeof(attributes[i][0].type),
-            graph.vertices[i],
-            usage
-        );
 
         error |= init_attributes(
             attributes[i],
@@ -232,6 +237,7 @@ Graph graph_init
 
     if (arrlenu(graph.indices))
     {
+        const GLenum usage = GL_STATIC_DRAW;
         glGenBuffers(1, &graph.ebo);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, graph.ebo);
         glBufferData(

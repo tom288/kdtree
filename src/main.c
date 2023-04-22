@@ -29,7 +29,7 @@ int main(int argc, char* argv[])
 
     shader_use(shader);
     // Choose the background colour
-    glClearColor(0.1f, 0.0f, 0.3f, 0.0f);
+    window_clear_colour(win, 0.1f, 0.0f, 0.3f);
 
     vec2 win_size;
     window_size(win, win_size);
@@ -55,7 +55,10 @@ int main(int argc, char* argv[])
         camera_use(camera, shader);
         graph_draw(tree, GL_POINTS);
         window_swap(win);
-        kdtree_randomise(&tree);
+        if (movement_input[0])
+        {
+            kdtree_randomise(&tree);
+        }
     }
 
     graph_kill(&tree);

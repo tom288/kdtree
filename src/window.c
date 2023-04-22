@@ -277,6 +277,12 @@ GLboolean window_ok(Window* window)
         : GL_FALSE;
 }
 
+void window_clear_colour(Window* window, GLclampf r, GLclampf g, GLclampf b)
+{
+    glClearColor(r, g, b, 0.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+}
+
 void window_swap(Window* window)
 {
     if (!window || !window->ok) return;
