@@ -3,6 +3,7 @@
 #define GLEW_STATIC
 #include <GL/glew.h>
 #include <cglm/cglm.h>
+#include "kdtree.h"
 
 // See gl_error for the single intended use of this function
 GLboolean _gl_error(char* file, int line);
@@ -37,8 +38,8 @@ void rand_vec3(vec3 v);
 float bias_float(float f, float towards, float strength);
 
 /// @brief Take the minimum of two doubles
-/// @param x 
-/// @param y 
+/// @param x
+/// @param y
 /// @return Minimum double
 double min_d(double x, double y);
 
@@ -47,3 +48,20 @@ double min_d(double x, double y);
 /// @param fair Whether to ensure the roll is fair for all values of sides
 /// @return A random number between 0 and sides - 1
 size_t rand_int(size_t sides, GLboolean fair);
+
+/// @brief Rotate n left by dist bytes
+/// @param n Value to rotate
+/// @param dist Number of bytes to rotate by
+/// @return n rotated by dist bytes
+size_t rotate_left(size_t n, size_t dist);
+
+/// @brief Rotate n left by n dist quaters
+/// @param n Value to rotate
+/// @param count Number of quaters to rotate by
+/// @return n rotated by dist quaters
+size_t rotate_left_quarter(size_t n, size_t count);
+
+/// @brief Sample some randomness for a given node, by treating it as a vec4
+/// @param sample Node to sample from
+/// @return The random value at that node
+size_t sampleRandom(Node sample);

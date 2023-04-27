@@ -1,6 +1,7 @@
 extern int WIP;
 #include "rules.h"
 #include "kdtree.h"
+#include "utility.h"
 #include "str_util.h"
 #include <cglm/cglm.h>
 #include <stb_ds.h>
