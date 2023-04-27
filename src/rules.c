@@ -1,23 +1,9 @@
 extern int WIP;
+#include "rules.h"
 #include "kdtree.h"
-//#include "queue.h"
 #include "str_util.h"
 #include <cglm/cglm.h>
 #include <stb_ds.h>
-
-typedef struct Replacement {
-    // world.txt --> | top 50 room garden
-    bool orientation; // top (true), left (false)
-    uint8_t splitPercent;
-    uint32_t types[2];
-} Replacement;
-
-typedef struct NodeType {
-    uint32_t type;
-    vec3* col;
-    Replacement** replacements; // Replacement pointer array
-    string_slice typeName; // for use only when reading world.txt
-} NodeType;
 
 string_slice read_file_into_buffer(char* path)
 {
@@ -59,10 +45,7 @@ string_slice read_file_into_buffer(char* path)
 NodeType* readRules()
 {
     string_slice const file_prime = read_file_into_buffer("world.txt"); // cleaned up at the end of this function
-    string_slice word = file_prime;
-    word.first = strcmp(string_substr(word, 0, 19), "code starts here:\n\n") ? 19 :
-        strcmp(string_substr(word, 0, 24), "---\n\ncode starts here") ? 24 :
-        string_skipUntilThenSkip(word, "\n---\n\ncode starts here:\n\n", 0);
+    string_slice word = string_after_expected(file_prime, "---\n\ncode starts here:\n\n");
     word.firstAfter = word.first;
     NodeType* types = NULL; // nodeType array
     bool ok = true;
@@ -122,26 +105,4 @@ NodeType* readRules()
     };
 
     return types;
-}
-
-size_t rotate_left(size_t n, size_t dist) {
-    return (n << dist) | (n >> (sizeof(size_t) * 8 - dist));
-}
-
-size_t rotate_left_quarter(size_t n, size_t count) {
-    return rotate_left(n, count * sizeof(size_t) * 2);
-}
-
-typedef union {
-    float from;
-    size_t to;
-} float_to_size;
-
-// xor((int32)X, (int32)Y >> 8, (int32)width >> 16, (int32)height >> 24)
-size_t sampleRandom(Node sample) { // uint64_t
-    float_to_size x = {.from = sample.min_corner[0]};
-    float_to_size y = {.from = sample.min_corner[1]};
-    float_to_size width = {.from = sample.size[0]};
-    float_to_size height = {.from = sample.size[1]};
-    return x.to ^ rotate_left_quarter(y.to, 1) ^ rotate_left_quarter(width.to, 2) ^ rotate_left_quarter(height.to, 3);
 }

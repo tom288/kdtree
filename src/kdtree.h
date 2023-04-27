@@ -1,5 +1,4 @@
 #pragma once
-
 #include "shader.h"
 #include "graph.h"
 #include <cglm/cglm.h>

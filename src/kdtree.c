@@ -1,6 +1,7 @@
 #define __USE_MINGW_ANSI_STDIO 1 // Make MinGW printf support size_t with %zu
 #include "kdtree.h"
 #include "utility.h"
+#include "rules.h"
 #include <time.h> // time
 #include <stb_ds.h>
 
