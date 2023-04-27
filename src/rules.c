@@ -45,8 +45,13 @@ string_slice read_file_into_buffer(char* path)
 // | top 50 garden garden
 NodeType* readRules()
 {
-    string_slice const file_prime = read_file_into_buffer("world.txt"); // cleaned up at the end of this function
-    string_slice word = string_after_expected(file_prime, "---\n\ncode starts here:\n\n");
+    string_slice const file_prime = read_file_into_buffer("src/world.txt"); // cleaned up at the end of this function
+    string_slice word = string_after_expected(file_prime, "---");
+    word = string_after_expected(word, "\n"); // not doing it like this produces problems with \r\n on many systems
+    word = string_after_expected(word, "\n");
+    word = string_after_expected(word, "code starts here:");
+    word = string_after_expected(word, "\n");
+    word = string_after_expected(word, "\n");
     word.firstAfter = word.first;
     NodeType* types = NULL; // nodeType array
     bool ok = true;
@@ -56,9 +61,7 @@ NodeType* readRules()
 
         // read typename
         word = string_wordAfter(word);
-        for (uint32_t nodeIndex = 0; nodeIndex < arrlenu(types); nodeIndex++)
-            if (string_identical(types[nodeIndex].typeName, string_wordAfter(word)))
-                this_node->typeName = word;
+        this_node->typeName = word; // for debugging
 
         // read col
         for (uint8_t n = 0; n < 3; n++) {
