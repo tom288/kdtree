@@ -6,7 +6,7 @@
 
 // TODO import rules.h for nodetype, readrules etc (when it exists)
 
-Node randomn_node_child(Node parent, GLboolean child_index)
+Node random_node_child(Node parent, GLboolean child_index)
 {
     Node child = {
         .colour = { rand() & 255, rand() & 255, rand() & 255 },
@@ -29,7 +29,7 @@ Node randomn_node_child(Node parent, GLboolean child_index)
     return child;
 }
 
-Node randomn_node_child(Node parent, GLboolean child_index, NodeType* rules)
+Node node_child(Node parent, GLboolean child_index, NodeType* rules)
 {
     // TODO use rules
     Node child = {

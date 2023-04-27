@@ -5,14 +5,6 @@ extern int WIP;
 #include <cglm/cglm.h>
 #include <stb_ds.h>
 
-// temp dummy
-typedef struct Queue {
-} Queue;
-
-Queue* worldTreeQueue; // ongoing generating of the worlds nodes
-Queue* worldTreeExtant; // finished nodes
-Queue* worldTreeExtinct; // culled nodes that may still be useful
-
 typedef struct Replacement {
     // world.txt --> | top 50 room garden
     bool orientation; // top (true), left (false)
@@ -152,50 +144,4 @@ size_t sampleRandom(Node sample) { // uint64_t
     float_to_size width = {.from = sample.size[0]};
     float_to_size height = {.from = sample.size[1]};
     return x.to ^ rotate_left_quarter(y.to, 1) ^ rotate_left_quarter(width.to, 2) ^ rotate_left_quarter(height.to, 3);
-}
-
-void processQueue(Queue* self)
-{
-    // do something with the new seeded randomness
-
-    uint16_t min_size = 10;
-    NodeType* types = readRules(); // reading in node types text file
-
-    while (!queue_isEmpty(self)) {
-        iter++;
-        Node* next = queue_pop(self); // get the front item of the queue
-        node_birth(types, next); // generate two children to add to the back of the queue
-        Node** children = next->children;
-        bool ok = true;
-        for (uint8_t p = 0; p < 1; p++) {
-            for (uint8_t q = 0; q < 1; q++) {
-                if (children[p]->size[q] < 0.001) ok = false;
-            }
-        }
-        if (ok) {
-            queue_push(self, next->children[0]);
-            queue_push(self, next->children[1]);
-        }
-        queue_push(worldTreeExtant, next); // add to the queue collection of finished
-    }
-
-    // result as 2D array, or 1D array of rectangle
-}
-
-int main(int argc, char* argv[])
-{
-    worldTreeQueue = queue();
-    worldTreeExtant = queue();
-    worldTreeExtinct = queue();
-    processQueue(worldTreeQueue);
-    /*
-    Node* n1 = malloc(sizeof(Node));
-    Queue* c1 = malloc(sizeof(Queue));
-    c1 = queue();
-    //queue_push(c1, n1);
-    printf("%d\n", (int)queue_len_blocks(c1));
-    printf("%d\n", (int)queue_len_items(c1));
-    //getchar();
-    printf("\ndone");
-    */
 }
