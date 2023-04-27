@@ -67,14 +67,14 @@ NodeType* readRules()
             vec3 col;
             for (uint8_t channel = 0; channel < 3; channel++) {
                 word = string_wordAfter(word);
-                col[channel] = strtof(word.first, word.firstAfter) / 100.0f;
+                col[channel] = strtof(word.first, NULL) / 100.0f;
             }
-            this_node->col = col;
+            glm_vec3_copy(col, this_node->col);
         }
 
         uint32_t replacementCount = 0;
         Replacement* this_replacement;
-        while (word.first == '|') // until '|' keep reading replacement rule lines
+        while (*word.first == '|') // until '|' keep reading replacement rule lines
         {
             this_replacement = this_node->replacements[replacementCount];
 
@@ -83,13 +83,13 @@ NodeType* readRules()
             char* left_str = "left";
             string_slice left;
             left.first = left_str;
-            left.firstAfter = left_str[4];
+            left.firstAfter = &(left_str[4]);
             this_replacement->orientation = string_identical(word, left);
             free(left_str);
 
             // read proportion
             word = string_wordAfter(word);
-            this_replacement->splitPercent = strtof(word.first, word.firstAfter);
+            this_replacement->splitPercent = strtof(word.first, NULL);
 
             // read two typenames
             string_wordAfter(word);

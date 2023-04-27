@@ -11,7 +11,7 @@ typedef struct Replacement {
 
 typedef struct NodeType {
     uint32_t type;
-    vec3* col;
+    vec3 col;
     Replacement** replacements; // Replacement pointer array
     string_slice typeName; // for use only when reading world.txt
 } NodeType;

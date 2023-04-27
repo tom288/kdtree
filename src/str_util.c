@@ -10,12 +10,12 @@ uint32_t string_len(string_slice str) {
 }
 
 bool string_identical(string_slice str1, string_slice str2) {
-    char prev[2] = {str1.firstAfter, str2.firstAfter};
-    str1.firstAfter = '\0';
-    str2.firstAfter = '\0';
+    char prev[2] = { *str1.firstAfter, *str2.firstAfter };
+    *str1.firstAfter = '\0';
+    *str2.firstAfter = '\0';
     bool result = strcmp(str1.first, str2.first);
-    str1.firstAfter = prev[0];
-    str2.firstAfter = prev[1];
+    *str1.firstAfter = prev[0];
+    *str2.firstAfter = prev[1];
     return result;
 }
 
