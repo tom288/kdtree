@@ -67,7 +67,7 @@ NodeType* readRules()
             vec3 col;
             for (uint8_t channel = 0; channel < 3; channel++) {
                 word = string_wordAfter(word);
-                col[channel] = strtof(word.first, word.firstAfter) / 100.0f;
+                col[channel] = strtof(word.first, NULL) / 100.0f;
             }
             this_node->col = col;
         }
