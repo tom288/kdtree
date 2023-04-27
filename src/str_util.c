@@ -1,4 +1,5 @@
 #include "str_util.h"
+#include "ctype.h"
 #include <string.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -20,14 +21,12 @@ bool string_identical(string_slice str1, string_slice str2) {
 }
 
 string_slice string_wordAfter(string_slice str) {
-    char whiteSpace[8] = " \n\t\v\b\r\f";
-    char nonWhiteSpace[126 - 33];
-    for(uint8_t n = 'A'; n <= '~'; n++) nonWhiteSpace[n] = n;
-    nonWhiteSpace[92] = '\0';
-    string_slice result;
-    result.first = strpbrk(str.firstAfter, whiteSpace) + 1;
-    result.firstAfter = strpbrk(str.first, nonWhiteSpace) + 1;
-    return result;
+    str.first = str.firstAfter;
+    while (!isspace(*str.first)) str.first++;
+    while (isspace(*str.first)) str.first++;
+    str.firstAfter = str.first;
+    while (!isspace(*str.firstAfter)) str.firstAfter++;
+    return str;
 }
 
 string_slice string_after_expected(string_slice str, char* expected) {

@@ -52,7 +52,7 @@ NodeType* readRules()
     bool ok = true;
 
     while (ok) { // until end of file
-        NodeType* this_node = arraddnptr(types, 1); // "last" refers to a new uninitialized node this adds to "types"
+        NodeType* this_node = arraddnptr(types, 1); // refers to a new uninitialized node this adds to "types"
 
         // read typename
         word = string_wordAfter(word);
@@ -72,11 +72,11 @@ NodeType* readRules()
             glm_vec3_copy(col, this_node->col);
         }
 
-        uint32_t replacementCount = 0;
-        Replacement this_replacement;
+        this_node->replacements = NULL;
         while (*word.first == '|') // until '|' keep reading replacement rule lines
         {
-            this_replacement = this_node->replacements[replacementCount];
+            // refers to a new uninitialized replacement in this_node
+            Replacement* this_replacement = arraddnptr(this_node->replacements, 1);
 
             // read orientation
             word = string_wordAfter(word);
@@ -84,21 +84,18 @@ NodeType* readRules()
             string_slice left;
             left.first = left_str;
             left.firstAfter = &(left_str[4]);
-            this_replacement.orientation = string_identical(word, left);
-            free(left_str);
+            this_replacement->orientation = string_identical(word, left);
 
             // read proportion
             word = string_wordAfter(word);
-            this_replacement.splitPercent = strtof(word.first, NULL);
+            this_replacement->splitPercent = strtof(word.first, NULL);
 
             // read two typenames
             string_wordAfter(word);
             for (uint8_t n = 0; n < 2; n++)
                 for (uint32_t nodeIndex = 0; nodeIndex < arrlenu(types); nodeIndex++)
                     if (string_identical(this_node->typeName, word))
-                        this_replacement.types[n] = nodeIndex;
-
-            replacementCount++;
+                        this_replacement->types[n] = nodeIndex;
         }
 
         string_slice next = string_wordAfter(word);
