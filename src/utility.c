@@ -141,16 +141,17 @@ size_t rotate_left_quarter(size_t n, size_t count)
     return rotate_left(n, count * 2 * sizeof(size_t));
 }
 
-typedef union {
-    float from;
-    size_t to;
-} float_to_size;
-
 size_t sampleRandom(Node sample) {
-    float_to_size x = {.from = sample.min_corner[0]};
-    float_to_size y = {.from = sample.min_corner[1]};
-    float_to_size width = {.from = sample.size[0]};
-    float_to_size height = {.from = sample.size[1]};
+    typedef union {
+        float from;
+        size_t to;
+    } float_to_size;
+
+    float_to_size x = { .from = sample.min_corner[0] };
+    float_to_size y = { .from = sample.min_corner[1] };
+    float_to_size width = { .from = sample.size[0] };
+    float_to_size height = { .from = sample.size[1] };
+
     return x.to
         ^ rotate_left_quarter(y.to     , 1)
         ^ rotate_left_quarter(width.to , 2)
