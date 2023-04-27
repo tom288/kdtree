@@ -1,6 +1,7 @@
 #pragma once
 #include "shader.h"
 #include "graph.h"
+#include "rules.h"
 #include <cglm/cglm.h>
 
 /// @brief Node for kd-tree
@@ -10,6 +11,7 @@ typedef struct Node {
     vec2 size;
     GLboolean split_axis;
     float split;
+    NodeType* type;
 } Node;
 
 /// @brief Create a random kd-tree spanning the entire -1 to 1 range

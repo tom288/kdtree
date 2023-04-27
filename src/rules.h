@@ -1,12 +1,12 @@
 #pragma once
-#include <cglm/cglm.h>
 #include "str_util.h"
+#include <cglm/cglm.h>
 
 typedef struct Replacement {
     // world.txt --> | top 50 room garden
     bool orientation; // top (true), left (false)
     uint8_t splitPercent;
-    uint32_t types[2];
+    struct NodeType* types[2]; // two item pointer array
 } Replacement;
 
 typedef struct NodeType {

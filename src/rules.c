@@ -95,7 +95,7 @@ NodeType* readRules()
             for (uint8_t n = 0; n < 2; n++)
                 for (uint32_t nodeIndex = 0; nodeIndex < arrlenu(types); nodeIndex++)
                     if (string_identical(this_node->typeName, word))
-                        this_replacement->types[n] = nodeIndex;
+                        this_replacement->types[n] = &types[nodeIndex];
         }
 
         string_slice next = string_wordAfter(word);

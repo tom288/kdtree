@@ -30,15 +30,18 @@ Node random_node_child(Node parent, GLboolean child_index)
     return child;
 }
 
-Node node_child(Node parent, GLboolean child_index, NodeType* rules)
+Node node_child(Node parent, GLboolean child_index, Replacement replacement)
 {
     // TODO use rules
+    vec3 r;
+    glm_vec3_scale(replacement.types[child_index]->col, 255, r);
+
     Node child = {
-        .colour = { rand() & 255, rand() & 255, rand() & 255 },
+        .colour = { r[0], r[1], r[2] },
         .min_corner = { parent.min_corner[0], parent.min_corner[1] },
         .size = { parent.size[0], parent.size[1] },
-        .split_axis = rand_bool(),
-        .split = bias_float(rand_float(), 0.5, 2.0f),
+        .split_axis = replacement.orientation,
+        .split = replacement.splitPercent / 100.0,
     };
 
     const GLboolean axis = parent.split_axis;
@@ -112,10 +115,12 @@ Node* gen_nodes(float min_area)
     while (arrlenu(nodes) > num_nodes_finished)
     {
         const Node node = nodes[num_nodes_finished];
-        if (node.size[0] * node.size[1] > min_area)
+        uint32_t replacement_count = arrlenu(node.type->replacements);
+        if (node.size[0] * node.size[1] > min_area || replacement_count == 0)
         {
-            arrput(nodes, node_child(node, 0, types));
-            nodes[num_nodes_finished] = node_child(node, 1, types);
+            Replacement replacement = node.type->replacements[rand_int(replacement_count, true)];
+            arrput(nodes, node_child(node, 0, replacement));
+            nodes[num_nodes_finished] = node_child(node, 1, replacement);
         }
         else num_nodes_finished++;
     }
@@ -161,7 +166,7 @@ void** gen_vertices()
 {
     const size_t target_node_count = 1000 * 1000;
     const float min_area = 5.992f / target_node_count;
-    Node* nodes = gen_random_nodes(min_area);
+    Node* nodes = gen_nodes(min_area);
     return gen_vertices_from_nodes(nodes);
 }
 
@@ -169,7 +174,7 @@ Graph kdtree_init(Shader* shader)
 {
     // Seed the random number generator
     srand(time(NULL));
-    void* vertices = gen_random_vertices();
+    void* vertices = gen_vertices();
 
     Attribute* layout_attributes = NULL;
 
@@ -210,7 +215,7 @@ void kdtree_randomise(Graph *tree)
     GLenum* types = NULL;
     arrput(types, GL_FLOAT);
     arrput(types, GL_UNSIGNED_BYTE);
-    graph_update_vertices(tree, gen_random_vertices(), types);
+    graph_update_vertices(tree, gen_vertices(), types);
     arrfree(types);
 }
 
