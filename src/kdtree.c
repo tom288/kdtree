@@ -92,12 +92,12 @@ Node* gen_random_nodes(float min_area)
 
 Node* gen_nodes(float min_area)
 {
-    NodeType* types = readRules(); // reading in node types text file
-
     // Guess the amount of memory needed to avoid both waste and growth
     Node* nodes = NULL;
     size_t expected_node_count = 6.0f / min_area;
     arrsetcap(nodes, expected_node_count);
+
+    NodeType* types = readRules(); // Read node types from file
 
     // TODO define world node from rules
     // Define the head of the k-d tree, which is never a leaf, so has no colour
@@ -107,6 +107,7 @@ Node* gen_nodes(float min_area)
         .size = { 2.0f, 2.0f },
         .split_axis = rand_bool(),
         .split = bias_float(rand_float(), 0.5, 2.0f),
+        .type = &(types[0]),
     }));
 
     size_t num_nodes_finished = 0;
