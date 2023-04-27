@@ -113,8 +113,8 @@ Node* gen_nodes(float min_area)
         const Node node = nodes[num_nodes_finished];
         if (node.size[0] * node.size[1] > min_area)
         {
-            arrput(nodes, node_child(node, 0));
-            nodes[num_nodes_finished] = node_child(node, 1);
+            arrput(nodes, node_child(node, 0, types));
+            nodes[num_nodes_finished] = node_child(node, 1, types);
         }
         else num_nodes_finished++;
     }
