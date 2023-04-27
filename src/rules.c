@@ -57,10 +57,8 @@ NodeType* readRules()
         // read typename
         word = string_wordAfter(word);
         for (uint32_t nodeIndex = 0; nodeIndex < arrlenu(types); nodeIndex++)
-            if (string_identical(types[nodeIndex].typeName, string_wordAfter(word))) {
-                this_node->type = nodeIndex;
+            if (string_identical(types[nodeIndex].typeName, string_wordAfter(word)))
                 this_node->typeName = word;
-            }
 
         // read col
         for (uint8_t n = 0; n < 3; n++) {

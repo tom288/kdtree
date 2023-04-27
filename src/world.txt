@@ -7,6 +7,8 @@ string: type name
 integer 0 to 100: red, green, blue
 0 to 2^32 replacement rules
 
+The first node type must be called "world".
+
 replacement rules use this format:
 
 | (top/left: split direction) (integer 1 to 99: split percent) (node type name) (node type name)
