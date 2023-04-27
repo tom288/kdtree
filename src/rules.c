@@ -73,7 +73,7 @@ NodeType* readRules()
         }
 
         uint32_t replacementCount = 0;
-        Replacement* this_replacement;
+        Replacement this_replacement;
         while (*word.first == '|') // until '|' keep reading replacement rule lines
         {
             this_replacement = this_node->replacements[replacementCount];
@@ -84,19 +84,19 @@ NodeType* readRules()
             string_slice left;
             left.first = left_str;
             left.firstAfter = &(left_str[4]);
-            this_replacement->orientation = string_identical(word, left);
+            this_replacement.orientation = string_identical(word, left);
             free(left_str);
 
             // read proportion
             word = string_wordAfter(word);
-            this_replacement->splitPercent = strtof(word.first, NULL);
+            this_replacement.splitPercent = strtof(word.first, NULL);
 
             // read two typenames
             string_wordAfter(word);
             for (uint8_t n = 0; n < 2; n++)
                 for (uint32_t nodeIndex = 0; nodeIndex < arrlenu(types); nodeIndex++)
                     if (string_identical(this_node->typeName, word))
-                        this_replacement->types[n] = nodeIndex;
+                        this_replacement.types[n] = nodeIndex;
 
             replacementCount++;
         }
