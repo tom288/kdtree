@@ -134,7 +134,7 @@ void graph_update_vertices(Graph* graph, void** vertices, GLenum* types)
     glBindBuffer(GL_ARRAY_BUFFER, graph->vbos[0]);
     glGetBufferParameteri64v(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &signed_size);
     size_t size = (unsigned)signed_size;
-    size_t size_needed = arrlenu(vertices[0]) * gl_sizeof(types[0]);
+    size_t size_needed = arrlenu(graph->vertices[0]) * gl_sizeof(types[0]);
 
     // If we already have enough size then avoid reallocation
     // Reallocate if we have much more than we need
@@ -143,7 +143,7 @@ void graph_update_vertices(Graph* graph, void** vertices, GLenum* types)
 
     for (size_t i = 0; i < arrlenu(graph->vbos); ++i)
     {
-        const size_t size = arrlenu(vertices[i]) * gl_sizeof(types[i]);
+        const size_t size = arrlenu(graph->vertices[i]) * gl_sizeof(types[i]);
         glBindBuffer(GL_ARRAY_BUFFER, graph->vbos[i]);
         if (reuse)
         {
@@ -166,6 +166,8 @@ void graph_free_vertices(Graph* graph)
         arrfree(graph->vertices[i]);
     }
     arrfree(graph->vertices);
+    glDeleteFramebuffers(1, &graph->fbo);
+    glDeleteTextures(1, &graph->quad_texture);
 }
 
 void graph_free_all(Graph* graph)
@@ -179,7 +181,10 @@ void graph_kill(Graph* graph)
 {
     glDeleteVertexArrays(1, &graph->vao);
     graph->vao = 0;
+    glDeleteVertexArrays(1, &graph->quad_vao);
+    graph->quad_vao = 0;
     glDeleteBuffers(arrlenu(graph->vbos), graph->vbos);
+    glDeleteBuffers(1, &graph->quad_vbo);
     arrfree(graph->vbos);
     glDeleteBuffers(1, &graph->ebo);
     graph->ebo = 0;
@@ -195,10 +200,7 @@ Graph graph_init
     Attribute** attributes
 ) {
     Graph graph = {
-        .vbos = NULL,
-        .vertices = NULL,
         .indices = indices,
-        .strides = NULL,
     };
 
     if (!arrlenu(vertices)) return graph;
@@ -208,7 +210,7 @@ Graph graph_init
 
     GLenum* types = NULL;
     arrsetlen(types, arrlenu(attributes));
-    for (size_t i = 0; i < arrlenu(types); ++i) 
+    for (size_t i = 0; i < arrlenu(types); ++i)
     {
         types[i] = attributes[i][0].type;
     }
@@ -273,19 +275,96 @@ GLboolean graph_ok(Graph graph)
         && arrlenu(graph.strides);
 }
 
-void graph_draw(Graph graph, GLenum mode)
+void graph_draw(Graph graph, GLenum mode, Shader* texture_shader)
 {
     if (!graph_ok(graph)) return;
-    glBindVertexArray(graph.vao);
 
-    if (arrlenu(graph.indices))
+    // If there are a sufficient number of vertices then we should pre-render
+    if (!texture_shader || arrlenu(graph.vertices[0]) / graph.strides[0] < 1 << 17)
     {
-        glDrawElements(mode, arrlenu(graph.indices), sizeof(*graph.indices), 0);
-    }
-    else
-    {
-        glDrawArrays(mode, 0, arrlenu(graph.vertices[0]) / graph.strides[0]);
+        glBindVertexArray(graph.vao);
+
+        if (arrlenu(graph.indices))
+        {
+            glDrawElements(mode, arrlenu(graph.indices), sizeof(*graph.indices), 0);
+        }
+        else
+        {
+            glDrawArrays(mode, 0, arrlenu(graph.vertices[0]) / graph.strides[0]);
+        }
+
+        glBindVertexArray(0);
+        return;
     }
 
+    if (!graph.fbo)
+    {
+        glGenFramebuffers(1, &graph.fbo);
+        glBindFramebuffer(GL_FRAMEBUFFER, graph.fbo);
+
+        glGenTextures(1, &graph.quad_texture);
+        glBindTexture(GL_TEXTURE_2D, graph.quad_texture);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 1024, 1024, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glBindTexture(GL_TEXTURE_2D, 0);
+
+        // Attach texture to currently bound framebuffer
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, graph.quad_texture, 0);
+        glClearColor(0.3f, 0.0f, 0.1f, 0.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        // glGenRenderbuffers(1, &graph.rbo);
+        // glBindRenderbuffer(GL_RENDERBUFFER, graph.rbo);
+        // glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA8UI, 512, 512);
+        // glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_RGBA_INTEGER, GL_RENDERBUFFER, graph.rbo);
+
+        if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+        {
+            printf("Error: Framebuffer is incomplete\n");
+            return;
+        }
+
+        glBindVertexArray(graph.vao);
+
+        if (arrlenu(graph.indices))
+        {
+            glDrawElements(mode, arrlenu(graph.indices), sizeof(*graph.indices), 0);
+        }
+        else
+        {
+            glDrawArrays(mode, 0, arrlenu(graph.vertices[0]) / graph.strides[0]);
+        }
+
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+        float quad_verts[] = {
+            // positions   // texCoords
+            -1.0f, -1.0f,  0.0f, 0.0f,
+             1.0f,  1.0f,  1.0f, 1.0f,
+            -1.0f,  1.0f,  0.0f, 1.0f,
+
+             1.0f,  1.0f,  1.0f, 1.0f,
+            -1.0f, -1.0f,  0.0f, 0.0f,
+             1.0f, -1.0f,  1.0f, 0.0f,
+        };
+
+        glGenVertexArrays(1, &graph.quad_vao);
+        glGenBuffers(1, &graph.quad_vbo);
+        glBindVertexArray(graph.quad_vao);
+        glBindBuffer(GL_ARRAY_BUFFER, graph.quad_vbo);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(quad_verts), &quad_verts, GL_STATIC_DRAW);
+        GLuint index = glGetAttribLocation(texture_shader->id, "position");
+        glEnableVertexAttribArray(index);
+        glVertexAttribPointer(index, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+        index = glGetAttribLocation(texture_shader->id, "uv");
+        glEnableVertexAttribArray(index);
+        glVertexAttribPointer(index, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+    }
+    
+    shader_use(*texture_shader);
+    glBindVertexArray(graph.quad_vao);
+    glBindTexture(GL_TEXTURE_2D, graph.quad_texture);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
     glBindVertexArray(0);
 }

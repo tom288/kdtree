@@ -7,9 +7,13 @@ typedef struct {
     GLuint vao;
     GLuint* vbos;
     GLuint ebo;
+    GLuint fbo;
     void** vertices;
     GLuint* indices;
     size_t* strides;
+    GLuint quad_vao;
+    GLuint quad_vbo;
+    GLuint quad_texture;
 } Graph;
 
 /// @brief Vertex attribute
@@ -46,7 +50,7 @@ GLboolean graph_ok(Graph graph);
 /// @brief Draw contents of graph
 /// @param graph Graph to draw
 /// @param mode Kind of primitive to render
-void graph_draw(Graph graph, GLenum mode);
+void graph_draw(Graph graph, GLenum mode, Shader* texture_shader);
 
 /// @brief Free old graph vertices and assign new vertices
 /// @param graph Graph to update

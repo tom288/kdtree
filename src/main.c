@@ -19,15 +19,27 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    Graph tree = kdtree_init(&shader);
-    if (!graph_ok(tree))
+    Shader texture_shader = shader_init(
+        "src/glsl/texture.vert",
+        NULL,
+        "src/glsl/texture.frag"
+    );
+    if (!texture_shader.ok)
     {
         shader_kill(&shader);
         window_kill(win);
         return 1;
     }
 
-    shader_use(shader);
+    Graph tree = kdtree_init(&shader);
+    if (!graph_ok(tree))
+    {
+        shader_kill(&texture_shader);
+        shader_kill(&shader);
+        window_kill(win);
+        return 1;
+    }
+
     // Choose the background colour
     window_clear_colour(win, 0.1f, 0.0f, 0.3f);
 
@@ -53,7 +65,9 @@ int main(int argc, char* argv[])
             window_delta_time(win)
         );
         camera_use(camera, shader);
-        graph_draw(tree, GL_POINTS);
+        shader_use(shader);
+        graph_draw(tree, GL_POINTS, &texture_shader);
+        glClearColor(0.1f, 0.0f, 0.3f, 0.0f);
         window_swap(win);
         if (movement_input[0])
         {
@@ -62,6 +76,7 @@ int main(int argc, char* argv[])
     }
 
     graph_kill(&tree);
+    shader_kill(&texture_shader);
     shader_kill(&shader);
     window_kill(win);
 

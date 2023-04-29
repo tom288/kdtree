@@ -37,8 +37,8 @@ void rand_vec3(vec3 v);
 float bias_float(float f, float towards, float strength);
 
 /// @brief Take the minimum of two doubles
-/// @param x 
-/// @param y 
+/// @param x
+/// @param y
 /// @return Minimum double
 double min_d(double x, double y);
 
