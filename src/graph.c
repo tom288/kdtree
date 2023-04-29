@@ -307,12 +307,9 @@ void graph_draw(Graph graph, GLenum mode, Shader* texture_shader)
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 1024, 1024, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glBindTexture(GL_TEXTURE_2D, 0);
 
         // Attach texture to currently bound framebuffer
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, graph.quad_texture, 0);
-        glClearColor(0.3f, 0.0f, 0.1f, 0.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
 
         // glGenRenderbuffers(1, &graph.rbo);
         // glBindRenderbuffer(GL_RENDERBUFFER, graph.rbo);
@@ -324,6 +321,9 @@ void graph_draw(Graph graph, GLenum mode, Shader* texture_shader)
             printf("Error: Framebuffer is incomplete\n");
             return;
         }
+
+        glClearColor(0.4f, 0.1f, 0.3f, 0.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
 
         glBindVertexArray(graph.vao);
 
@@ -361,7 +361,7 @@ void graph_draw(Graph graph, GLenum mode, Shader* texture_shader)
         glEnableVertexAttribArray(index);
         glVertexAttribPointer(index, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
     }
-    
+
     shader_use(*texture_shader);
     glBindVertexArray(graph.quad_vao);
     glBindTexture(GL_TEXTURE_2D, graph.quad_texture);

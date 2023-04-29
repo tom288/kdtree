@@ -65,14 +65,12 @@ int main(int argc, char* argv[])
             window_delta_time(win)
         );
         camera_use(camera, shader);
-        shader_use(shader);
+
+        if (movement_input[0]) kdtree_randomise(&tree);
         graph_draw(tree, GL_POINTS, &texture_shader);
+
         glClearColor(0.1f, 0.0f, 0.3f, 0.0f);
         window_swap(win);
-        if (movement_input[0])
-        {
-            kdtree_randomise(&tree);
-        }
     }
 
     graph_kill(&tree);
