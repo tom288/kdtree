@@ -263,6 +263,14 @@ Window* window_init()
         .button = GLFW_KEY_Q,
         .action = anticlockwise,
     }));
+    arrput(window->binds, ((Binding) {
+        .button = GLFW_KEY_1,
+        .action = randomise,
+    }));
+    arrput(window->binds, ((Binding) {
+        .button = GLFW_KEY_2,
+        .action = rasterise,
+    }));
 
     return window;
 }

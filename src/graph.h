@@ -7,9 +7,13 @@ typedef struct {
     GLuint vao;
     GLuint* vbos;
     GLuint ebo;
+    GLuint fbo;
     void** vertices;
     GLuint* indices;
     size_t* strides;
+    GLuint quad_vao;
+    GLuint quad_vbo;
+    GLuint quad_texture;
 } Graph;
 
 /// @brief Vertex attribute
@@ -43,16 +47,27 @@ Graph graph_init_empty();
 /// @return Whether graph initialisation succeeded
 GLboolean graph_ok(Graph graph);
 
+/// @brief Decide whether to render a graph to a texture
+/// @param graph Graph to evaluate and optionally render
+/// @param mode Render mode
+/// @param texture_shader Shader to use for generating the texture
+/// @param blit_shader Shader to use once the texture is ready
+GLboolean graph_prep_texture(Graph* graph, GLenum mode, Shader* texture_shader, Shader* blit_shader);
+
 /// @brief Draw contents of graph
 /// @param graph Graph to draw
 /// @param mode Kind of primitive to render
-void graph_draw(Graph graph, GLenum mode);
+void graph_draw(Graph* graph, GLenum mode);
 
 /// @brief Free old graph vertices and assign new vertices
 /// @param graph Graph to update
 /// @param vertices Vertices to use
 /// @param types Types of vertices to reassign
 void graph_update_vertices(Graph* graph, void** vertices, GLenum* types);
+
+/// @brief Free graph textures, requiring them to be regenerated
+/// @param graph Graph of textures to free
+void graph_free_textures(Graph* graph);
 
 /// @brief Free graph vertices, without changing GPU data
 /// @param graph Graph of vertices to free

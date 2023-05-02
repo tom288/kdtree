@@ -42,6 +42,7 @@ void camera_screen_to_world(Camera camera, vec2 screen_coordinate, vec2 dest)
 
 void camera_use(Camera camera, Shader shader)
 {
+    shader_use(shader);
     shader_set_2fv(shader, "camera_position", 1, camera.position);
     shader_set_1f(shader, "camera_rotation", camera.rotation);
     shader_set_2fv(shader, "camera_scale", 1, camera.scaled_size);
