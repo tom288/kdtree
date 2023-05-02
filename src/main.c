@@ -66,8 +66,10 @@ int main(int argc, char* argv[])
         );
         camera_use(camera, shader);
 
-        if (movement_input[0]) kdtree_randomise(&tree);
-        graph_draw(tree, GL_POINTS, &texture_shader);
+        if (window_action(win, randomise, GL_TRUE)) kdtree_randomise(&tree);
+        if (window_action(win, rasterise, GL_TRUE)) graph_free_textures(&tree);
+
+        graph_draw(&tree, GL_POINTS, &texture_shader);
 
         glClearColor(0.1f, 0.0f, 0.3f, 0.0f);
         window_swap(win);
