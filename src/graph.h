@@ -47,10 +47,17 @@ Graph graph_init_empty();
 /// @return Whether graph initialisation succeeded
 GLboolean graph_ok(Graph graph);
 
+/// @brief Decide whether to render a graph to a texture
+/// @param graph Graph to evaluate and optionally render
+/// @param mode Render mode
+/// @param texture_shader Shader to use for generating the texture
+/// @param blit_shader Shader to use once the texture is ready
+GLboolean graph_prep_texture(Graph* graph, GLenum mode, Shader* texture_shader, Shader* blit_shader);
+
 /// @brief Draw contents of graph
 /// @param graph Graph to draw
 /// @param mode Kind of primitive to render
-void graph_draw(Graph* graph, GLenum mode, Shader* texture_shader);
+void graph_draw(Graph* graph, GLenum mode);
 
 /// @brief Free old graph vertices and assign new vertices
 /// @param graph Graph to update

@@ -1,12 +1,21 @@
 #version 330 core
 
-in vec2 position;
-in vec2 uv;
+in vec2 min_corner;
+in vec2 size;
+in uvec3 colour;
 
-out vec2 frag_uv;
+struct Rectangle
+{
+    vec2 min_corner;
+    vec2 size;
+    vec3 color;
+};
+
+out Rectangle rectangle;
 
 void main()
 {
-    gl_Position = vec4(position, 0.0, 1.0);
-    frag_uv = uv;
+    rectangle.min_corner = min_corner;
+    rectangle.size = size;
+    rectangle.color = colour / 255.0;
 }
