@@ -20,7 +20,7 @@ int main(int argc, char* argv[])
     }
 
     Shader texture_shader = shader_init(
-        "src/glsl/texture.vert",
+        "src/glsl/rectangle.vert",
         "src/glsl/texture.geom",
         "src/glsl/colour.frag"
     );
