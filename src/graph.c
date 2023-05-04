@@ -292,10 +292,13 @@ GLboolean graph_prep_texture(Graph* graph, GLenum mode, Shader* texture_shader, 
 
     glGenFramebuffers(1, &graph->fbo);
     glBindFramebuffer(GL_FRAMEBUFFER, graph->fbo);
+    GLint viewport[4];
+    glGetIntegerv(GL_VIEWPORT, viewport);
+    glViewport(0, 0, 4096, 4096);
 
     glGenTextures(1, &graph->quad_texture);
     glBindTexture(GL_TEXTURE_2D, graph->quad_texture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, 1024, 1024, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, 4096, 4096, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
     const GLboolean mipmap = GL_TRUE;
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, mipmap ? GL_LINEAR_MIPMAP_LINEAR : GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -329,6 +332,8 @@ GLboolean graph_prep_texture(Graph* graph, GLenum mode, Shader* texture_shader, 
         glDrawArrays(mode, 0, arrlenu(graph->vertices[0]) / graph->strides[0]);
     }
     if (mipmap) glGenerateMipmap(GL_TEXTURE_2D);
+
+    glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
