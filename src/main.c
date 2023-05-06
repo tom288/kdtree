@@ -85,14 +85,12 @@ int main(int argc, char* argv[])
         GLboolean prepped = graph_prep_texture(
             &tree,
             GL_POINTS,
-            &texture_shader,
-            &blit_shader
+            texture_shader,
+            blit_shader
         );
 
         camera_use(camera, prepped ? blit_shader : shader);
-
         graph_draw(&tree, GL_POINTS);
-
         glClearColor(0.1f, 0.0f, 0.3f, 0.0f);
         window_swap(win);
     }

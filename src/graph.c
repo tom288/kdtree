@@ -283,12 +283,12 @@ GLboolean graph_ok(Graph graph)
         && arrlenu(graph.strides);
 }
 
-GLboolean graph_prep_texture(Graph* graph, GLenum mode, Shader* texture_shader, Shader* blit_shader)
+GLboolean graph_prep_texture(Graph* graph, GLenum mode, Shader texture_shader, Shader blit_shader)
 {
     if (graph->fbo) return GL_TRUE;
     if (arrlenu(graph->vertices[0]) / graph->strides[0] < 1 << 17) return GL_FALSE;
 
-    shader_use(*texture_shader);
+    shader_use(texture_shader);
 
     glGenFramebuffers(1, &graph->fbo);
     glBindFramebuffer(GL_FRAMEBUFFER, graph->fbo);
@@ -318,7 +318,7 @@ GLboolean graph_prep_texture(Graph* graph, GLenum mode, Shader* texture_shader, 
         return GL_FALSE;
     }
 
-    glClearColor(0.4f, 0.1f, 0.3f, 0.0f);
+    glClearColor(0.1f, 0.0f, 0.3f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
     glBindVertexArray(graph->vao);
@@ -353,10 +353,10 @@ GLboolean graph_prep_texture(Graph* graph, GLenum mode, Shader* texture_shader, 
     glBindVertexArray(graph->quad_vao);
     glBindBuffer(GL_ARRAY_BUFFER, graph->quad_vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(quad_verts), &quad_verts, GL_STATIC_DRAW);
-    GLuint index = glGetAttribLocation(blit_shader->id, "position");
+    GLuint index = glGetAttribLocation(blit_shader.id, "position");
     glEnableVertexAttribArray(index);
     glVertexAttribPointer(index, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
-    index = glGetAttribLocation(blit_shader->id, "uv");
+    index = glGetAttribLocation(blit_shader.id, "uv");
     glEnableVertexAttribArray(index);
     glVertexAttribPointer(index, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
 
