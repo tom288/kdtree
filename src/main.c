@@ -11,13 +11,13 @@ int main(int argc, char* argv[])
     if (!killer_assert(killer, !!win)) return 1;
     killer_target(killer, (kill_fn)window_kill, win);
 
-    Shader shader = shader_init(
+    Shader rectangle_shader = shader_init(
         "src/glsl/rectangle.vert",
         "src/glsl/rectangle.geom",
         "src/glsl/colour.frag"
     );
-    if (!killer_assert(killer, shader.ok)) return 1;
-    killer_target(killer, (kill_fn)shader_kill, &shader);
+    if (!killer_assert(killer, rectangle_shader.ok)) return 1;
+    killer_target(killer, (kill_fn)shader_kill, &rectangle_shader);
 
     Shader texture_shader = shader_init(
         "src/glsl/rectangle.vert",
@@ -35,7 +35,7 @@ int main(int argc, char* argv[])
     if (!killer_assert(killer, blit_shader.ok)) return 1;
     killer_target(killer, (kill_fn)shader_kill, &blit_shader);
 
-    Graph tree = kdtree_init(&shader);
+    Graph tree = kdtree_init(&rectangle_shader);
     if (!killer_assert(killer, graph_ok(tree))) return 1;
     killer_target(killer, (kill_fn)graph_kill, &tree);
 
@@ -74,7 +74,7 @@ int main(int argc, char* argv[])
             blit_shader
         );
 
-        camera_use(camera, prepped ? blit_shader : shader);
+        camera_use(camera, prepped ? blit_shader : rectangle_shader);
         graph_draw(&tree, GL_POINTS);
         glClearColor(0.1f, 0.0f, 0.3f, 0.0f);
         window_swap(win);
