@@ -42,6 +42,7 @@ Node node_child(Node parent, GLboolean child_index, Replacement replacement)
         .size = { parent.size[0], parent.size[1] },
         .split_axis = replacement.orientation,
         .split = replacement.splitPercent / 100.0,
+        .type = replacement.types[child_index],
     };
 
     const GLboolean axis = parent.split_axis;
@@ -96,17 +97,21 @@ Node* gen_nodes(float min_area)
     Node* nodes = NULL;
     size_t expected_node_count = 6.0f / min_area;
     arrsetcap(nodes, expected_node_count);
-
     NodeType* types = readRules(); // Read node types from file
 
+    // TEMPORAY
+    rules_print(types);
+
+    uint32_t r2 = rand_int(arrlenu(types[0].replacements), true);
+    Replacement r = types[arrlenu(types) - 1].replacements[r2];
     // TODO define world node from rules
     // Define the head of the k-d tree, which is never a leaf, so has no colour
     arrput(nodes, ((Node) {
         .colour = { 0 },
         .min_corner = { -1.0f, -1.0f },
         .size = { 2.0f, 2.0f },
-        .split_axis = rand_bool(),
-        .split = bias_float(rand_float(), 0.5, 2.0f),
+        .split_axis = r.orientation,
+        .split = r.splitPercent,
         .type = &(types[0]),
     }));
 
@@ -119,7 +124,8 @@ Node* gen_nodes(float min_area)
         uint32_t replacement_count = arrlenu(node.type->replacements);
         if (node.size[0] * node.size[1] > min_area || replacement_count == 0)
         {
-            Replacement replacement = node.type->replacements[rand_int(replacement_count, true)];
+            size_t n = rand_int(replacement_count, true);
+            Replacement replacement = node.type->replacements[n];
             arrput(nodes, node_child(node, 0, replacement));
             nodes[num_nodes_finished] = node_child(node, 1, replacement);
         }
