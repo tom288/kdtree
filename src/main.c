@@ -19,15 +19,41 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    Graph tree = kdtree_init(&shader);
-    if (!graph_ok(tree))
+    Shader texture_shader = shader_init(
+        "src/glsl/rectangle.vert",
+        "src/glsl/texture.geom",
+        "src/glsl/colour.frag"
+    );
+    if (!shader.ok)
     {
         shader_kill(&shader);
         window_kill(win);
         return 1;
     }
 
-    shader_use(shader);
+    Shader blit_shader = shader_init(
+        "src/glsl/blit.vert",
+        NULL,
+        "src/glsl/blit.frag"
+    );
+    if (!blit_shader.ok)
+    {
+        shader_kill(&texture_shader);
+        shader_kill(&shader);
+        window_kill(win);
+        return 1;
+    }
+
+    Graph tree = kdtree_init(&shader);
+    if (!graph_ok(tree))
+    {
+        shader_kill(&blit_shader);
+        shader_kill(&texture_shader);
+        shader_kill(&shader);
+        window_kill(win);
+        return 1;
+    }
+
     // Choose the background colour
     window_clear_colour(win, 0.1f, 0.0f, 0.3f);
 
@@ -40,6 +66,9 @@ int main(int argc, char* argv[])
     // Swap the buffers and process pending events until the window is not OK
     while (window_ok(win))
     {
+        if (window_action(win, randomise, GL_TRUE)) kdtree_randomise(&tree);
+        if (window_action(win, rasterise, GL_TRUE)) graph_free_textures(&tree);
+
         vec2 movement_input;
         window_movement_input(win, movement_input);
 
@@ -52,16 +81,23 @@ int main(int argc, char* argv[])
             camera_input,
             window_delta_time(win)
         );
-        camera_use(camera, shader);
-        graph_draw(tree, GL_POINTS);
+
+        GLboolean prepped = graph_prep_texture(
+            &tree,
+            GL_POINTS,
+            texture_shader,
+            blit_shader
+        );
+
+        camera_use(camera, prepped ? blit_shader : shader);
+        graph_draw(&tree, GL_POINTS);
+        glClearColor(0.1f, 0.0f, 0.3f, 0.0f);
         window_swap(win);
-        if (movement_input[0])
-        {
-            kdtree_randomise(&tree);
-        }
     }
 
     graph_kill(&tree);
+    shader_kill(&blit_shader);
+    shader_kill(&texture_shader);
     shader_kill(&shader);
     window_kill(win);
 
