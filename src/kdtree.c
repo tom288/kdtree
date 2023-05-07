@@ -5,8 +5,6 @@
 #include <time.h> // time
 #include <stb_ds.h>
 
-// TODO import rules.h for nodetype, readrules etc (when it exists)
-
 Node random_node_child(Node parent, GLboolean child_index)
 {
     Node child = {
@@ -32,7 +30,6 @@ Node random_node_child(Node parent, GLboolean child_index)
 
 Node node_child(Node parent, GLboolean child_index, Replacement replacement)
 {
-    // TODO use rules
     vec3 r;
     glm_vec3_scale(replacement.types[child_index]->col, 255, r);
 
@@ -41,7 +38,7 @@ Node node_child(Node parent, GLboolean child_index, Replacement replacement)
         .min_corner = { parent.min_corner[0], parent.min_corner[1] },
         .size = { parent.size[0], parent.size[1] },
         .split_axis = replacement.orientation,
-        .split = replacement.splitPercent / 100.0,
+        .split = replacement.splitPercent / 100.0f,
         .type = replacement.types[child_index],
     };
 
@@ -102,17 +99,18 @@ Node* gen_nodes(float min_area)
     // TEMPORAY
     rules_print(types);
 
-    uint32_t r2 = rand_int(arrlenu(types[0].replacements), true);
-    Replacement r = types[arrlenu(types) - 1].replacements[r2];
-    // TODO define world node from rules
-    // Define the head of the k-d tree, which is never a leaf, so has no colour
+    NodeType last_type = types[arrlenu(types) - 1];
+    Replacement* last_reps = last_type.replacements;
+    Replacement random_rep = last_reps[rand_int(arrlenu(last_reps), true)];
+
+    // Define the head of the k-d tree
     arrput(nodes, ((Node) {
         .colour = { 0 },
         .min_corner = { -1.0f, -1.0f },
         .size = { 2.0f, 2.0f },
-        .split_axis = r.orientation,
-        .split = r.splitPercent,
-        .type = &(types[0]),
+        .split_axis = random_rep.orientation,
+        .split = random_rep.splitPercent / 100.0f,
+        .type = &last_type,
     }));
 
     size_t num_nodes_finished = 0;
@@ -122,7 +120,7 @@ Node* gen_nodes(float min_area)
     {
         const Node node = nodes[num_nodes_finished];
         uint32_t replacement_count = arrlenu(node.type->replacements);
-        if (node.size[0] * node.size[1] > min_area || replacement_count == 0)
+        if (node.size[0] * node.size[1] > min_area && replacement_count > 0)
         {
             size_t n = rand_int(replacement_count, true);
             Replacement replacement = node.type->replacements[n];
