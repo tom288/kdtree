@@ -13,11 +13,12 @@
 /// @param first Pointer offset for the first value of this attribute
 void init_attribute(GLint index, Attribute attr, size_t stride, GLubyte* first)
 {
+    glEnableVertexAttribArray(index);
+
     const GLboolean force_cast_to_float = GL_FALSE;
     const GLboolean normalise_fixed_point_values = GL_FALSE;
 
-    glEnableVertexAttribArray(index);
-    switch (attr.type)
+    if (!force_cast_to_float) switch (attr.type)
     {
         case GL_BYTE:
         case GL_UNSIGNED_BYTE:
@@ -25,39 +26,33 @@ void init_attribute(GLint index, Attribute attr, size_t stride, GLubyte* first)
         case GL_UNSIGNED_SHORT:
         case GL_INT:
         case GL_UNSIGNED_INT:
-            if (!force_cast_to_float)
-            {
-                glVertexAttribIPointer(
-                    index,
-                    attr.size,
-                    attr.type,
-                    stride,
-                    first
-                );
-                break;
-            }
-        case GL_DOUBLE:
-            if (!force_cast_to_float)
-            {
-                glVertexAttribLPointer(
-                    index,
-                    attr.size,
-                    attr.type,
-                    stride,
-                    first
-                );
-                break;
-            }
-        default:
-            glVertexAttribPointer(
+            glVertexAttribIPointer(
                 index,
                 attr.size,
                 attr.type,
-                normalise_fixed_point_values,
                 stride,
                 first
             );
+            return;
+        case GL_DOUBLE:
+            glVertexAttribLPointer(
+                index,
+                attr.size,
+                attr.type,
+                stride,
+                first
+            );
+            return;
     }
+
+    glVertexAttribPointer(
+        index,
+        attr.size,
+        attr.type,
+        normalise_fixed_point_values,
+        stride,
+        first
+    );
 }
 
 /// @brief Inform OpenGL about every attribute
