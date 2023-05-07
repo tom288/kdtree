@@ -127,14 +127,10 @@ void ind(uint8_t indent) {
 }
 
 bool notBad(void* anything) {
-    if (anything == 0xbaadf00dbaadf00d)
-        printf("unreachable memory address\n");
-    else
-        if (anything == NULL)
-            printf("null, could be empty array\n");
-        else
-            return true;
-    return false;
+    if (anything == NULL)
+        printf("null, could be empty array\n");
+        return false;
+    return true;
 }
 
 void rules_print(NodeType* self) {
