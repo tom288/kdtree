@@ -15,6 +15,8 @@ typedef enum Action {
     zoom_out,
     clockwise,
     anticlockwise,
+    randomise,
+    rasterise,
 } Action;
 
 /// @brief Binding from input to action
