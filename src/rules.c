@@ -105,20 +105,13 @@ NodeType* readRules()
             if (string_empty(word)) return types;
             this_replacement->splitPercent = strtof(word.first, NULL);
 
-            int ok = 0;
-
             // read two typenames
             for (uint8_t n = 0; n < 2; n++) {
                 word = string_wordAfter(word);
                 for (uint32_t nodeIndex = 0; nodeIndex < arrlenu(types); nodeIndex++)
                     if (string_identical(types[nodeIndex].typeName, word)) {
                         this_replacement->types[n] = &types[nodeIndex];
-                        ok += 1;
                     }
-            }
-
-            if (ok != 2) {
-                int n = 0;
             }
         }
 
