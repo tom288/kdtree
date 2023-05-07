@@ -2,57 +2,42 @@
 #include "shader.h"
 #include "kdtree.h"
 #include "camera.h"
+#include "killer.h"
 
 int main(int argc, char* argv[])
 {
+    Killer killer = killer_init();
     Window* win = window_init();
-    if (!win) return 1;
+    if (!killer_assert(killer, !!win)) return 1;
+    killer_target(killer, (kill_fn)window_kill, win);
 
     Shader shader = shader_init(
         "src/glsl/rectangle.vert",
         "src/glsl/rectangle.geom",
         "src/glsl/colour.frag"
     );
-    if (!shader.ok)
-    {
-        window_kill(win);
-        return 1;
-    }
+    if (!killer_assert(killer, shader.ok)) return 1;
+    killer_target(killer, (kill_fn)shader_kill, &shader);
 
     Shader texture_shader = shader_init(
         "src/glsl/rectangle.vert",
         "src/glsl/texture.geom",
         "src/glsl/colour.frag"
     );
-    if (!shader.ok)
-    {
-        shader_kill(&shader);
-        window_kill(win);
-        return 1;
-    }
+    if (!killer_assert(killer, texture_shader.ok)) return 1;
+    killer_target(killer, (kill_fn)shader_kill, &texture_shader);
 
     Shader blit_shader = shader_init(
         "src/glsl/blit.vert",
         NULL,
         "src/glsl/blit.frag"
     );
-    if (!blit_shader.ok)
-    {
-        shader_kill(&texture_shader);
-        shader_kill(&shader);
-        window_kill(win);
-        return 1;
-    }
+    if (!killer_assert(killer, blit_shader.ok)) return 1;
+    killer_target(killer, (kill_fn)shader_kill, &blit_shader);
 
     Graph tree = kdtree_init(&shader);
-    if (!graph_ok(tree))
-    {
-        shader_kill(&blit_shader);
-        shader_kill(&texture_shader);
-        shader_kill(&shader);
-        window_kill(win);
-        return 1;
-    }
+    if (!killer_assert(killer, graph_ok(tree))) return 1;
+    killer_target(killer, (kill_fn)graph_kill, &tree);
 
     // Choose the background colour
     window_clear_colour(win, 0.1f, 0.0f, 0.3f);
@@ -95,11 +80,5 @@ int main(int argc, char* argv[])
         window_swap(win);
     }
 
-    graph_kill(&tree);
-    shader_kill(&blit_shader);
-    shader_kill(&texture_shader);
-    shader_kill(&shader);
-    window_kill(win);
-
-    return 0;
+    return killer_kill(killer);
 }
