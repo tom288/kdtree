@@ -94,11 +94,11 @@ NodeType* readRules()
             // read orientation
             word = string_wordAfter(word);
             if (string_empty(word)) return types;
-            char* left_str = "left";
-            string_slice left;
-            left.first = left_str;
-            left.firstAfter = &(left_str[4]);
-            this_replacement->orientation = string_identical(word, left);
+            char* top_str = "top";
+            string_slice top;
+            top.first = top_str;
+            top.firstAfter = &(top_str[3]);
+            this_replacement->orientation = string_identical(word, top);
 
             // read split percent
             word = string_wordAfter(word);
