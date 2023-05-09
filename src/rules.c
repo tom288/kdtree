@@ -83,11 +83,12 @@ NodeType* readRules()
         glm_vec3_copy(col, this_node->col);
 
         this_node->replacements = NULL;
-        string_slice word_ahead = string_wordAfter(word);
-        if ((*word_ahead.first == '|') && ((word_ahead.firstAfter - 1) == word_ahead.first))
-            word = word_ahead;
-        while (*word.first == '|') // until '|' keep reading replacement rule lines
+        while (true) // until '|' keep reading replacement rule lines
         {
+            string_slice word_ahead = string_wordAfter(word);
+            if ((*word_ahead.first != '|') || ((word_ahead.firstAfter - 1) != word_ahead.first)) break;
+            word = word_ahead;
+
             // refers to a new uninitialized replacement in this_node
             Replacement* this_replacement = arraddnptr(this_node->replacements, 1);
 
@@ -111,12 +112,12 @@ NodeType* readRules()
                 for (uint32_t nodeIndex = 0; nodeIndex < arrlenu(types); nodeIndex++)
                     if (string_identical(types[nodeIndex].typeName, word)) {
                         this_replacement->types[n] = &types[nodeIndex];
+                        break;
                     }
             }
         }
 
-        string_slice next = string_wordAfter(word);
-        if (string_empty(next)) ok = false;
+        if (string_empty(string_wordAfter(word))) ok = false;
     };
 
     return types;
@@ -127,16 +128,15 @@ void ind(uint8_t indent) {
 }
 
 bool notBad(void* anything) {
-    if (anything == NULL)
-        printf("null, could be empty array\n");
-        return false;
-    return true;
+    if (anything != NULL) return true;
+    printf("null, could be empty array\n");
+    return false;
 }
 
 void rules_print(NodeType* self) {
     printf("rules:\n");
     for (uint32_t n = 0; n < arrlenu(self); n++)
-        rules_printNodeType(self[n], 0);
+        rules_printNodeType(self[n], 1);
 }
 
 void rules_printNodeType(NodeType self, uint8_t indent) {
@@ -153,15 +153,16 @@ void rules_printNodeType(NodeType self, uint8_t indent) {
         printf(" ");
     }
     printf("\n");
-    if (notBad(self.replacements))
+    ind(in); printf("rep: ");
+    if (notBad(self.replacements)) {
+        printf("\n");
         rules_printReplacements(self.replacements, in);
+    }
 }
 
-void rules_printReplacements(Replacement* self, uint8_t indent) {
-    for (uint32_t n = 0; n < arrlenu(self); n++) {
-        ind(indent); printf("rep:\n");
-        rules_printReplacement(self[n], indent);
-    }
+void rules_printReplacements(Replacement* replacements, uint8_t indent) {
+    for (uint32_t n = 0; n < arrlenu(replacements); n++)
+        rules_printReplacement(replacements[n], indent);
 }
 
 void rules_printReplacement(Replacement self, uint8_t indent) {
@@ -170,7 +171,8 @@ void rules_printReplacement(Replacement self, uint8_t indent) {
     ind(in); printf("split percent: %d\n", self.splitPercent);
     for (uint8_t n = 0; n < 2; n++) {
         ind(in); printf("child type name: ");
-        string_print(self.types[n]->typeName);
+        if (notBad(&self.types[n]->typeName))
+            string_print(self.types[n]->typeName);
         printf("\n");
     }
 }
