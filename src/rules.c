@@ -45,8 +45,8 @@ string_slice read_file_into_buffer(char* path)
 // | top 50 garden garden
 NodeType* readRules()
 {
-    string_slice const file_prime = read_file_into_buffer("src/world2.txt"); // cleaned up at end
-    string_slice word = string_after_expected(file_prime, "---");
+    string_slice const file = read_file_into_buffer("src/world.txt"); // todo: free(file)
+    string_slice word = string_after_expected(file, "---");
     for (uint8_t n = 0; n < 2; n++) // to prevent problems with \r\n on many systems
         word = string_after_expected(word, "\n");
     word = string_after_expected(word, "code starts here:");
@@ -54,10 +54,6 @@ NodeType* readRules()
     word.firstAfter = word.first;
     NodeType* types = NULL; // nodeType array
     bool ok = true;
-
-    // TEMP CODE
-    for (uint8_t n = 0; n < 50; n++)
-        printf("\n");
 
     while (ok) { // until end of file
         NodeType* this_node = arraddnptr(types, 1); // new unset node pointer, added to "types"

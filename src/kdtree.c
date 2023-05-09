@@ -37,8 +37,6 @@ Node node_child(Node parent, GLboolean child_index, Replacement replacement, Nod
         .colour = { r[0], r[1], r[2] },
         .min_corner = { parent.min_corner[0], parent.min_corner[1] },
         .size = { parent.size[0], parent.size[1] },
-        .split_axis = replacement.orientation,
-        .split = replacement.splitPercent / 100.0f,
         .type = &types[replacement.types_indices[child_index]],
     };
 
@@ -108,8 +106,6 @@ Node* gen_nodes(float min_area)
         .colour = { 0 },
         .min_corner = { -1.0f, -1.0f },
         .size = { 2.0f, 2.0f },
-        .split_axis = random_rep.orientation,
-        .split = random_rep.splitPercent / 100.0f,
         .type = &last_type,
     }));
 
@@ -118,12 +114,14 @@ Node* gen_nodes(float min_area)
     // Expand all nodes until they are finished
     while (arrlenu(nodes) > num_nodes_finished)
     {
-        const Node node = nodes[num_nodes_finished];
+        Node node = nodes[num_nodes_finished];
         uint32_t replacement_count = arrlenu(node.type->replacements);
         if (node.size[0] * node.size[1] > min_area && replacement_count > 0)
         {
             size_t n = rand_int(replacement_count, true);
             Replacement replacement = node.type->replacements[n];
+            node.split_axis = replacement.orientation;
+            node.split = replacement.splitPercent / 100.0f;
             arrput(nodes, node_child(node, 0, replacement, types));
             nodes[num_nodes_finished] = node_child(node, 1, replacement, types);
         }
