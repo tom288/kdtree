@@ -28,12 +28,12 @@ typedef struct Player_stats {
     char* name; // for flavour, hello my name is ...
 } Player_stats;
 
-gameplay_player_stats_count = 5;
+int gameplay_player_stats_count = 5;
 
 Player_stats gameplay_player_stats(uint8_t choice) {
     Player_stats def = (Player_stats) {
         .ent = (Entity) {.pos = {0, 0, 0}, .angle = 0},
-        .ent2 = (Entity2) {.vel = {0, 0, 0}, .scale = 1, .type = 0, .scale = 1},
+        .ent2 = (Entity2) {.vel = {0, 0, 0}, .scale = 1, .type = 0},
         .health = 100, .health_changePerSec = 0,
         .friction = 100, .acceleration = 100,
         .armour_lower = 100, .armour_mid = 100, .armour_upper = 50,
@@ -50,6 +50,7 @@ Player_stats gameplay_player_stats(uint8_t choice) {
             def.armour_lower = -1;
             def.armour_upper = -1;
             def.armour_mid = 50;
+            break;
 
         case 2:
             def.name = "Barry the Bum";
@@ -59,6 +60,7 @@ Player_stats gameplay_player_stats(uint8_t choice) {
             def.armour_mid = 80;
             def.armour_upper = 40;
             def.strength = 80;
+            break;
 
         case 3:
             def.name = "Bulky Bob";
@@ -69,6 +71,7 @@ Player_stats gameplay_player_stats(uint8_t choice) {
             def.armour_mid = 120;
             def.armour_upper = 60;
             def.strength = 200;
+            break;
 
         case 4:
             def.name = "Slick Sam";
@@ -78,9 +81,10 @@ Player_stats gameplay_player_stats(uint8_t choice) {
             def.armour_mid = 80;
             def.armour_upper = 40;
             def.strength = 50;
+            break;
 
-        return def;
     }
+    return def;
 }
 
 // ---
@@ -95,7 +99,7 @@ typedef struct Player {
 Player gameplay_player(Player_stats stats) {
     return (Player) {
         .ent = (Entity) {.pos = {0, 0, 0}, .angle = 0},
-        .ent2 = (Entity2) {.vel = {0, 0, 0}, .scale = 1, .type = 0, .scale = 1},
+        .ent2 = (Entity2) {.vel = {0, 0, 0}, .scale = 1, .type = 0},
         .health = stats.health};
 }
 

@@ -45,7 +45,7 @@ string_slice read_file_into_buffer(char* path)
 // | top 50 garden garden
 NodeType* readRules()
 {
-    string_slice const file_prime = read_file_into_buffer("src/world.txt"); // cleaned up at end
+    string_slice const file_prime = read_file_into_buffer("src/world2.txt"); // cleaned up at end
     string_slice word = string_after_expected(file_prime, "---");
     for (uint8_t n = 0; n < 2; n++) // to prevent problems with \r\n on many systems
         word = string_after_expected(word, "\n");
