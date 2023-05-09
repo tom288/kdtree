@@ -6,42 +6,48 @@
 
 int main(int argc, char* argv[])
 {
+    // Create window
     Killer killer = killer_init();
     Window* win = window_init();
-    if (!killer_assert(killer, !!win)) return 1;
-    killer_target(killer, (kill_fn)window_kill, win);
+    if (!killer_assert(&killer, !!win)) return 1;
+    killer_target(&killer, (kill_fn)window_kill, win);
 
+    // Create rectangle to screen rasterisation shader 
     Shader rectangle_shader = shader_init(
         "src/glsl/rectangle.vert",
         "src/glsl/rectangle.geom",
         "src/glsl/colour.frag"
     );
-    if (!killer_assert(killer, rectangle_shader.ok)) return 1;
-    killer_target(killer, (kill_fn)shader_kill, &rectangle_shader);
+    if (!killer_assert(&killer, rectangle_shader.ok)) return 1;
+    killer_target(&killer, (kill_fn)shader_kill, &rectangle_shader);
 
+    // Create rectangle to texture rasterisation shader
     Shader texture_shader = shader_init(
         "src/glsl/rectangle.vert",
         "src/glsl/texture.geom",
         "src/glsl/colour.frag"
     );
-    if (!killer_assert(killer, texture_shader.ok)) return 1;
-    killer_target(killer, (kill_fn)shader_kill, &texture_shader);
+    if (!killer_assert(&killer, texture_shader.ok)) return 1;
+    killer_target(&killer, (kill_fn)shader_kill, &texture_shader);
 
+    // Create texture to screen 'blit' shader
     Shader blit_shader = shader_init(
         "src/glsl/blit.vert",
         NULL,
         "src/glsl/blit.frag"
     );
-    if (!killer_assert(killer, blit_shader.ok)) return 1;
-    killer_target(killer, (kill_fn)shader_kill, &blit_shader);
+    if (!killer_assert(&killer, blit_shader.ok)) return 1;
+    killer_target(&killer, (kill_fn)shader_kill, &blit_shader);
 
+    // Create main kd-tree
     Graph tree = kdtree_init(&rectangle_shader);
-    if (!killer_assert(killer, graph_ok(tree))) return 1;
-    killer_target(killer, (kill_fn)graph_kill, &tree);
+    if (!killer_assert(&killer, graph_ok(tree))) return 1;
+    killer_target(&killer, (kill_fn)graph_kill, &tree);
 
     // Choose the background colour
     window_clear_colour(win, 0.1f, 0.0f, 0.3f);
 
+    // Read window size and hand it to the camera so that it can scale correctly
     vec2 win_size;
     window_size(win, win_size);
     Camera camera = camera_init(win_size);
@@ -80,5 +86,5 @@ int main(int argc, char* argv[])
         window_swap(win);
     }
 
-    return killer_kill(killer);
+    return killer_kill(&killer);
 }

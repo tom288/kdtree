@@ -18,15 +18,15 @@ Killer killer_init();
 /// @param killer Killer to assert for
 /// @param b Value to assert is true
 /// @return Value of b
-int killer_assert(Killer killer, GLboolean b);
+int killer_assert(Killer* killer, GLboolean b);
 
 /// @brief Add a new kill target to the killer
 /// @param killer Killer to update
 /// @param fn Function to call when killing
 /// @param arg Argument to pass when killing
-void killer_target(Killer killer, kill_fn fn, void* arg);
+void killer_target(Killer* killer, kill_fn fn, void* arg);
 
 /// @brief Kill all recorded targets followed by the killer
 /// @param killer Killer
 /// @return 0
-int killer_kill(Killer killer);
+int killer_kill(Killer* killer);
