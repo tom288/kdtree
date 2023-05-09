@@ -231,4 +231,10 @@ void node_info(Node* node)
     printf("Min corner %f %f\n", node->min_corner[0], node->min_corner[1]);
     printf("Size %f %f\n", node->size[0], node->size[1]);
     printf("Split %c %f\n", node->split_axis ? 'Y' : 'X', node->split);
+    printf(
+        "Colour %" PRIu8 " %" PRIu8 " %" PRIu8 "\n",
+        node->colour[0],
+        node->colour[1],
+        node->colour[2]
+    );
 }
