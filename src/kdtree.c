@@ -28,10 +28,10 @@ Node random_node_child(Node parent, GLboolean child_index)
     return child;
 }
 
-Node node_child(Node parent, GLboolean child_index, Replacement replacement)
+Node node_child(Node parent, GLboolean child_index, Replacement replacement, NodeType* types)
 {
     vec3 r;
-    glm_vec3_scale(replacement.types[child_index]->col, 255, r);
+    glm_vec3_scale(types[replacement.types_indices[child_index]].col, 255, r);
 
     Node child = {
         .colour = { r[0], r[1], r[2] },
@@ -39,7 +39,7 @@ Node node_child(Node parent, GLboolean child_index, Replacement replacement)
         .size = { parent.size[0], parent.size[1] },
         .split_axis = replacement.orientation,
         .split = replacement.splitPercent / 100.0f,
-        .type = replacement.types[child_index],
+        .type = &types[replacement.types_indices[child_index]],
     };
 
     const GLboolean axis = parent.split_axis;
@@ -124,8 +124,8 @@ Node* gen_nodes(float min_area)
         {
             size_t n = rand_int(replacement_count, true);
             Replacement replacement = node.type->replacements[n];
-            arrput(nodes, node_child(node, 0, replacement));
-            nodes[num_nodes_finished] = node_child(node, 1, replacement);
+            arrput(nodes, node_child(node, 0, replacement, types));
+            nodes[num_nodes_finished] = node_child(node, 1, replacement, types);
         }
         else num_nodes_finished++;
     }

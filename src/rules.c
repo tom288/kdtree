@@ -111,7 +111,7 @@ NodeType* readRules()
                 word = string_wordAfter(word);
                 for (uint32_t nodeIndex = 0; nodeIndex < arrlenu(types); nodeIndex++)
                     if (string_identical(types[nodeIndex].typeName, word)) {
-                        this_replacement->types[n] = &types[nodeIndex];
+                        this_replacement->types_indices[n] = nodeIndex;
                         break;
                     }
             }
@@ -136,10 +136,10 @@ bool notBad(void* anything) {
 void rules_print(NodeType* self) {
     printf("rules:\n");
     for (uint32_t n = 0; n < arrlenu(self); n++)
-        rules_printNodeType(self[n], 1);
+        rules_printNodeType(self[n], 1, self);
 }
 
-void rules_printNodeType(NodeType self, uint8_t indent) {
+void rules_printNodeType(NodeType self, uint8_t indent, NodeType* types) {
     ind(indent); printf("NodeType:\n");
     uint8_t in = indent + 1;
     ind(in); printf("type name: ");
@@ -156,23 +156,23 @@ void rules_printNodeType(NodeType self, uint8_t indent) {
     ind(in); printf("rep: ");
     if (notBad(self.replacements)) {
         printf("\n");
-        rules_printReplacements(self.replacements, in);
+        rules_printReplacements(self.replacements, in, types);
     }
 }
 
-void rules_printReplacements(Replacement* replacements, uint8_t indent) {
+void rules_printReplacements(Replacement* replacements, uint8_t indent, NodeType* types) {
     for (uint32_t n = 0; n < arrlenu(replacements); n++)
-        rules_printReplacement(replacements[n], indent);
+        rules_printReplacement(replacements[n], indent, types);
 }
 
-void rules_printReplacement(Replacement self, uint8_t indent) {
+void rules_printReplacement(Replacement self, uint8_t indent, NodeType* types) {
     uint8_t in = indent + 1;
     ind(in); printf("orientation: %s\n", self.orientation ? "true" : "false");
     ind(in); printf("split percent: %d\n", self.splitPercent);
     for (uint8_t n = 0; n < 2; n++) {
         ind(in); printf("child type name: ");
-        if (notBad(&self.types[n]->typeName))
-            string_print(self.types[n]->typeName);
+        if (notBad(&types[self.types_indices[n]].typeName))
+            string_print(types[self.types_indices[n]].typeName);
         printf("\n");
     }
 }
