@@ -98,7 +98,6 @@ NodeType* readRules()
             // refers to a new uninitialized replacement in this_node
             Replacement* this_replacement = arraddnptr(this_node->replacements, 1);
 
-            // read orientation, todo: move into the string library
             word = string_wordAfter(word);
             this_replacement->orientation = string_identical_str(word, "top");
 

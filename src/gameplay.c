@@ -5,7 +5,6 @@ typedef struct Entity {
     float angle; // 0 = upwards
 } Entity;
 
-// todo: things using me need to not have an Entity as well, as I now contain one of those
 typedef struct Entity2 {
     Entity ent;
     vec3 vel;
@@ -15,7 +14,8 @@ typedef struct Entity2 {
 } Entity2;
 
 Entity2 entity2() {
-    return (Entity2) {.vel = {1.0, 1.0, 1.0}, .scale = 1.0, .type = 0, .solid = false};
+    return (Entity2) {.ent = {{0.0, 0.0, 0.0}, 0.0},
+        .vel = {1.0, 1.0, 1.0}, .scale = 1.0, .type = 0, .solid = false};
 }
 
 // ---
