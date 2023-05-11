@@ -55,13 +55,12 @@ NodeType* readRules()
     const string_slice start = word;
 
     // Record typenames and their indices
-    typedef struct {string_slice key; size_t value;} pair;
-    pair* type_indices = NULL;
+    string_slice* type_names = NULL;
     for (size_t i = 0; !string_empty(string_wordAfter(word)); ++i)
     {
         // Record typename and index
         word = string_wordAfter(word);
-        hmputs(type_indices, ((pair) {.key = word, .value = i}));
+        arrput(type_names, word);
         // Skip R, G, B
         for (size_t i = 0; i < 3; ++i) word = string_wordAfter(word);
         // Skip replacements
@@ -110,12 +109,21 @@ NodeType* readRules()
             // read two typenames
             for (uint8_t n = 0; n < 2; n++) {
                 word = string_wordAfter(word);
-                if (hmgeti(type_indices, word) < 0)
+                bool found = false;
+                for (size_t i = 0; i < arrlenu(type_names); ++i)
+                {
+                    if (string_identical(type_names[i], word))
+                    {
+                        this_replacement->types_indices[n] = i;
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found)
                 {
                     arrpop(types);
                     return types;
                 }
-                this_replacement->types_indices[n] = hmget(type_indices, word);
             }
         }
     };
