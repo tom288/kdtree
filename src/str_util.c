@@ -20,6 +20,14 @@ bool string_identical(string_slice str1, string_slice str2) {
     return result;
 }
 
+bool string_identical_str(string_slice str1, char* str2) {
+    char prev = *str1.firstAfter;
+    *str1.firstAfter = '\0';
+    bool result = !strcmp(str1.first, str2);
+    *str1.firstAfter = prev;
+    return result;
+}
+
 string_slice string_wordAfter(string_slice str) {
     str.first = str.firstAfter;
     while (!isspace(*str.first)){

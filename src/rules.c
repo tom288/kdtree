@@ -52,28 +52,39 @@ NodeType* readRules()
     word = string_after_expected(word, "code starts here:");
     word = string_after_expected(word, "\n");
     word.firstAfter = word.first;
-    NodeType* types = NULL; // nodeType array
-    bool ok = true;
+    const string_slice start = word;
 
-    while (ok) { // until end of file
+    // Record typenames and their indices
+    typedef struct {string_slice key; size_t value;} pair;
+    pair* type_indices = NULL;
+    for (size_t i = 0; !string_empty(string_wordAfter(word)); ++i)
+    {
+        // Record typename and index
+        word = string_wordAfter(word);
+        hmputs(type_indices, ((pair) {.key = word, .value = i}));
+        // Skip R, G, B
+        for (size_t i = 0; i < 3; ++i) word = string_wordAfter(word);
+        // Skip replacements
+        while (string_identical_str(string_wordAfter(word), "|"))
+        {
+            for (size_t i = 0; i < 5; ++i) word = string_wordAfter(word);
+        }
+    }
+
+    word = start;
+    NodeType* types = NULL; // nodeType array
+
+    while (!string_empty(string_wordAfter(word))) { // until end of file
         NodeType* this_node = arraddnptr(types, 1); // new unset node pointer, added to "types"
 
         // read typename
         word = string_wordAfter(word);
-        if (string_empty(word)) {
-            arrpop(types);
-            return types;
-        }
         this_node->typeName = word; // for debugging
 
         // read col
         vec3 col;
         for (uint8_t channel = 0; channel < 3; channel++) {
             word = string_wordAfter(word);
-            if (string_empty(word)) {
-                arrpop(types);
-                return types;
-            }
             col[channel] = strtof(word.first, NULL) / 100.0f;
         }
         glm_vec3_copy(col, this_node->col);
@@ -82,38 +93,31 @@ NodeType* readRules()
         while (true) // until '|' keep reading replacement rule lines
         {
             string_slice word_ahead = string_wordAfter(word);
-            if ((*word_ahead.first != '|') || ((word_ahead.firstAfter - 1) != word_ahead.first)) break;
+            if (!string_identical_str(word_ahead, "|")) break;
             word = word_ahead;
 
             // refers to a new uninitialized replacement in this_node
             Replacement* this_replacement = arraddnptr(this_node->replacements, 1);
 
-            // read orientation
+            // read orientation, todo: move into the string library
             word = string_wordAfter(word);
-            if (string_empty(word)) return types;
-            char* top_str = "top";
-            string_slice top;
-            top.first = top_str;
-            top.firstAfter = &(top_str[3]);
-            this_replacement->orientation = string_identical(word, top);
+            this_replacement->orientation = string_identical_str(word, "top");
 
             // read split percent
             word = string_wordAfter(word);
-            if (string_empty(word)) return types;
             this_replacement->splitPercent = strtof(word.first, NULL);
 
             // read two typenames
             for (uint8_t n = 0; n < 2; n++) {
                 word = string_wordAfter(word);
-                for (uint32_t nodeIndex = 0; nodeIndex < arrlenu(types); nodeIndex++)
-                    if (string_identical(types[nodeIndex].typeName, word)) {
-                        this_replacement->types_indices[n] = nodeIndex;
-                        break;
-                    }
+                if (hmgeti(type_indices, word) < 0)
+                {
+                    arrpop(types);
+                    return types;
+                }
+                this_replacement->types_indices[n] = hmget(type_indices, word);
             }
         }
-
-        if (string_empty(string_wordAfter(word))) ok = false;
     };
 
     return types;

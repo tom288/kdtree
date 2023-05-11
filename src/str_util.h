@@ -29,6 +29,12 @@ uint32_t string_len(string_slice str);
 /// @return true if the string slices are identical, false otherwise
 bool string_identical(string_slice str1, string_slice str2);
 
+/// @brief Check whether a string slice and char* are identical
+/// @param str1 The string slice
+/// @param str2 The char*
+/// @return true if the strings are identical, false otherwise
+bool string_identical_str(string_slice str1, char* str2);
+
 string_slice string_wordAfter(string_slice str);
 
 /// @brief returns a shorter slice, the start of the slice moves forward to the first character after the expected text

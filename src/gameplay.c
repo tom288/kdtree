@@ -5,16 +5,22 @@ typedef struct Entity {
     float angle; // 0 = upwards
 } Entity;
 
+// todo: things using me need to not have an Entity as well, as I now contain one of those
 typedef struct Entity2 {
+    Entity ent;
     vec3 vel;
     float scale; // 0, 1, 2 = point, normal, double, etc...
     uint8_t type; // 0, 1, 2, 3 = fixed size, laser, double ended laser, expandable
     bool solid; // false if I can move through things
 } Entity2;
 
+Entity2 entity2() {
+    return (Entity2) {.vel = {1.0, 1.0, 1.0}, .scale = 1.0, .type = 0, .solid = false};
+}
+
 // ---
 
-typedef struct Player_stats {
+typedef struct GameplayPlayerStats {
     struct Entity ent;
     struct Entity2 ent2;
     uint16_t health; // 0, 100 = defeated, starting, also can exceed 100
@@ -26,18 +32,19 @@ typedef struct Player_stats {
     int16_t armour_upper; // -1, 0, 100 = non-existant, none, normal
     uint16_t strength; // 0, 100 = slowed to a stop carrying anything, normal strength
     char* name; // for flavour, hello my name is ...
-} Player_stats;
+} GameplayPlayerStats;
 
 int gameplay_player_stats_count = 5;
 
-Player_stats gameplay_player_stats(uint8_t choice) {
-    Player_stats def = (Player_stats) {
+GameplayPlayerStats gameplay_player_stats(uint8_t choice) {
+    GameplayPlayerStats def = (GameplayPlayerStats) {
         .ent = (Entity) {.pos = {0, 0, 0}, .angle = 0},
         .ent2 = (Entity2) {.vel = {0, 0, 0}, .scale = 1, .type = 0},
         .health = 100, .health_changePerSec = 0,
         .friction = 100, .acceleration = 100,
         .armour_lower = 100, .armour_mid = 100, .armour_upper = 50,
-        .strength = 100, .name = "All-Rounder Alex"};
+        .strength = 100, .name = "All-Rounder Alex"
+    };
     switch (choice)
     {
         case 0: return def; break;
@@ -90,16 +97,14 @@ Player_stats gameplay_player_stats(uint8_t choice) {
 // ---
 
 typedef struct Player {
-    struct Entity ent;
     struct Entity2 ent2;
     uint16_t health; // 0, 100 = defeated, starting, also can exceed 100
     bool onGround;
 } Player;
 
-Player gameplay_player(Player_stats stats) {
+Player gameplay_player(GameplayPlayerStats stats) {
     return (Player) {
-        .ent = (Entity) {.pos = {0, 0, 0}, .angle = 0},
-        .ent2 = (Entity2) {.vel = {0, 0, 0}, .scale = 1, .type = 0},
+        .ent2 = entity2(),
         .health = stats.health};
 }
 
@@ -107,14 +112,14 @@ void gameplay_player_lookAt(Entity* self, Entity target) {
     printf("implement gameplay_player_lookAt(vec3)\n");
 }
 
-Player gameplay_player_physStep(Player self, Player_stats stats) {
+Player gameplay_player_physStep(Player self, GameplayPlayerStats stats) {
     if (self.onGround) {
         for (uint8_t n = 0; n < 3; n++)
-            self.ent.pos[n] = (self.ent.pos[n] + self.ent2.vel[n]) * (stats.friction / 100.0);
+            self.ent2.ent.pos[n] = (self.ent2.ent.pos[n] + self.ent2.vel[n]) * (stats.friction / 100.0);
     }
     self.ent2.vel[2] -= 0.05;
-    self.ent.pos[2] -= self.ent2.vel[2];
-    if (self.ent.pos[2] < 0) self.ent.pos[2] = 0;
+    self.ent2.ent.pos[2] -= self.ent2.vel[2];
+    if (self.ent2.ent.pos[2] < 0) self.ent2.ent.pos[2] = 0;
     return self;
 }
 
