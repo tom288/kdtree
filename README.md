@@ -74,6 +74,4 @@ Use `build.sh` to build and run in debug mode
 
 ## Next Steps
 
-- Add Graph functions to free and reassign vertices
-- Let Graph accept vertex buffer updates
 - Let Graph draw a variable number of points / tris / rects
