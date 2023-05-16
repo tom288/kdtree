@@ -4,6 +4,7 @@
 #include "rules.h"
 #include <time.h> // time
 #include <stb_ds.h>
+#include <cglm/cglm.h>
 
 Node random_node_child(Node parent, GLboolean child_index)
 {
@@ -28,8 +29,12 @@ Node random_node_child(Node parent, GLboolean child_index)
     return child;
 }
 
-Node node_child(Node parent, GLboolean child_index, Replacement replacement, NodeType* types)
-{
+Node node_child(
+    Node parent,
+    GLboolean child_index,
+    Replacement replacement,
+    NodeType* types
+) {
     vec3 r;
     glm_vec3_scale(types[replacement.types_indices[child_index]].col, 255, r);
 
@@ -42,6 +47,12 @@ Node node_child(Node parent, GLboolean child_index, Replacement replacement, Nod
 
     const GLboolean axis = parent.split_axis;
     float split = parent.split;
+
+    if (replacement.orientation & 8) split =
+        parent.size[replacement.orientation & 1] / replacement.splitMeters;
+    if (replacement.orientation & 4) split = glm_vec2_min(parent.size)
+                                           / glm_vec2_max(parent.size);
+    if (replacement.orientation & 2) split = 1.0f - split;
 
     if (child_index)
     {
@@ -114,8 +125,33 @@ Node* gen_nodes(float min_area)
         uint32_t replacement_count = arrlenu(node.type->replacements);
         if (node.size[0] * node.size[1] > min_area && replacement_count > 0)
         {
-            size_t n = rand_int(replacement_count, true);
+            const size_t n = rand_int(replacement_count, true);
             Replacement replacement = node.type->replacements[n];
+
+            size_t n_copy = n;
+            GLboolean too_small = GL_FALSE;
+
+            // If absolute units exceed the parent size then try the next rep
+            while (replacement.orientation & 8 && replacement.splitMeters
+                                      > node.size[replacement.orientation & 1])
+            {
+                n_copy++;
+                n_copy %= replacement_count;
+                if (n_copy == n)
+                {
+                    too_small = GL_TRUE;
+                    break;
+                }
+                replacement = node.type->replacements[n_copy];
+            }
+
+            // If there is no valid replacement then skip this node
+            if (too_small)
+            {
+                num_nodes_finished++;
+                continue;
+            }
+
             node.split_axis = replacement.orientation & 1;
             node.split = replacement.splitPercent / 100.0f;
             arrput(nodes, node_child(node, 0, replacement, types));
