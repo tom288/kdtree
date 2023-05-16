@@ -7,6 +7,16 @@
 #include <cglm/cglm.h>
 #include <stb_ds.h>
 
+string_slice read_directory_into_buffer(char* path) {
+    string_slice slice;
+    slice.first = NULL;
+    slice.firstAfter = NULL;
+    for (uint32_t n = 0; n < 10; n++) {
+        ;
+    }
+    return slice;
+}
+
 string_slice read_file_into_buffer(char* path)
 {
     FILE* const file = fopen(path, "rb");
@@ -46,12 +56,8 @@ string_slice read_file_into_buffer(char* path)
 // | top 50 garden garden
 NodeType* readRules()
 {
-    string_slice const file = read_file_into_buffer("src/world.txt"); // todo: free(file)
-    string_slice word = string_after_expected(file, "---");
-    for (uint8_t n = 0; n < 2; n++) // to prevent problems with \r\n on many systems
-        word = string_after_expected(word, "\n");
-    word = string_after_expected(word, "code starts here:");
-    word = string_after_expected(word, "\n");
+    string_slice const file = read_file_into_buffer("src/world/world.txt"); // todo: free(file)
+    string_slice word = file;
     word.firstAfter = word.first;
     const string_slice start = word;
 

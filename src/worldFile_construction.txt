@@ -1,6 +1,8 @@
 Up to 2^32 node types, they are delimited by an empty line,
 they do not need to appear in order.
 
+The file starts with a blank line.
+
 they use this format:
 
 string: type name
