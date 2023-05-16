@@ -74,4 +74,7 @@ Use `build.sh` to build and run in debug mode
 
 ## Next Steps
 
+- Support drawing of partial world
+- Determine when the world should redrawn / regerated and do so
 - Let Graph draw a variable number of points / tris / rects
+- Either add checks for the correct shader file extension, or remove extensions

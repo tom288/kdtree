@@ -36,14 +36,20 @@ void rand_vec3(vec3 v);
 /// @return Value with bias applied
 float bias_float(float f, float towards, float strength);
 
-/// @brief Take the minimum of two doubles
-/// @param x
-/// @param y
-/// @return Minimum double
-double min_d(double x, double y);
-
 /// @brief Roll a random dice to get a number between 0 and sides - 1
 /// @param sides Number of sides
 /// @param fair Whether to ensure the roll is fair for all values of sides
 /// @return A random number between 0 and sides - 1
 size_t rand_int(size_t sides, GLboolean fair);
+
+/// @brief Take the smaller of two values of any equal type
+#define min(a,b) \
+    __extension__({ __typeof__ (a) _a = (a); \
+       __typeof__ (b) _b = (b); \
+            _a < _b ? _a : _b; })
+
+/// @brief Take the larger of two values of any equal type
+#define max(a,b) \
+    __extension__({ __typeof__ (a) _a = (a); \
+       __typeof__ (b) _b = (b); \
+            _a > _b ? _a : _b; })
