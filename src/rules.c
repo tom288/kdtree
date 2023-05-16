@@ -119,15 +119,15 @@ NodeType* readRules()
             // read split percent
             word = string_wordAfter(word);
             this_replacement->percentMeters = false;
-            this_replacement->splitPercent = strtof(word.first, NULL);
-            word_ahead = string_wordAfter(word);
+            string_slice unit = word;
+            this_replacement->splitPercent = strtof(word.first, &unit.first);
             char* arr2[] = {"cm", "m", "mm", "km", "um"};
             for (uint8_t n = 0; n < 5; n++)
-                if (string_identical_str(word_ahead, arr2[n])) {
+                if (string_identical_str(unit, arr2[n])) {
                     this_replacement->percentMeters = true;
-                    this_replacement->orientation |= 4; // 0b100
-                    this_replacement->splitMeters = (float[]){0.01f, 1.0f, 0.001f, 1000.0f, 0.000001f}[n];
-                    word = string_wordAfter(word);
+                    this_replacement->orientation |= 8; // 0b1000
+                    this_replacement->splitMeters = this_replacement->splitPercent *
+                        (float[]){0.01f, 1.0f, 0.001f, 1000.0f, 0.000001f}[n];
                     break;
                 }
 
@@ -195,6 +195,7 @@ void rules_Replacement_print(Replacement self, uint8_t indent, NodeType* types) 
     uint8_t in = indent + 1;
     ind(in); printf("orientation: %d\n", (int)self.orientation);
     ind(in); printf("split percent: %d\n", self.splitPercent);
+    ind(in); printf("split meters: %d\n", self.splitMeters);
     for (uint8_t n = 0; n < 2; n++) {
         ind(in); printf("child type name: ");
         if (misc_notBad(&types[self.types_indices[n]].typeName))

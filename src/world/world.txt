@@ -1,17 +1,14 @@
 
 world
 0 80 0
-| up 50 room garden
-
-garden
-0 40 0
-
-room
-80 80 60
-| left 20 sofa room2
+| right 80cm room2 room3
 
 room2
-60 60 40
+0 0 0
+| left 80cm room3 room4
 
-sofa
-0 0 50
+room3
+50 0 0
+
+room4
+60 60 60
