@@ -97,16 +97,12 @@ Node* gen_nodes(float min_area)
     // TEMPORAY
     rules_print(types);
 
-    NodeType first_type = types[0];
-    Replacement* first_reps = first_type.replacements;
-    Replacement random_rep = first_reps[rand_int(arrlenu(first_reps), true)];
-
     // Define the head of the k-d tree
     arrput(nodes, ((Node) {
         .colour = { 0 },
         .min_corner = { -1.0f, -1.0f },
         .size = { 2.0f, 2.0f },
-        .type = &first_type,
+        .type = &types[0],
     }));
 
     size_t num_nodes_finished = 0;
@@ -120,7 +116,7 @@ Node* gen_nodes(float min_area)
         {
             size_t n = rand_int(replacement_count, true);
             Replacement replacement = node.type->replacements[n];
-            node.split_axis = !!replacement.orientation;
+            node.split_axis = replacement.orientation & 1;
             node.split = replacement.splitPercent / 100.0f;
             arrput(nodes, node_child(node, 0, replacement, types));
             nodes[num_nodes_finished] = node_child(node, 1, replacement, types);
