@@ -1,15 +1,13 @@
 Up to 2^32 node types, they are delimited by an empty line,
-they do not need to appear in order.
+they do not need to appear in order, the file starts with a blank line.
 
-The file starts with a blank line.
-
-they use this format:
+a node type uses this format:
 
 string: type name
 integer 0 to 100: red, green, blue
 0 to 2^32 replacement rules
 
-The first node type must be called "world".
+The first node type must be called "world", node types are delimited by at least one blank line.
 
 replacement rules use this format:
 
@@ -31,7 +29,3 @@ room
 
 garden
 0 200 0
-
----
-
-code starts here:

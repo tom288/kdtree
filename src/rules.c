@@ -152,7 +152,8 @@ NodeType* readRules()
             }
         }
 
-        nodeType_print(*this_node, 0);
+        printf("\n");
+        rules_print(types);
     };
 
     return types;
@@ -161,10 +162,10 @@ NodeType* readRules()
 void rules_print(NodeType* self) {
     printf("rules:\n");
     for (uint32_t n = 0; n < arrlenu(self); n++)
-        rules_printNodeType(self[n], 1, self);
+        rules_NodeType_print(self[n], 1, self);
 }
 
-void rules_printNodeType(NodeType self, uint8_t indent, NodeType* types) {
+void rules_NodeType_print(NodeType self, uint8_t indent, NodeType* types) {
     ind(indent); printf("NodeType:\n");
     uint8_t in = indent + 1;
     ind(in); printf("type name: ");
@@ -181,18 +182,18 @@ void rules_printNodeType(NodeType self, uint8_t indent, NodeType* types) {
     ind(in); printf("rep: ");
     if (misc_notBad(self.replacements)) {
         printf("\n");
-        rules_printReplacements(self.replacements, in, types);
+        rules_replacements_print(self.replacements, in, types);
     }
 }
 
-void rules_printReplacements(Replacement* replacements, uint8_t indent, NodeType* types) {
+void rules_replacements_print(Replacement* replacements, uint8_t indent, NodeType* types) {
     for (uint32_t n = 0; n < arrlenu(replacements); n++)
-        rules_printReplacement(replacements[n], indent, types);
+       rules_Replacement_print(replacements[n], indent, types);
 }
 
-void rules_printReplacement(Replacement self, uint8_t indent, NodeType* types) {
+void rules_Replacement_print(Replacement self, uint8_t indent, NodeType* types) {
     uint8_t in = indent + 1;
-    ind(in); printf("orientation: %s\n", self.orientation ? "true" : "false");
+    ind(in); printf("orientation: %d\n", (int)self.orientation);
     ind(in); printf("split percent: %d\n", self.splitPercent);
     for (uint8_t n = 0; n < 2; n++) {
         ind(in); printf("child type name: ");
@@ -202,26 +203,7 @@ void rules_printReplacement(Replacement self, uint8_t indent, NodeType* types) {
     }
 }
 
-void nodeType_print(NodeType nodeType, uint8_t indent)
-{
-    ind(indent); printf("NodeType:");
-    uint8_t in = indent;
-    ind(in); printf("col: %f %f %f\n", nodeType.col[0], nodeType.col[1], nodeType.col[2]);
-    ind(in); printf("typeName: "); string_print(nodeType.typeName); printf("\n");
-    for (uint8_t n = 0; n < arrlenu(nodeType.replacements); n++)
-        replacement_print(nodeType.replacements[n], in + 1);
-}
-
-void replacement_print(Replacement rep, uint8_t indent) {
-    ind(indent); printf("Replacement:\n");
-    uint8_t in = indent + 1;
-    ind(in); printf("orientation: %d\n", (int)rep.orientation);
-    ind(in); printf("percentMeters %s\n", rep.splitPercent ? "true" : "false");
-    ind(in); printf("split percent\\meters: %d %f\n", (int)rep.splitPercent, rep.splitMeters);
-    ind(in); printf("typeIndices %zu %zu\n" , rep.types_indices[0], rep.types_indices[1]);
-}
-
-bool replacement_orientation_notBad(uint8_t orientation) {
+bool rules_replacement_orientation_notBad(uint8_t orientation) {
     const uint8_t x_y = 0, upLeft_downRight = 1, square = 3, absolute = 4; // bit index in orientation
     if (((orientation >> 3) & 1) && ((orientation >> 4) & 1)) return false;
     return true;

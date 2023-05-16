@@ -19,20 +19,16 @@ typedef struct Replacement {
     size_t types_indices[2]; // two item pointer array
 } Replacement;
 
-void replacement_print(Replacement rep, uint8_t indent);
-bool replacement_orientation_notBad(uint8_t orientation);
-
 typedef struct NodeType {
     vec3 col;
     Replacement* replacements; // Replacement array
     string_slice typeName; // for use only when reading world.txt
 } NodeType;
 
-void nodeType_print(NodeType nodeType, uint8_t indent);
-
 NodeType* readRules();
 
 void rules_print(NodeType* self);
-void rules_printNodeType(NodeType self, uint8_t indent, NodeType* types);
-void rules_printReplacements(Replacement* replacements, uint8_t indent, NodeType* types);
-void rules_printReplacement(Replacement self, uint8_t indent, NodeType* types);
+void rules_NodeType_print(NodeType self, uint8_t indent, NodeType* types);
+void rules_replacements_print(Replacement* replacements, uint8_t indent, NodeType* types);
+void rules_Replacement_print(Replacement self, uint8_t indent, NodeType* types);
+bool rules_replacement_orientation_notBad(uint8_t orientation);

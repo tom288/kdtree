@@ -1,0 +1,14 @@
+
+building_room_lounge
+80 80 60
+| left 20 sofa building_room_lounge_nonLeft
+
+building_room_lounge_nonLeft
+20 20 20
+| right 50 building_room_lounge_mid building_room_lounge_right
+
+building_room_lounge_mid
+20 20 20
+
+building_room_lounge_right
+30 10 0

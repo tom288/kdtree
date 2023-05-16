@@ -1,20 +1,21 @@
-garden
+
+building_garden
 0 40 0
-| left 50 garden_left garden
-| left 50 garden garden_left
-| top 50 garden_top garden
-| top 50 garden garden_top
+| left 50 building_garden_left building_garden
+| left 50 building_garden building_garden_left
+| top 50 building_garden_top building_garden
+| top 50 building_garden building_garden_top
 
-garden_left
+building_garden_left
 0 30 0
-| left 50 garden_left garden
-| left 50 garden garden_left
-| top 50 garden_top garden
-| top 50 garden garden_top
+| left 50 building_garden_left building_garden
+| left 50 building_garden building_garden_left
+| top 50 building_garden_top building_garden
+| top 50 building_garden building_garden_top
 
-garden_top
+building_garden_top
 0 20 0
-| left 50 garden_left garden
-| left 50 garden garden_left
-| top 50 garden_top garden
-| top 50 garden garden_top
+| left 50 building_garden_left building_garden
+| left 50 building_garden building_garden_left
+| top 50 building_garden_top building_garden
+| top 50 building_garden building_garden_top

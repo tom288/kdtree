@@ -1,0 +1,21 @@
+
+furniture_sofa
+20 30 50
+| left 30 furniture_sofa_back furniture_sofa_front
+
+furniture_sofa_back
+15 25 45
+
+furniture_sofa_front
+20 30 50
+| up 20 furniture_sofa_armrest furniture_nonTop
+
+furniture_nonTop
+30 50 70
+| up 75 furniture_sofa_middle furniture_sofa_armrest
+
+furniture_sofa_middle
+20 30 50
+
+furniture_sofa_armrest
+30 50 70
