@@ -1,33 +1,11 @@
-extern int WIP;
+#define __USE_MINGW_ANSI_STDIO 1 // Make MinGW printf support size_t with %zu
 #include "rules.h"
 #include "kdtree.h"
 #include "utility.h"
 #include "str_util.h"
+#include "misc.h"
 #include <cglm/cglm.h>
 #include <stb_ds.h>
-
-void ind(uint8_t indent) {
-    for (uint8_t n = 0; n < indent; n++) printf("  ");
-}
-
-bool notBad(void* anything) { // for debugging only
-    if (anything != NULL) return true;
-    printf("null, could be empty array\n");
-    return false;
-}
-
-bool replacement_orientation_notBad(uint8_t orientation) {
-    const uint8_t x_y = 0, upLeft_downRight = 1, square = 3, absolute = 4; // bit index in orientation
-    if (((orientation >> 3) & 1) && ((orientation >> 4) & 1)) return false;
-    return true;
-}
-
-void nodeType_print(NodeType n, uint8_t indent)
-{
-    ind(indent); printf("nodeType:");
-    uint8_t in = indent;
-    ind(in); printf("col: %f %f %f\n", n.col[0], n.col[1], n.col[2]);
-}
 
 string_slice read_file_into_buffer(char* path)
 {
@@ -134,11 +112,13 @@ NodeType* readRules()
 
             // read split percent
             word = string_wordAfter(word);
+            this_replacement->percentMeters = false;
             this_replacement->splitPercent = strtof(word.first, NULL);
             word_ahead = string_wordAfter(word);
             char* arr2[] = {"cm", "m", "mm", "km", "um"};
             for (uint8_t n = 0; n < 5; n++)
                 if (string_identical_str(word_ahead, arr2[n])) {
+                    this_replacement->percentMeters = true;
                     this_replacement->orientation |= 4; // 0b100
                     this_replacement->splitMeters = (float[]){0.01f, 1.0f, 0.001f, 1000.0f, 0.000001f}[n];
                     word = string_wordAfter(word);
@@ -182,7 +162,7 @@ void rules_printNodeType(NodeType self, uint8_t indent, NodeType* types) {
     ind(indent); printf("NodeType:\n");
     uint8_t in = indent + 1;
     ind(in); printf("type name: ");
-    if (notBad(&(self.typeName))) {
+    if (misc_notBad(&(self.typeName))) {
         string_print(self.typeName);
         printf("\n");
     }
@@ -193,7 +173,7 @@ void rules_printNodeType(NodeType self, uint8_t indent, NodeType* types) {
     }
     printf("\n");
     ind(in); printf("rep: ");
-    if (notBad(self.replacements)) {
+    if (misc_notBad(self.replacements)) {
         printf("\n");
         rules_printReplacements(self.replacements, in, types);
     }
@@ -210,8 +190,33 @@ void rules_printReplacement(Replacement self, uint8_t indent, NodeType* types) {
     ind(in); printf("split percent: %d\n", self.splitPercent);
     for (uint8_t n = 0; n < 2; n++) {
         ind(in); printf("child type name: ");
-        if (notBad(&types[self.types_indices[n]].typeName))
+        if (misc_notBad(&types[self.types_indices[n]].typeName))
             string_print(types[self.types_indices[n]].typeName);
         printf("\n");
     }
+}
+
+void nodeType_print(NodeType nodeType, uint8_t indent)
+{
+    ind(indent); printf("NodeType:");
+    uint8_t in = indent;
+    ind(in); printf("col: %f %f %f\n", nodeType.col[0], nodeType.col[1], nodeType.col[2]);
+    ind(in); printf("typeName: "); string_print(nodeType.typeName); printf("\n");
+    for (uint8_t n = 0; n < arrlenu(nodeType.replacements); n++)
+        replacement_print(nodeType.replacements[n], in + 1);
+}
+
+void replacement_print(Replacement rep, uint8_t indent) {
+    ind(indent); printf("Replacement:\n");
+    uint8_t in = indent + 1;
+    ind(in); printf("orientation: %d\n", (int)rep.orientation);
+    ind(in); printf("percentMeters %s\n", rep.splitPercent ? "true" : "false");
+    ind(in); printf("split percent\\meters: %d %f\n", (int)rep.splitPercent, rep.splitMeters);
+    ind(in); printf("typeIndices %zu %zu\n" , rep.types_indices[0], rep.types_indices[1]);
+}
+
+bool replacement_orientation_notBad(uint8_t orientation) {
+    const uint8_t x_y = 0, upLeft_downRight = 1, square = 3, absolute = 4; // bit index in orientation
+    if (((orientation >> 3) & 1) && ((orientation >> 4) & 1)) return false;
+    return true;
 }

@@ -13,11 +13,13 @@ typedef struct Replacement {
     // 0, 1 - absolute
     // never 11xy
 
+    bool percentMeters;
     uint8_t splitPercent;
     float splitMeters;
     size_t types_indices[2]; // two item pointer array
 } Replacement;
 
+void replacement_print(Replacement rep, uint8_t indent);
 bool replacement_orientation_notBad(uint8_t orientation);
 
 typedef struct NodeType {
