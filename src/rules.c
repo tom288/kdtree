@@ -109,7 +109,7 @@ NodeType* readRules()
             // 0, 1 - square
             // 0, 1 - absolute
             word = string_wordAfter(word);
-            char* arr1[] = {"left", "right", "up", "down", "square_upLeft", "square_downRight"};
+            char* arr1[] = {"left", "up", "right", "down", "square_upLeft", "square_downRight"};
             for (uint8_t n = 0; n < 6; n++)
                 if (string_identical_str(word, arr1[n])) {
                     this_replacement->orientation = n;
