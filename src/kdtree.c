@@ -49,7 +49,7 @@ Node node_child(
     float split = parent.split;
 
     if (replacement.orientation & 8) split =
-        parent.size[replacement.orientation & 1] / replacement.splitMeters;
+        replacement.splitMeters / parent.size[replacement.orientation & 1];
     if (replacement.orientation & 4) split = glm_vec2_min(parent.size)
                                            / glm_vec2_max(parent.size);
     if (replacement.orientation & 2) split = 1.0f - split;
