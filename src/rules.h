@@ -4,16 +4,29 @@
 
 typedef struct Replacement {
     // world.txt --> | top 50 room garden
-    bool orientation; // top (true), left (false)
-    uint16_t splitPercent; // needs to be more than 8 bit to be examinable in memory properly
+
+    uint8_t orientation;
+    // orientation bit mask
+    // 0, 1 - x, y
+    // 0, 1 - up/left, down/right
+    // 0, 1 - square
+    // 0, 1 - absolute
+    // never 11xy
+
+    uint8_t splitPercent;
+    float splitMeters;
     size_t types_indices[2]; // two item pointer array
 } Replacement;
+
+bool replacement_orientation_notBad(uint8_t orientation);
 
 typedef struct NodeType {
     vec3 col;
     Replacement* replacements; // Replacement array
     string_slice typeName; // for use only when reading world.txt
 } NodeType;
+
+void nodeType_print(NodeType nodeType, uint8_t indent);
 
 NodeType* readRules();
 

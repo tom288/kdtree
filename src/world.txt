@@ -1,36 +1,10 @@
-Up to 2^32 node types, they are delimited by an empty line,
-they do not need to appear in order.
-
-they use this format:
-
-string: type name
-integer 0 to 100: red, green, blue
-0 to 2^32 replacement rules
-
-The first node type must be called "world".
-
-replacement rules use this format:
-
-| (top/left: split direction) (integer 1 to 99: split percent) (node type name) (node type name)
-
-
-for example
-
-world
-0 80 0
-| top 50 room garden
-| top 50 garden garden
-
-garden
-0 200 0
-
 ---
 
 code starts here:
 
 world
 0 80 0
-| top 50 room garden
+| up 50 room garden
 
 room
 80 80 60
@@ -38,13 +12,20 @@ room
 
 sofa
 20 30 50
-| top 20 sofa_armrest sofa2
+| left 30 sofa_back sofa_front
+
+sofa_back
+15 25 45
+
+sofa_front
+20 30 50
+| up 20 sofa_armrest sofa2
 
 sofa2
 30 50 70
-| top 75 sofa3 sofa_armrest
+| up 75 sofa_middle sofa_armrest
 
-sofa3
+sofa_middle
 20 30 50
 
 sofa_armrest
@@ -52,6 +33,31 @@ sofa_armrest
 
 room2
 20 20 20
+| left 75cm room_mid room_right
+
+room_mid
+20 20 20
+
+room_right
+30 10 0
 
 garden
 0 40 0
+| left 50 garden_left garden
+| left 50 garden garden_left
+| top 50 garden_top garden
+| top 50 garden garden_top
+
+garden_left
+0 30 0
+| left 50 garden_left garden
+| left 50 garden garden_left
+| top 50 garden_top garden
+| top 50 garden garden_top
+
+garden_top
+0 20 0
+| left 50 garden_left garden
+| left 50 garden garden_left
+| top 50 garden_top garden
+| top 50 garden garden_top

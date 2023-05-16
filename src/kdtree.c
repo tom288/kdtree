@@ -120,7 +120,7 @@ Node* gen_nodes(float min_area)
         {
             size_t n = rand_int(replacement_count, true);
             Replacement replacement = node.type->replacements[n];
-            node.split_axis = replacement.orientation;
+            node.split_axis = !!replacement.orientation;
             node.split = replacement.splitPercent / 100.0f;
             arrput(nodes, node_child(node, 0, replacement, types));
             nodes[num_nodes_finished] = node_child(node, 1, replacement, types);

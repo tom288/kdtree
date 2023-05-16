@@ -6,6 +6,29 @@ extern int WIP;
 #include <cglm/cglm.h>
 #include <stb_ds.h>
 
+void ind(uint8_t indent) {
+    for (uint8_t n = 0; n < indent; n++) printf("  ");
+}
+
+bool notBad(void* anything) { // for debugging only
+    if (anything != NULL) return true;
+    printf("null, could be empty array\n");
+    return false;
+}
+
+bool replacement_orientation_notBad(uint8_t orientation) {
+    const uint8_t x_y = 0, upLeft_downRight = 1, square = 3, absolute = 4; // bit index in orientation
+    if (((orientation >> 3) & 1) && ((orientation >> 4) & 1)) return false;
+    return true;
+}
+
+void nodeType_print(NodeType n, uint8_t indent)
+{
+    ind(indent); printf("nodeType:");
+    uint8_t in = indent;
+    ind(in); printf("col: %f %f %f\n", n.col[0], n.col[1], n.col[2]);
+}
+
 string_slice read_file_into_buffer(char* path)
 {
     FILE* const file = fopen(path, "rb");
@@ -65,9 +88,7 @@ NodeType* readRules()
         for (size_t i = 0; i < 3; ++i) word = string_wordAfter(word);
         // Skip replacements
         while (string_identical_str(string_wordAfter(word), "|"))
-        {
             for (size_t i = 0; i < 5; ++i) word = string_wordAfter(word);
-        }
     }
 
     word = start;
@@ -98,12 +119,31 @@ NodeType* readRules()
             // refers to a new uninitialized replacement in this_node
             Replacement* this_replacement = arraddnptr(this_node->replacements, 1);
 
+            // read orientation
+            // 0, 1 - x, y
+            // 0, 1 - up/left, down/right
+            // 0, 1 - square
+            // 0, 1 - absolute
             word = string_wordAfter(word);
-            this_replacement->orientation = string_identical_str(word, "top");
+            char* arr1[] = {"left", "right", "up", "down", "square_upLeft", "square_downRight"};
+            for (uint8_t n = 0; n < 6; n++)
+                if (string_identical_str(word, arr1[n])) {
+                    this_replacement->orientation = n;
+                    break;
+                }
 
             // read split percent
             word = string_wordAfter(word);
             this_replacement->splitPercent = strtof(word.first, NULL);
+            word_ahead = string_wordAfter(word);
+            char* arr2[] = {"cm", "m", "mm", "km", "um"};
+            for (uint8_t n = 0; n < 5; n++)
+                if (string_identical_str(word_ahead, arr2[n])) {
+                    this_replacement->orientation |= 4; // 0b100
+                    this_replacement->splitMeters = (float[]){0.01f, 1.0f, 0.001f, 1000.0f, 0.000001f}[n];
+                    word = string_wordAfter(word);
+                    break;
+                }
 
             // read two typenames
             for (uint8_t n = 0; n < 2; n++) {
@@ -125,19 +165,11 @@ NodeType* readRules()
                 }
             }
         }
+
+        nodeType_print(*this_node, 0);
     };
 
     return types;
-}
-
-void ind(uint8_t indent) {
-    for (uint8_t n = 0; n < indent; n++) printf("  ");
-}
-
-bool notBad(void* anything) {
-    if (anything != NULL) return true;
-    printf("null, could be empty array\n");
-    return false;
 }
 
 void rules_print(NodeType* self) {

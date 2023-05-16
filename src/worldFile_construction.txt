@@ -1,0 +1,35 @@
+Up to 2^32 node types, they are delimited by an empty line,
+they do not need to appear in order.
+
+they use this format:
+
+string: type name
+integer 0 to 100: red, green, blue
+0 to 2^32 replacement rules
+
+The first node type must be called "world".
+
+replacement rules use this format:
+
+| (up/left: split direction) (integer 1 to 99: split percent) (node type name) (node type name)
+
+The integers can be as is to be a proportion of the parent,
+or have the following units (um, mm, cm, m, km), such as 50cm.
+
+
+for example
+
+world
+0 80 0
+| up 50 room garden
+| up 50 garden garden
+
+room
+0 20 80
+
+garden
+0 200 0
+
+---
+
+code starts here:
