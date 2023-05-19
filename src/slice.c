@@ -1,4 +1,4 @@
-#include "str_util.h"
+#include "slice.h"
 #include "ctype.h"
 #include <string.h>
 #include <stdint.h>
@@ -7,11 +7,11 @@
 #include <stdlib.h> // malloc, free
 #include <stb_ds.h>
 
-uint32_t string_len(string_slice str) {
+uint32_t slice_len(Slice str) {
     return str.firstAfter - str.first;
 }
 
-bool string_identical(string_slice str1, string_slice str2) {
+bool slice_eq(Slice str1, Slice str2) {
     char prev[2] = {*str1.firstAfter, *str2.firstAfter};
     *str1.firstAfter = '\0';
     if (*str2.firstAfter) *str2.firstAfter = '\0';
@@ -21,7 +21,7 @@ bool string_identical(string_slice str1, string_slice str2) {
     return result;
 }
 
-bool string_identical_str(string_slice str1, char* str2) {
+bool slice_eq_str(Slice str1, char* str2) {
     char prev = *str1.firstAfter;
     *str1.firstAfter = '\0';
     bool result = !strcmp(str1.first, str2);
@@ -29,7 +29,7 @@ bool string_identical_str(string_slice str1, char* str2) {
     return result;
 }
 
-string_slice string_wordAfter(string_slice str) {
+Slice slice_word_after(Slice str) {
     str.first = str.firstAfter;
     while (!isspace(*str.first)){
         if (*str.first == '\0') {
@@ -51,26 +51,15 @@ string_slice string_wordAfter(string_slice str) {
     return str;
 }
 
-string_slice string_after_expected(string_slice str, char* expected) {
-    string_slice result;
-    result.first = strstr(str.first, expected) + strlen(expected);
-    result.firstAfter = str.firstAfter;
-    return result;
-}
-
-bool string_empty(string_slice str) {
-    return str.first == str.firstAfter;
-}
-
-void string_print(string_slice str) {
+void slice_print(Slice str) {
     for (uint32_t n = 0; n < str.firstAfter - str.first; n++)
         printf("%c", str.first[n]);
 }
 
-string_slice read_file_into_buffer(char* path)
+Slice slice_from_path(char* path)
 {
     FILE* const file = fopen(path, "rb");
-    string_slice null_slice = { NULL };
+    Slice null_slice = { NULL };
 
     if (!file) {
         fprintf(stderr, "Failed to fopen ");
@@ -92,35 +81,35 @@ string_slice read_file_into_buffer(char* path)
     }
 
     fclose(file);
-    return (string_slice) {
+    return (Slice) {
         .first = buffer,
         .firstAfter = buffer + file_size,
     };
 }
 
-string_slice merge_files(string_slice* paths)
+Slice slice_from_paths(Slice* paths)
 {
-    string_slice* buffers = NULL;
+    Slice* buffers = NULL;
     size_t total_bytes = 0;
 
     for (size_t i = 0; i < arrlenu(paths); ++i)
     {
-        arrput(buffers, read_file_into_buffer(paths[i].first));
-        total_bytes += string_len(buffers[i]);
+        arrput(buffers, slice_from_path(paths[i].first));
+        total_bytes += slice_len(buffers[i]);
     }
 
-    string_slice big;
+    Slice big;
     big.first = calloc(1, total_bytes + 1),
     big.firstAfter = big.first;
 
     for (size_t i = 0; i < arrlenu(buffers); ++i)
     {
         // If one of the files has failed to read we must not call strcpy
-        if (string_len(buffers[i]))
+        if (slice_len(buffers[i]))
         {
             // This (correctly) assumes the RHS has a null character afterwards
             strcpy(big.firstAfter, buffers[i].first);
-            big.firstAfter += string_len(buffers[i]);
+            big.firstAfter += slice_len(buffers[i]);
             free(buffers[i].first);
         }
     }

@@ -1,5 +1,5 @@
 #pragma once
-#include "str_util.h"
+#include "slice.h"
 #include <cglm/cglm.h>
 
 #define ORIENTATION_AXIS 1
@@ -25,7 +25,7 @@ typedef struct Replacement {
 typedef struct NodeType {
     vec3 col;
     Replacement* replacements; // Replacement array
-    string_slice typeName; // for use only when reading world.txt
+    Slice typeName; // for use only when reading world.txt
 } NodeType;
 
 NodeType* readRules();

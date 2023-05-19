@@ -2,7 +2,7 @@
 #include "rules.h"
 #include "kdtree.h"
 #include "utility.h"
-#include "str_util.h"
+#include "slice.h"
 #include "misc.h"
 #include <cglm/cglm.h>
 #include <stb_ds.h>
@@ -17,39 +17,39 @@
 // | top 50 garden garden
 NodeType* readRules()
 {
-    string_slice const file = read_file_into_buffer("src/world/world.txt"); // todo: free(file)
-    string_slice word = file;
+    Slice const file = slice_from_path("src/world/world.txt"); // todo: free(file)
+    Slice word = file;
     word.firstAfter = word.first;
-    const string_slice start = word;
+    const Slice start = word;
 
     // Record typenames and their indices
-    string_slice* type_names = NULL;
-    for (size_t i = 0; !string_empty(string_wordAfter(word)); ++i)
+    Slice* type_names = NULL;
+    for (size_t i = 0; slice_len(slice_word_after(word)); ++i)
     {
         // Record typename and index
-        word = string_wordAfter(word);
+        word = slice_word_after(word);
         arrput(type_names, word);
         // Skip R, G, B
-        for (size_t i = 0; i < 3; ++i) word = string_wordAfter(word);
+        for (size_t i = 0; i < 3; ++i) word = slice_word_after(word);
         // Skip replacements
-        while (string_identical_str(string_wordAfter(word), "|"))
-            for (size_t i = 0; i < 5; ++i) word = string_wordAfter(word);
+        while (slice_eq_str(slice_word_after(word), "|"))
+            for (size_t i = 0; i < 5; ++i) word = slice_word_after(word);
     }
 
     word = start;
     NodeType* types = NULL; // NodeType array
 
-    while (!string_empty(string_wordAfter(word))) { // until end of file
+    while (slice_len(slice_word_after(word))) { // until end of file
         NodeType* this_node = arraddnptr(types, 1); // new unset node pointer, added to "types"
 
         // Read typename
-        word = string_wordAfter(word);
+        word = slice_word_after(word);
         this_node->typeName = word; // for debugging
 
         // Read col and divide it from 0-100 to 0-1
         vec3 col;
         for (uint8_t channel = 0; channel < 3; ++channel) {
-            word = string_wordAfter(word);
+            word = slice_word_after(word);
             col[channel] = strtof(word.first, NULL) / 100.0f;
         }
         glm_vec3_copy(col, this_node->col);
@@ -57,8 +57,8 @@ NodeType* readRules()
         this_node->replacements = NULL;
         while (true) // until '|' keep reading replacement rule lines
         {
-            string_slice word_ahead = string_wordAfter(word);
-            if (!string_identical_str(word_ahead, "|")) break;
+            Slice word_ahead = slice_word_after(word);
+            if (!slice_eq_str(word_ahead, "|")) break;
             word = word_ahead;
 
             // refers to a new uninitialized replacement in this_node
@@ -69,11 +69,11 @@ NodeType* readRules()
             // 0, 1 - up/left, down/right
             // 0, 1 - square
             // 0, 1 - absolute
-            word = string_wordAfter(word);
+            word = slice_word_after(word);
             char* orientations[] = {"left", "up", "right", "down", "square_upLeft", "square_downRight"};
             for (size_t i = 0; i < sizeof(orientations) / sizeof(*orientations); ++i)
             {
-                if (string_identical_str(word, orientations[i]))
+                if (slice_eq_str(word, orientations[i]))
                 {
                     this_replacement->orientation = i;
                     break;
@@ -81,15 +81,15 @@ NodeType* readRules()
             }
 
             // read split percent
-            word = string_wordAfter(word);
-            string_slice unit = word;
+            word = slice_word_after(word);
+            Slice unit = word;
             this_replacement->splitDecimal = strtof(word.first, &unit.first) / 100.0f;
             char* const unit_words[] = { "cm", "m", "mm", "km", "um" };
             const float cm_to_unit[] = { 1.0f, 100.0f, 0.1f, 100000.0f, 0.0001f };
 
             for (uint8_t i = 0; i < sizeof(unit_words) / sizeof(*unit_words); ++i)
             {
-                if (string_identical_str(unit, unit_words[i]))
+                if (slice_eq_str(unit, unit_words[i]))
                 {
                     this_replacement->orientation |= ORIENTATION_ABSOLUTE;
                     this_replacement->splitDecimal *= cm_to_unit[i];
@@ -99,11 +99,11 @@ NodeType* readRules()
 
             // read two typenames
             for (uint8_t n = 0; n < 2; ++n) {
-                word = string_wordAfter(word);
+                word = slice_word_after(word);
                 bool found = false;
                 for (size_t i = 0; i < arrlenu(type_names); ++i)
                 {
-                    if (string_identical(type_names[i], word))
+                    if (slice_eq(type_names[i], word))
                     {
                         this_replacement->types_indices[n] = i;
                         found = true;
@@ -134,7 +134,7 @@ void rules_NodeType_print(NodeType self, uint8_t indent, NodeType* types) {
     uint8_t in = indent + 1;
     ind(in); printf("type name: ");
     if (misc_notBad(&(self.typeName))) {
-        string_print(self.typeName);
+        slice_print(self.typeName);
         printf("\n");
     }
     ind(in); printf("col: ");
@@ -163,7 +163,7 @@ void rules_Replacement_print(Replacement self, uint8_t indent, NodeType* types) 
     for (uint8_t i = 0; i < 2; ++i) {
         ind(in); printf("child type name: ");
         if (misc_notBad(&types[self.types_indices[i]].typeName)) {
-            string_print(types[self.types_indices[i]].typeName);
+            slice_print(types[self.types_indices[i]].typeName);
         }
         printf("\n");
     }
