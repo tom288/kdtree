@@ -51,13 +51,6 @@ string_slice string_wordAfter(string_slice str) {
     return str;
 }
 
-string_slice string_after_expected(string_slice str, char* expected) {
-    string_slice result;
-    result.first = strstr(str.first, expected) + strlen(expected);
-    result.firstAfter = str.firstAfter;
-    return result;
-}
-
 bool string_empty(string_slice str) {
     return str.first == str.firstAfter;
 }

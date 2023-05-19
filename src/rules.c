@@ -18,12 +18,12 @@ ImportLines read_importLines() {
     char* this_filename2 = "src/world/world.txt";
     *this_filename = (string_slice) {
         .first = this_filename2, .firstAfter = this_filename2 + strlen(this_filename2)};
-    string_slice file_main = read_file_into_buffer(this_filename2);
-    string_slice word = string_wordAfter(word);
+    string_slice word = read_file_into_buffer(this_filename2);
+    word = string_wordAfter(word);
     string_slice word_prev;
     while (string_identical_str(word, ">")) {
         word = string_wordAfter(word);
-        file_main = *arraddnptr(filenames, 1);
+        *this_filename = *arraddnptr(filenames, 1);
 
         // make a string out of a string slice hack
         char prev = *word.firstAfter;
@@ -34,7 +34,7 @@ ImportLines read_importLines() {
         word_prev = word;
         word = string_wordAfter(word);
     }
-    return (ImportLines) {filenames: filenames, word_prev: word_prev};
+    return (ImportLines) {.filenames = filenames, .word_prev = word_prev};
 }
 
 // reads and returns up to 2^32 node types from world.txt
@@ -48,7 +48,7 @@ ImportLines read_importLines() {
 NodeType* readRules()
 {
     ImportLines importLines = read_importLines();
-    string_slice* file = merge_files(importLines.filenames); // todo: free(file)
+    string_slice file = merge_files(importLines.filenames); // todo: free(file)
     string_slice word = importLines.word_prev;
     word.firstAfter = word.first;
     const string_slice start = word;

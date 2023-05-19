@@ -37,12 +37,6 @@ bool string_identical_str(string_slice str1, char* str2);
 
 string_slice string_wordAfter(string_slice str);
 
-/// @brief returns a shorter slice, the start of the slice moves forward to the first character after the expected text
-/// text before the expected text is also not included
-/// @param str the slice to be shortened
-/// @return the shorter slice, the start of the slice moves forward to the first character after the expected text
-string_slice string_after_expected(string_slice str, char* expected);
-
 bool string_empty(string_slice str);
 void string_print(string_slice str);
 
