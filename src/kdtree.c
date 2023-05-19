@@ -47,12 +47,12 @@ Node node_child(
 
     const GLboolean axis = parent.split_axis;
     float split = parent.split;
+    const size_t ori = replacement.orientation;
 
-    if (replacement.orientation & 8) split =
-        replacement.splitMeters / parent.size[replacement.orientation & 1];
-    if (replacement.orientation & 4) split = glm_vec2_min(parent.size)
-                                           / glm_vec2_max(parent.size);
-    if (replacement.orientation & 2) split = 1.0f - split;
+    if (ori & ORIENTATION_ABSOLUTE) split /= parent.size[axis];
+    if (ori & ORIENTATION_SQUARE) split = glm_vec2_min(parent.size)
+                                        / glm_vec2_max(parent.size);
+    if (ori & ORIENTATION_INDEX) split = 1.0f - split;
 
     if (child_index)
     {
@@ -108,9 +108,12 @@ Node* gen_nodes(float min_area)
     // TEMPORAY
     rules_print(types);
 
+    vec3 r;
+    glm_vec3_scale(types[0].col, 255, r);
+
     // Define the head of the k-d tree
     arrput(nodes, ((Node) {
-        .colour = { 0 },
+        .colour = { r[0], r[1], r[2] },
         .min_corner = { -1.0f, -1.0f },
         .size = { 2.0f, 2.0f },
         .type = &types[0],
@@ -132,8 +135,9 @@ Node* gen_nodes(float min_area)
             GLboolean too_small = GL_FALSE;
 
             // If absolute units exceed the parent size then try the next rep
-            while (replacement.orientation & 8 && replacement.splitMeters
-                                      > node.size[replacement.orientation & 1])
+            while (replacement.orientation & ORIENTATION_ABSOLUTE
+                && node.size[replacement.orientation & ORIENTATION_AXIS]
+                < replacement.splitDecimal)
             {
                 n_copy++;
                 n_copy %= replacement_count;
@@ -152,8 +156,8 @@ Node* gen_nodes(float min_area)
                 continue;
             }
 
-            node.split_axis = replacement.orientation & 1;
-            node.split = replacement.splitPercent / 100.0f;
+            node.split_axis = replacement.orientation & ORIENTATION_AXIS;
+            node.split = replacement.splitDecimal;
             arrput(nodes, node_child(node, 0, replacement, types));
             nodes[num_nodes_finished] = node_child(node, 1, replacement, types);
         }

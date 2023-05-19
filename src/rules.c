@@ -7,16 +7,6 @@
 #include <cglm/cglm.h>
 #include <stb_ds.h>
 
-string_slice read_directory_into_buffer(char* path) {
-    string_slice slice;
-    slice.first = NULL;
-    slice.firstAfter = NULL;
-    for (uint32_t n = 0; n < 10; n++) {
-        ;
-    }
-    return slice;
-}
-
 string_slice read_file_into_buffer(char* path)
 {
     FILE* const file = fopen(path, "rb");
@@ -76,18 +66,18 @@ NodeType* readRules()
     }
 
     word = start;
-    NodeType* types = NULL; // nodeType array
+    NodeType* types = NULL; // NodeType array
 
     while (!string_empty(string_wordAfter(word))) { // until end of file
         NodeType* this_node = arraddnptr(types, 1); // new unset node pointer, added to "types"
 
-        // read typename
+        // Read typename
         word = string_wordAfter(word);
         this_node->typeName = word; // for debugging
 
-        // read col
+        // Read col and divide it from 0-100 to 0-1
         vec3 col;
-        for (uint8_t channel = 0; channel < 3; channel++) {
+        for (uint8_t channel = 0; channel < 3; ++channel) {
             word = string_wordAfter(word);
             col[channel] = strtof(word.first, NULL) / 100.0f;
         }
@@ -109,30 +99,35 @@ NodeType* readRules()
             // 0, 1 - square
             // 0, 1 - absolute
             word = string_wordAfter(word);
-            char* arr1[] = {"left", "up", "right", "down", "square_upLeft", "square_downRight"};
-            for (uint8_t n = 0; n < 6; n++)
-                if (string_identical_str(word, arr1[n])) {
-                    this_replacement->orientation = n;
+            char* orientations[] = {"left", "up", "right", "down", "square_upLeft", "square_downRight"};
+            for (size_t i = 0; i < sizeof(orientations) / sizeof(*orientations); ++i)
+            {
+                if (string_identical_str(word, orientations[i]))
+                {
+                    this_replacement->orientation = i;
                     break;
                 }
+            }
 
             // read split percent
             word = string_wordAfter(word);
-            this_replacement->percentMeters = false;
             string_slice unit = word;
-            this_replacement->splitPercent = strtof(word.first, &unit.first);
-            char* arr2[] = {"cm", "m", "mm", "km", "um"};
-            for (uint8_t n = 0; n < 5; n++)
-                if (string_identical_str(unit, arr2[n])) {
-                    this_replacement->percentMeters = true;
-                    this_replacement->orientation |= 8; // 0b1000
-                    this_replacement->splitMeters = this_replacement->splitPercent *
-                        (float[]){0.01f, 1.0f, 0.001f, 1000.0f, 0.000001f}[n];
+            this_replacement->splitDecimal = strtof(word.first, &unit.first) / 100.0f;
+            char* const unit_words[] = { "cm", "m", "mm", "km", "um" };
+            const float cm_to_unit[] = { 1.0f, 100.0f, 0.1f, 100000.0f, 0.0001f };
+
+            for (uint8_t i = 0; i < sizeof(unit_words) / sizeof(*unit_words); ++i)
+            {
+                if (string_identical_str(unit, unit_words[i]))
+                {
+                    this_replacement->orientation |= ORIENTATION_ABSOLUTE;
+                    this_replacement->splitDecimal *= cm_to_unit[i];
                     break;
                 }
+            }
 
             // read two typenames
-            for (uint8_t n = 0; n < 2; n++) {
+            for (uint8_t n = 0; n < 2; ++n) {
                 word = string_wordAfter(word);
                 bool found = false;
                 for (size_t i = 0; i < arrlenu(type_names); ++i)
@@ -161,8 +156,9 @@ NodeType* readRules()
 
 void rules_print(NodeType* self) {
     printf("rules:\n");
-    for (uint32_t n = 0; n < arrlenu(self); n++)
-        rules_NodeType_print(self[n], 1, self);
+    for (size_t i = 0; i < arrlenu(self); ++i) {
+        rules_NodeType_print(self[i], 1, self);
+    }
 }
 
 void rules_NodeType_print(NodeType self, uint8_t indent, NodeType* types) {
@@ -174,38 +170,38 @@ void rules_NodeType_print(NodeType self, uint8_t indent, NodeType* types) {
         printf("\n");
     }
     ind(in); printf("col: ");
-    for (uint8_t m = 0; m < 3; m++) {
-        printf("%d", (int)(self.col[m] * 100));
+    for (uint8_t i = 0; i < 3; ++i) {
+        printf("%d", (int)(self.col[i] * 100.0f));
         printf(" ");
     }
-    printf("\n");
-    ind(in); printf("rep: ");
-    if (misc_notBad(self.replacements)) {
+    printf("\n"); ind(in); printf("rep: ");
+    if (misc_notBad(self.replacements))
+    {
         printf("\n");
         rules_replacements_print(self.replacements, in, types);
     }
 }
 
 void rules_replacements_print(Replacement* replacements, uint8_t indent, NodeType* types) {
-    for (uint32_t n = 0; n < arrlenu(replacements); n++)
-       rules_Replacement_print(replacements[n], indent, types);
+    for (size_t i = 0; i < arrlenu(replacements); ++i) {
+        rules_Replacement_print(replacements[i], indent, types);
+    }
 }
 
 void rules_Replacement_print(Replacement self, uint8_t indent, NodeType* types) {
     uint8_t in = indent + 1;
     ind(in); printf("orientation: %d\n", (int)self.orientation);
-    ind(in); printf("split percent: %d\n", self.splitPercent);
-    ind(in); printf("split meters: %d\n", self.splitMeters);
-    for (uint8_t n = 0; n < 2; n++) {
+    ind(in); printf("split: %f\n", self.splitDecimal);
+    for (uint8_t i = 0; i < 2; ++i) {
         ind(in); printf("child type name: ");
-        if (misc_notBad(&types[self.types_indices[n]].typeName))
-            string_print(types[self.types_indices[n]].typeName);
+        if (misc_notBad(&types[self.types_indices[i]].typeName)) {
+            string_print(types[self.types_indices[i]].typeName);
+        }
         printf("\n");
     }
 }
 
 bool rules_replacement_orientation_notBad(uint8_t orientation) {
-    const uint8_t x_y = 0, upLeft_downRight = 1, square = 3, absolute = 4; // bit index in orientation
-    if (((orientation >> 3) & 1) && ((orientation >> 4) & 1)) return false;
-    return true;
+    return !(orientation & ORIENTATION_SQUARE
+          && orientation & ORIENTATION_ABSOLUTE);
 }
