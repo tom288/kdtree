@@ -52,6 +52,6 @@ void string_print(string_slice str);
 string_slice read_file_into_buffer(char* path);
 
 /// @brief Use a variable number of file paths to return their merged contents
-/// @param paths Variable array of char* file paths
+/// @param paths Variable array of string slice file paths
 /// @return A string slice of merged file contents, which the caller must free
-string_slice merge_files(char** paths);
+string_slice merge_files(string_slice* paths);

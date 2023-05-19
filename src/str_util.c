@@ -98,14 +98,14 @@ string_slice read_file_into_buffer(char* path)
     };
 }
 
-string_slice merge_files(char** paths)
+string_slice merge_files(string_slice* paths)
 {
     string_slice* buffers = NULL;
     size_t total_bytes = 0;
 
     for (size_t i = 0; i < arrlenu(paths); ++i)
     {
-        arrput(buffers, read_file_into_buffer(paths[i]));
+        arrput(buffers, read_file_into_buffer(paths[i].first));
         total_bytes += string_len(buffers[i]);
     }
 
