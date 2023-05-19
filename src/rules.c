@@ -146,9 +146,6 @@ NodeType* readRules()
                 }
             }
         }
-
-        printf("\n");
-        rules_print(types);
     };
 
     return types;

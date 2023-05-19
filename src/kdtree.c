@@ -105,12 +105,6 @@ Node* gen_nodes(float min_area)
     arrsetcap(nodes, expected_node_count);
     NodeType* types = readRules(); // Read node types from file
 
-    // TEMPORAY
-    rules_print(types);
-
-    vec3 r;
-    glm_vec3_scale(types[0].col, 255, r);
-
     // Define the head of the k-d tree
     arrput(nodes, ((Node) {
         .colour = { r[0], r[1], r[2] },
