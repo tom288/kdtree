@@ -7,16 +7,6 @@
 #include <cglm/cglm.h>
 #include <stb_ds.h>
 
-string_slice read_directory_into_buffer(char* path) {
-    string_slice slice;
-    slice.first = NULL;
-    slice.firstAfter = NULL;
-    for (uint32_t n = 0; n < 10; n++) {
-        ;
-    }
-    return slice;
-}
-
 string_slice read_file_into_buffer(char* path)
 {
     FILE* const file = fopen(path, "rb");
@@ -46,6 +36,36 @@ string_slice read_file_into_buffer(char* path)
     return result;
 }
 
+typedef struct ImportLines {
+    string_slice* filenames;
+    string_slice word_prev;
+} ImportLines;
+
+ImportLines read_importLines() {
+    string_slice* filenames = NULL;
+    string_slice* this_filename = arraddnptr(filenames, 1);
+    char* this_filename2 = "src/world/world.txt";
+    *this_filename = (string_slice) {
+        .first = this_filename2, .firstAfter = this_filename2 + strlen(this_filename2)};
+    string_slice file_main = read_file_into_buffer(this_filename2);
+    string_slice word = string_wordAfter(word);
+    string_slice word_prev;
+    while (string_identical_str(word, ">")) {
+        word = string_wordAfter(word);
+        file_main = *arraddnptr(filenames, 1);
+
+        // make a string out of a string slice hack
+        char prev = *word.firstAfter;
+        *word.firstAfter = '\0'; // string complete
+        *this_filename = word;
+        *word.firstAfter = prev; // string no longer usable, no clean up needed
+
+        word_prev = word;
+        word = string_wordAfter(word);
+    }
+    return (ImportLines) {filenames: filenames, word_prev: word_prev};
+}
+
 // reads and returns up to 2^32 node types from world.txt
 // they are delimited by an empty line
 // each node type in world.txt looks like this
@@ -56,12 +76,13 @@ string_slice read_file_into_buffer(char* path)
 // | top 50 garden garden
 NodeType* readRules()
 {
-    string_slice const file = read_file_into_buffer("src/world/world.txt"); // todo: free(file)
-    string_slice word = file;
+    ImportLines importLines = read_importLines();
+    string_slice* file = merge_files(importLines.filenames); // todo: free(file)
+    string_slice word = importLines.word_prev;
     word.firstAfter = word.first;
     const string_slice start = word;
 
-    // Record typenames and their indices
+    // read typenames and their indices
     string_slice* type_names = NULL;
     for (size_t i = 0; !string_empty(string_wordAfter(word)); ++i)
     {
@@ -74,11 +95,11 @@ NodeType* readRules()
         while (string_identical_str(string_wordAfter(word), "|"))
             for (size_t i = 0; i < 5; ++i) word = string_wordAfter(word);
     }
-
     word = start;
-    NodeType* types = NULL; // nodeType array
 
-    while (!string_empty(string_wordAfter(word))) { // until end of file
+    NodeType* types = NULL; // nodeType array
+    while (!string_empty(string_wordAfter(word))) // read a file
+    {
         NodeType* this_node = arraddnptr(types, 1); // new unset node pointer, added to "types"
 
         // read typename
@@ -134,30 +155,24 @@ NodeType* readRules()
             // read two typenames
             for (uint8_t n = 0; n < 2; n++) {
                 word = string_wordAfter(word);
-                bool found = false;
                 for (size_t i = 0; i < arrlenu(type_names); ++i)
                 {
-                    if (string_identical(type_names[i], word))
-                    {
+                    if (string_identical(type_names[i], word)) {
                         this_replacement->types_indices[n] = i;
-                        found = true;
                         break;
                     }
                 }
-                if (!found)
-                {
-                    arrpop(types);
-                    return types;
-                }
             }
         }
-    };
+    }
+
+    rules_print(types); // todo: debug info, remove me
 
     return types;
 }
 
 void rules_print(NodeType* self) {
-    printf("rules:\n");
+    printf("\nrules:\n");
     for (uint32_t n = 0; n < arrlenu(self); n++)
         rules_NodeType_print(self[n], 1, self);
 }
@@ -191,8 +206,8 @@ void rules_replacements_print(Replacement* replacements, uint8_t indent, NodeTyp
 void rules_Replacement_print(Replacement self, uint8_t indent, NodeType* types) {
     uint8_t in = indent + 1;
     ind(in); printf("orientation: %d\n", (int)self.orientation);
-    ind(in); printf("split percent: %d\n", self.splitPercent);
-    ind(in); printf("split meters: %d\n", self.splitMeters);
+    ind(in); printf("split percent: %d\n", (int)self.splitPercent);
+    ind(in); printf("split meters: %f\n", self.splitMeters);
     for (uint8_t n = 0; n < 2; n++) {
         ind(in); printf("child type name: ");
         if (misc_notBad(&types[self.types_indices[n]].typeName))

@@ -1,7 +1,22 @@
 Up to 2^32 node types, they are delimited by an empty line,
-they do not need to appear in order, the file starts with a blank line.
+they do not need to appear in order.
 
-a node type uses this format:
+
+The file starts with a blank line followed by us to 2^32 import lines.
+
+an import line:
+
+> (filename.txt)
+
+
+for example:
+
+> buildings.txt
+
+Imported files may not have import lines.
+
+
+next is a series of node type blocks, a node type uses this format:
 
 string: type name
 integer 0 to 100: red, green, blue
