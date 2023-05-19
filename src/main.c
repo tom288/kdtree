@@ -12,29 +12,31 @@ int main(int argc, char* argv[])
     if (!killer_assert(&killer, !!win)) return 1;
     killer_target(&killer, (kill_fn)window_kill, win);
 
-    // Create rectangle to screen rasterisation shader 
+    shader_set_dir(argv[0]);
+
+    // Create rectangle to screen rasterisation shader
     Shader rectangle_shader = shader_init(
-        "src/glsl/rectangle.vert",
-        "src/glsl/rectangle.geom",
-        "src/glsl/colour.frag"
+        "rectangle.vert",
+        "rectangle.geom",
+        "colour.frag"
     );
     if (!killer_assert(&killer, rectangle_shader.ok)) return 1;
     killer_target(&killer, (kill_fn)shader_kill, &rectangle_shader);
 
     // Create rectangle to texture rasterisation shader
     Shader texture_shader = shader_init(
-        "src/glsl/rectangle.vert",
-        "src/glsl/texture.geom",
-        "src/glsl/colour.frag"
+        "rectangle.vert",
+        "texture.geom",
+        "colour.frag"
     );
     if (!killer_assert(&killer, texture_shader.ok)) return 1;
     killer_target(&killer, (kill_fn)shader_kill, &texture_shader);
 
     // Create texture to screen 'blit' shader
     Shader blit_shader = shader_init(
-        "src/glsl/blit.vert",
+        "blit.vert",
         NULL,
-        "src/glsl/blit.frag"
+        "blit.frag"
     );
     if (!killer_assert(&killer, blit_shader.ok)) return 1;
     killer_target(&killer, (kill_fn)shader_kill, &blit_shader);
