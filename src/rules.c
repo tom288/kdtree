@@ -19,6 +19,7 @@ ImportLines read_importLines() {
     *this_filename = (Slice) {
         .first = this_filename2, .firstAfter = this_filename2 + strlen(this_filename2)};
     Slice word = slice_from_path(this_filename2);
+    word.firstAfter = word.first;
     word = slice_word_after(word);
     Slice word_prev;
     while (slice_eq_str(word, ">")) {
