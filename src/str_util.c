@@ -115,10 +115,14 @@ string_slice merge_files(char** paths)
 
     for (size_t i = 0; i < arrlenu(buffers); ++i)
     {
-        // This assumes the RHS has a null character afterwards, which it does!
-        strcpy(big.firstAfter, buffers[i].first);
-        big.firstAfter += string_len(buffers[i]);
-        free(buffers[i].first);
+        // If one of the files has failed to read we must not call strcpy
+        if (string_len(buffers[i]))
+        {
+            // This (correctly) assumes the RHS has a null character afterwards
+            strcpy(big.firstAfter, buffers[i].first);
+            big.firstAfter += string_len(buffers[i]);
+            free(buffers[i].first);
+        }
     }
 
     return big;
