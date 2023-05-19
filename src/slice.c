@@ -96,9 +96,9 @@ Slice slice_from_paths(Slice* paths)
     for (size_t i = 0; i < arrlenu(paths); ++i)
     {
         char prev = *paths[i].firstAfter;
-        *paths[i].firstAfter = '\0';
+        if (*paths[i].firstAfter) *paths[i].firstAfter = '\0';
         arrput(buffers, slice_from_path(paths[i].first));
-        *paths[i].firstAfter = prev;
+        if (prev) *paths[i].firstAfter = prev;
         total_bytes += slice_len(buffers[i]);
     }
 
