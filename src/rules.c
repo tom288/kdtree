@@ -19,12 +19,14 @@ ImportLines read_importLines() {
     *this_filename = (Slice) {
         .first = this_filename2, .firstAfter = this_filename2 + strlen(this_filename2)};
     Slice word = slice_from_path(this_filename2);
+    Slice word_prev;
     word.firstAfter = word.first;
     word = slice_word_after(word);
-    Slice word_prev;
+    this_filename = arraddnptr(filenames, 1);
+    *this_filename = word;
     while (slice_eq_str(word, ">")) {
         word = slice_word_after(word);
-        *this_filename = *arraddnptr(filenames, 1);
+        this_filename = arraddnptr(filenames, 1);
 
         // make a string out of a string slice hack
         char prev = *word.firstAfter;
