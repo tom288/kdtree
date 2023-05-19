@@ -2,6 +2,11 @@
 #include "str_util.h"
 #include <cglm/cglm.h>
 
+#define ORIENTATION_AXIS 1
+#define ORIENTATION_INDEX 1 << 1
+#define ORIENTATION_SQUARE 1 << 2
+#define ORIENTATION_ABSOLUTE 1 << 3
+
 typedef struct Replacement {
     // world.txt --> | top 50 room garden
 
@@ -13,9 +18,7 @@ typedef struct Replacement {
     // 0, 1 - absolute
     // never 11xy
 
-    bool percentMeters;
-    uint8_t splitPercent;
-    float splitMeters;
+    float splitDecimal;
     size_t types_indices[2]; // two item pointer array
 } Replacement;
 

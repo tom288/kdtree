@@ -299,7 +299,7 @@ void window_swap(Window* window)
 
     const double max_delta = 1.0 / 32.0;
     double time = glfwGetTime();
-    window->delta_time = min_d(time - window->last_frame_timestamp, max_delta);
+    window->delta_time = min(time - window->last_frame_timestamp, max_delta);
     window->last_frame_timestamp = time;
 }
 
