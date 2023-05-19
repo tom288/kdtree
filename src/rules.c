@@ -7,6 +7,36 @@
 #include <cglm/cglm.h>
 #include <stb_ds.h>
 
+typedef struct ImportLines {
+    Slice* filenames;
+    Slice word_prev;
+} ImportLines;
+
+ImportLines read_importLines() {
+    Slice* filenames = NULL;
+    Slice* this_filename = arraddnptr(filenames, 1);
+    char* this_filename2 = "src/world/world.txt";
+    *this_filename = (Slice) {
+        .first = this_filename2, .firstAfter = this_filename2 + strlen(this_filename2)};
+    Slice word = slice_from_path(this_filename2);
+    word = slice_word_after(word);
+    Slice word_prev;
+    while (slice_eq_str(word, ">")) {
+        word = slice_word_after(word);
+        *this_filename = *arraddnptr(filenames, 1);
+
+        // make a string out of a string slice hack
+        char prev = *word.firstAfter;
+        *word.firstAfter = '\0'; // string complete
+        *this_filename = word;
+        *word.firstAfter = prev; // string no longer usable, no clean up needed
+
+        word_prev = word;
+        word = slice_word_after(word);
+    }
+    return (ImportLines) {.filenames = filenames, .word_prev = word_prev};
+}
+
 // reads and returns up to 2^32 node types from world.txt
 // they are delimited by an empty line
 // each node type in world.txt looks like this
@@ -17,8 +47,9 @@
 // | top 50 garden garden
 NodeType* readRules()
 {
-    Slice const file = slice_from_path("src/world/world.txt"); // todo: free(file)
-    Slice word = file;
+    ImportLines importLines = read_importLines();
+    Slice file = slice_from_paths(importLines.filenames); // todo: free(file)
+    Slice word = importLines.word_prev;
     word.firstAfter = word.first;
     const Slice start = word;
 
@@ -35,11 +66,11 @@ NodeType* readRules()
         while (slice_eq_str(slice_word_after(word), "|"))
             for (size_t i = 0; i < 5; ++i) word = slice_word_after(word);
     }
-
     word = start;
-    NodeType* types = NULL; // NodeType array
 
-    while (slice_len(slice_word_after(word))) { // until end of file
+    NodeType* types = NULL; // NodeType array
+    while (slice_len(slice_word_after(word))) // read a file
+    {
         NodeType* this_node = arraddnptr(types, 1); // new unset node pointer, added to "types"
 
         // Read typename
@@ -100,30 +131,24 @@ NodeType* readRules()
             // read two typenames
             for (uint8_t n = 0; n < 2; ++n) {
                 word = slice_word_after(word);
-                bool found = false;
                 for (size_t i = 0; i < arrlenu(type_names); ++i)
                 {
-                    if (slice_eq(type_names[i], word))
-                    {
+                    if (slice_eq(type_names[i], word)) {
                         this_replacement->types_indices[n] = i;
-                        found = true;
                         break;
                     }
                 }
-                if (!found)
-                {
-                    arrpop(types);
-                    return types;
-                }
             }
         }
-    };
+    }
+
+    rules_print(types); // todo: debug info, remove me
 
     return types;
 }
 
 void rules_print(NodeType* self) {
-    printf("rules:\n");
+    printf("\nrules:\n");
     for (size_t i = 0; i < arrlenu(self); ++i) {
         rules_NodeType_print(self[i], 1, self);
     }

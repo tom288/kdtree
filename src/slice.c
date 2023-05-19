@@ -31,7 +31,7 @@ bool slice_eq_str(Slice str1, char* str2) {
 
 Slice slice_word_after(Slice str) {
     str.first = str.firstAfter;
-    while (!isspace(*str.first)){
+    while (!isspace(*str.first)) {
         if (*str.first == '\0') {
             str.firstAfter = str.first;
             return str;
@@ -52,8 +52,9 @@ Slice slice_word_after(Slice str) {
 }
 
 void slice_print(Slice str) {
-    for (uint32_t n = 0; n < str.firstAfter - str.first; n++)
+    for (uint32_t n = 0; n < str.firstAfter - str.first; n++) {
         printf("%c", str.first[n]);
+    }
 }
 
 Slice slice_from_path(char* path)

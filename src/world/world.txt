@@ -1,14 +1,7 @@
 
+> src/world/building_lounge.txt
+> src/world/building_garden.txt
+
 world
 0 80 0
-| right 80cm room2 room3
-
-room2
-0 0 0
-| left 80cm room3 room4
-
-room3
-50 0 0
-
-room4
-60 60 60
+| left 50 building_room_lounge_mid building_room_lounge_right
