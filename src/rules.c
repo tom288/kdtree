@@ -7,35 +7,6 @@
 #include <cglm/cglm.h>
 #include <stb_ds.h>
 
-string_slice read_file_into_buffer(char* path)
-{
-    FILE* const file = fopen(path, "rb");
-    string_slice fail_slice;
-    fail_slice.first = NULL;
-    fail_slice.firstAfter = NULL;
-    if (!file) {
-        fprintf(stderr, "Failed to fopen ");
-        perror(path);
-        return fail_slice;
-    }
-    fseek(file, 0L, SEEK_END);
-    const long file_size = ftell(file);
-    rewind(file);
-    char* const buffer = calloc(1, file_size + 1);
-    if (fread(buffer, file_size, 1, file) != 1)
-    {
-        fclose(file);
-        free(buffer);
-        fprintf(stderr, "Failed to fread for %s\n", path);
-        return fail_slice;
-    }
-    fclose(file);
-    string_slice result;
-    result.first = buffer;
-    result.firstAfter = buffer + file_size;
-    return result;
-}
-
 // reads and returns up to 2^32 node types from world.txt
 // they are delimited by an empty line
 // each node type in world.txt looks like this

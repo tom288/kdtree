@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdlib.h> // malloc, free
+#include <stb_ds.h>
 
 uint32_t string_len(string_slice str) {
     return str.firstAfter - str.first;
@@ -64,4 +65,61 @@ bool string_empty(string_slice str) {
 void string_print(string_slice str) {
     for (uint32_t n = 0; n < str.firstAfter - str.first; n++)
         printf("%c", str.first[n]);
+}
+
+string_slice read_file_into_buffer(char* path)
+{
+    FILE* const file = fopen(path, "rb");
+    string_slice null_slice = { NULL };
+
+    if (!file) {
+        fprintf(stderr, "Failed to fopen ");
+        perror(path);
+        return null_slice;
+    }
+
+    fseek(file, 0L, SEEK_END);
+    const long file_size = ftell(file);
+    rewind(file);
+
+    char* const buffer = calloc(1, file_size + 1);
+    if (fread(buffer, file_size, 1, file) != 1)
+    {
+        fclose(file);
+        free(buffer);
+        fprintf(stderr, "Failed to fread for %s\n", path);
+        return null_slice;
+    }
+
+    fclose(file);
+    return (string_slice) {
+        .first = buffer,
+        .firstAfter = buffer + file_size,
+    };
+}
+
+string_slice merge_files(char** paths)
+{
+    string_slice* buffers = NULL;
+    size_t total_bytes = 0;
+
+    for (size_t i = 0; i < arrlenu(paths); ++i)
+    {
+        arrput(buffers, read_file_into_buffer(paths[i]));
+        total_bytes += string_len(buffers[i]);
+    }
+
+    string_slice big;
+    big.first = calloc(1, total_bytes + 1),
+    big.firstAfter = big.first;
+
+    for (size_t i = 0; i < arrlenu(buffers); ++i)
+    {
+        // This assumes the RHS has a null character afterwards, which it does!
+        strcpy(big.firstAfter, buffers[i].first);
+        big.firstAfter += string_len(buffers[i]);
+        free(buffers[i].first);
+    }
+
+    return big;
 }
