@@ -1,4 +1,0 @@
-
-world
-0 80 0
-| left 50 building_room_lounge_mid building_room_lounge_right

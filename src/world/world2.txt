@@ -1,0 +1,10 @@
+
+world
+0 80 0
+| left 50 red blue
+
+red
+40 0 0
+
+green
+0 40 0
