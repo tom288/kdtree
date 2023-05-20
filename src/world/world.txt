@@ -1,7 +1,4 @@
 
+> src/world/world_world.txt
 > src/world/building_lounge.txt
 > src/world/building_garden.txt
-
-world
-0 80 0
-| left 50 building_room_lounge_mid building_room_lounge_right

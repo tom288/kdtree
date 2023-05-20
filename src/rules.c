@@ -7,37 +7,23 @@
 #include <cglm/cglm.h>
 #include <stb_ds.h>
 
-typedef struct ImportLines {
-    Slice* filenames;
-    Slice word_prev;
-} ImportLines;
+Slice import_and_merge() {
+    Slice* paths = NULL;
 
-ImportLines read_importLines() {
-    Slice* filenames = NULL;
-    Slice* this_filename = arraddnptr(filenames, 1);
-    char* this_filename2 = "src/world/world.txt";
-    *this_filename = (Slice) {
-        .first = this_filename2, .firstAfter = this_filename2 + strlen(this_filename2)};
-    Slice word = slice_from_path(this_filename2);
-    Slice word_prev;
-    word.firstAfter = word.first;
+    Slice world = slice_from_path("src/world/world.txt");
+    Slice word = { .first = world.first, .firstAfter = world.first };
     word = slice_word_after(word);
-    this_filename = arraddnptr(filenames, 1);
-    *this_filename = word;
+
     while (slice_eq_str(word, ">")) {
         word = slice_word_after(word);
-        this_filename = arraddnptr(filenames, 1);
-
-        // make a string out of a string slice hack
-        char prev = *word.firstAfter;
-        *word.firstAfter = '\0'; // string complete
-        *this_filename = word;
-        *word.firstAfter = prev; // string no longer usable, no clean up needed
-
-        word_prev = word;
+        arrput(paths, word);
         word = slice_word_after(word);
     }
-    return (ImportLines) {.filenames = filenames, .word_prev = word_prev};
+
+    Slice big = slice_from_paths(paths);
+    arrfree(paths);
+    free(world.first);
+    return big;
 }
 
 // reads and returns up to 2^32 node types from world.txt
@@ -50,11 +36,8 @@ ImportLines read_importLines() {
 // | top 50 garden garden
 NodeType* readRules()
 {
-    ImportLines importLines = read_importLines();
-    Slice file = slice_from_paths(importLines.filenames); // todo: free(file)
-    Slice word = importLines.word_prev;
-    word.firstAfter = word.first;
-    const Slice start = word;
+    Slice file = import_and_merge(); // todo: free(file)
+    Slice word = { .first = file.first, .firstAfter = file.first };
 
     // Record typenames and their indices
     Slice* type_names = NULL;
@@ -67,9 +50,11 @@ NodeType* readRules()
         for (size_t i = 0; i < 3; ++i) word = slice_word_after(word);
         // Skip replacements
         while (slice_eq_str(slice_word_after(word), "|"))
+        {
             for (size_t i = 0; i < 5; ++i) word = slice_word_after(word);
+        }
     }
-    word = start;
+    word = (Slice) { .first = file.first, .firstAfter = file.first };
 
     NodeType* types = NULL; // NodeType array
     while (slice_len(slice_word_after(word))) // read a file
