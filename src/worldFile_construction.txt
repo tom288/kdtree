@@ -22,7 +22,8 @@ string: type name
 integer 0 to 100: red, green, blue
 0 to 2^32 replacement rules
 
-The first node type must be called "world", node types are delimited by at least one blank line.
+The first node type is the whole world, node types are delimited by at least one blank line.
+
 
 replacement rules use this format:
 
@@ -30,6 +31,8 @@ replacement rules use this format:
 
 The integers can be as is to be a proportion of the parent,
 or have the following units (um, mm, cm, m, km), such as 50cm.
+
+_ is a built in node type name that is black, it does not produce children
 
 
 for example

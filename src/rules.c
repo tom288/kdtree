@@ -9,13 +9,13 @@
 
 Slice import_and_merge() {
     Slice* paths = NULL;
-
+    char* str = "src/world/standard.txt"; // todo: fix this memory leak
+    arrput(paths, ((Slice) {.first = str, .firstAfter = str + strlen(str)}));
     Slice world = slice_from_path("src/world/world.txt");
     Slice word = { .first = world.first, .firstAfter = world.first };
     word = slice_word_after(word);
 
-    while (slice_eq_str(word, ">")) {
-        word = slice_word_after(word);
+    while (!slice_eq_str(word, "")) {
         arrput(paths, word);
         word = slice_word_after(word);
     }
@@ -36,7 +36,7 @@ Slice import_and_merge() {
 // | top 50 garden garden
 NodeType* rules_read()
 {
-    Slice file = import_and_merge(); // todo: free(file)
+    Slice file = import_and_merge();
     Slice word = { .first = file.first, .firstAfter = file.first };
 
     // Record typenames and their indices
@@ -139,6 +139,7 @@ NodeType* rules_read()
             }
         }
     }
+    free(file.first);
 
     rules_print(types); // todo: debug info, remove me
 
