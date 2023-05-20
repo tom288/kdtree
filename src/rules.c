@@ -17,7 +17,6 @@ Slice import_and_merge() {
     while (slice_eq_str(word, ">")) {
         word = slice_word_after(word);
         arrput(paths, word);
-        puts(word.first);
         word = slice_word_after(word);
     }
 
@@ -35,7 +34,7 @@ Slice import_and_merge() {
 // 0 80 0
 // | top 50 room garden
 // | top 50 garden garden
-NodeType* readRules()
+NodeType* rules_read()
 {
     Slice file = import_and_merge(); // todo: free(file)
     Slice word = { .first = file.first, .firstAfter = file.first };
@@ -149,11 +148,11 @@ NodeType* readRules()
 void rules_print(NodeType* self) {
     printf("\nrules:\n");
     for (size_t i = 0; i < arrlenu(self); ++i) {
-        rules_NodeType_print(self[i], 1, self);
+        rules_print_node_type(self[i], 1, self);
     }
 }
 
-void rules_NodeType_print(NodeType self, uint8_t indent, NodeType* types) {
+void rules_print_node_type(NodeType self, uint8_t indent, NodeType* types) {
     ind(indent); printf("NodeType:\n");
     uint8_t in = indent + 1;
     ind(in); printf("type name: ");
@@ -170,17 +169,17 @@ void rules_NodeType_print(NodeType self, uint8_t indent, NodeType* types) {
     if (misc_notBad(self.replacements))
     {
         printf("\n");
-        rules_replacements_print(self.replacements, in, types);
+        rules_print_replacements(self.replacements, in, types);
     }
 }
 
-void rules_replacements_print(Replacement* replacements, uint8_t indent, NodeType* types) {
+void rules_print_replacements(Replacement* replacements, uint8_t indent, NodeType* types) {
     for (size_t i = 0; i < arrlenu(replacements); ++i) {
-        rules_Replacement_print(replacements[i], indent, types);
+        rules_print_replacement(replacements[i], indent, types);
     }
 }
 
-void rules_Replacement_print(Replacement self, uint8_t indent, NodeType* types) {
+void rules_print_replacement(Replacement self, uint8_t indent, NodeType* types) {
     uint8_t in = indent + 1;
     ind(in); printf("orientation: %d\n", (int)self.orientation);
     ind(in); printf("split: %f\n", self.splitDecimal);
@@ -193,7 +192,7 @@ void rules_Replacement_print(Replacement self, uint8_t indent, NodeType* types) 
     }
 }
 
-bool rules_replacement_orientation_notBad(uint8_t orientation) {
+bool rules_orientation_ok(uint8_t orientation) {
     return !(orientation & ORIENTATION_SQUARE
           && orientation & ORIENTATION_ABSOLUTE);
 }
