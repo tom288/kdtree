@@ -23,17 +23,17 @@ typedef struct {
 /// @return length of the string
 uint32_t slice_len(Slice str);
 
-/// @brief check whether two string slices are identical, use strcmp for char*
-/// @param str1 the first string slice to be compared
-/// @param str2 the second string slice to be compared
-/// @return true if the string slices are identical, false otherwise
-bool slice_eq(Slice str1, Slice str2);
-
 /// @brief Check whether a string slice and char* are identical
 /// @param str1 The string slice
 /// @param str2 The char*
 /// @return true if the strings are identical, false otherwise
 bool slice_eq_str(Slice str1, char* str2);
+
+/// @brief check whether two string slices are identical, use strcmp for char*
+/// @param str1 the first string slice to be compared
+/// @param str2 the second string slice to be compared
+/// @return true if the string slices are identical, false otherwise
+bool slice_eq(Slice str1, Slice str2);
 
 Slice slice_word_after(Slice str);
 

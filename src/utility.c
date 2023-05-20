@@ -141,7 +141,8 @@ size_t rotate_left_quarter(size_t n, size_t count)
     return rotate_left(n, count * 2 * sizeof(size_t));
 }
 
-size_t sampleRandom(Node sample) {
+size_t sampleRandom(Node sample)
+{
     typedef union {
         float from;
         size_t to;

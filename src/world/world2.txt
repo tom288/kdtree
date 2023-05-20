@@ -1,7 +1,7 @@
 
 world
 0 80 0
-| left 50 red blue
+| left 50 red green
 
 red
 40 0 0

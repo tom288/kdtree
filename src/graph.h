@@ -60,7 +60,7 @@ void graph_draw(Graph* graph, GLenum mode);
 
 /// @brief Free old graph vertices and assign new vertices
 /// @param graph Graph to update
-/// @param vertices Vertices to use
+/// @param vertices Vertices to use (stb array of stb arrays)
 /// @param types Types of vertices to reassign
 void graph_update_vertices(Graph* graph, void** vertices, GLenum* types);
 

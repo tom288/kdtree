@@ -14,9 +14,8 @@ Slice rules_import_and_merge()
     word = slice_word_after(word);
     Slice* paths = NULL;
 
-    while (slice_eq_str(word, ">"))
+    while (*word.first)
     {
-        word = slice_word_after(word);
         arrput(paths, word);
         word = slice_word_after(word);
     }
@@ -217,7 +216,8 @@ void rules_print_replacement(Replacement self, size_t indent, NodeType* types)
     }
 }
 
-bool rules_orientation_ok(uint8_t orientation) {
+bool rules_orientation_ok(uint8_t orientation)
+{
     return !(orientation & ORIENTATION_SQUARE
           && orientation & ORIENTATION_ABSOLUTE);
 }

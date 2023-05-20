@@ -7,21 +7,13 @@
 #include <stdlib.h> // malloc, free
 #include <stb_ds.h>
 
-uint32_t slice_len(Slice str) {
+uint32_t slice_len(Slice str)
+{
     return str.firstAfter - str.first;
 }
 
-bool slice_eq(Slice str1, Slice str2) {
-    char prev[2] = {*str1.firstAfter, *str2.firstAfter};
-    *str1.firstAfter = '\0';
-    if (*str2.firstAfter) *str2.firstAfter = '\0';
-    bool result = !strcmp(str1.first, str2.first);
-    *str1.firstAfter = prev[0];
-    if (prev[1]) *str2.firstAfter = prev[1];
-    return result;
-}
-
-bool slice_eq_str(Slice str1, char* str2) {
+bool slice_eq_str(Slice str1, char* str2)
+{
     char prev = *str1.firstAfter;
     *str1.firstAfter = '\0';
     bool result = !strcmp(str1.first, str2);
@@ -29,20 +21,36 @@ bool slice_eq_str(Slice str1, char* str2) {
     return result;
 }
 
-Slice slice_word_after(Slice str) {
+bool slice_eq(Slice str1, Slice str2)
+{
+    char prev = *str2.firstAfter;
+    if (prev) *str2.firstAfter = '\0';
+    bool result = slice_eq_str(str1, str2.first);
+    if (prev) *str2.firstAfter = prev;
+    return result;
+}
+
+Slice slice_word_after(Slice str)
+{
     str.first = str.firstAfter;
-    while (!isspace(*str.first)) {
-        if (*str.first == '\0') {
+    while (!isspace(*str.first))
+    {
+        if (!*str.first)
+        {
             str.firstAfter = str.first;
             return str;
         }
         str.first++;
     }
+
     while (isspace(*str.first)) str.first++;
     str.firstAfter = str.first;
-    if (*str.first == '\0') return str;
-    while (!isspace(*str.firstAfter)) {
-        if (*str.firstAfter == '\0') {
+    if (!*str.first) return str;
+
+    while (!isspace(*str.firstAfter))
+    {
+        if (!*str.firstAfter)
+        {
             str.first = str.firstAfter;
             return str;
         }
@@ -51,8 +59,10 @@ Slice slice_word_after(Slice str) {
     return str;
 }
 
-void slice_print(Slice str) {
-    for (uint32_t n = 0; n < str.firstAfter - str.first; n++) {
+void slice_print(Slice str)
+{
+    for (uint32_t n = 0; n < str.firstAfter - str.first; n++)
+    {
         printf("%c", str.first[n]);
     }
 }
@@ -62,7 +72,8 @@ Slice slice_from_path(char* path)
     FILE* const file = fopen(path, "rb");
     Slice null_slice = { NULL };
 
-    if (!file) {
+    if (!file)
+    {
         fprintf(stderr, "Failed to fopen ");
         perror(path);
         return null_slice;
@@ -96,7 +107,7 @@ Slice slice_from_paths(Slice* paths)
     for (size_t i = 0; i < arrlenu(paths); ++i)
     {
         char prev = *paths[i].firstAfter;
-        if (*paths[i].firstAfter) *paths[i].firstAfter = '\0';
+        if (prev) *paths[i].firstAfter = '\0';
         arrput(buffers, slice_from_path(paths[i].first));
         if (prev) *paths[i].firstAfter = prev;
         total_bytes += slice_len(buffers[i]);
