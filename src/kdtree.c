@@ -103,7 +103,7 @@ Node* gen_nodes(float min_area)
     Node* nodes = NULL;
     size_t expected_node_count = 6.0f / min_area;
     arrsetcap(nodes, expected_node_count);
-    NodeType* types = readRules(); // Read node types from file
+    NodeType* types = rules_read(); // Read node types from file
 
     vec3 r;
     glm_vec3_scale(types[0].col, 255, r);

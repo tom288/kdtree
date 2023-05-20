@@ -28,10 +28,10 @@ typedef struct NodeType {
     Slice typeName; // for use only when reading world.txt
 } NodeType;
 
-NodeType* readRules();
+NodeType* rules_read();
 
 void rules_print(NodeType* self);
-void rules_NodeType_print(NodeType self, uint8_t indent, NodeType* types);
-void rules_replacements_print(Replacement* replacements, uint8_t indent, NodeType* types);
-void rules_Replacement_print(Replacement self, uint8_t indent, NodeType* types);
-bool rules_replacement_orientation_notBad(uint8_t orientation);
+void rules_print_node_type(NodeType self, uint8_t indent, NodeType* types);
+void rules_print_replacements(Replacement* replacements, uint8_t indent, NodeType* types);
+void rules_print_replacement(Replacement self, uint8_t indent, NodeType* types);
+bool rules_orientation_ok(uint8_t orientation);
