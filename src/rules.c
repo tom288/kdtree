@@ -20,6 +20,12 @@ Slice rules_import_and_merge()
         word = slice_word_after(word);
     }
 
+    char* standard = "src/world/standard.txt";
+    arrput(paths, ((Slice) {
+        .first = standard,
+        .firstAfter = standard + strlen(standard)
+    }));
+
     Slice big = slice_from_paths(paths);
     arrfree(paths);
     free(world.first);
@@ -36,7 +42,7 @@ Slice rules_import_and_merge()
 // | top 50 garden garden
 NodeType* rules_read()
 {
-    Slice file = rules_import_and_merge(); // todo: free(file)
+    Slice file = rules_import_and_merge();
     Slice word = { .first = file.first, .firstAfter = file.first };
 
     // Record typenames and their indices
@@ -143,7 +149,8 @@ NodeType* rules_read()
         }
     }
 
-    rules_print(types); // todo: debug info, remove me
+    rules_print(types); // TODO remove this debug print
+    free(file.first); // We should never print or inspect typenames after this
 
     return types;
 }
