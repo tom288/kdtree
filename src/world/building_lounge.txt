@@ -1,7 +1,7 @@
 
 building_room_lounge
 80 80 60
-| left 20 sofa building_room_lounge_nonLeft
+| left 20 furniture_sofa building_room_lounge_nonLeft
 
 building_room_lounge_nonLeft
 20 20 20

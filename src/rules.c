@@ -17,6 +17,7 @@ Slice import_and_merge() {
     while (slice_eq_str(word, ">")) {
         word = slice_word_after(word);
         arrput(paths, word);
+        puts(word.first);
         word = slice_word_after(word);
     }
 
@@ -119,12 +120,22 @@ NodeType* readRules()
             // read two typenames
             for (uint8_t n = 0; n < 2; ++n) {
                 word = slice_word_after(word);
+                bool found = false;
                 for (size_t i = 0; i < arrlenu(type_names); ++i)
                 {
                     if (slice_eq(type_names[i], word)) {
                         this_replacement->types_indices[n] = i;
+                        found = true;
                         break;
                     }
+                }
+                if (!found)
+                {
+                    arrpop(types);
+                    printf("Failed to find type name '");
+                    slice_print(word);
+                    printf("'\n");
+                    return types;
                 }
             }
         }
