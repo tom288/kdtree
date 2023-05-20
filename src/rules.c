@@ -7,14 +7,15 @@
 #include <cglm/cglm.h>
 #include <stb_ds.h>
 
-Slice import_and_merge() {
-    Slice* paths = NULL;
-
+Slice rules_import_and_merge()
+{
     Slice world = slice_from_path("src/world/world.txt");
     Slice word = { .first = world.first, .firstAfter = world.first };
     word = slice_word_after(word);
+    Slice* paths = NULL;
 
-    while (slice_eq_str(word, ">")) {
+    while (slice_eq_str(word, ">"))
+    {
         word = slice_word_after(word);
         arrput(paths, word);
         word = slice_word_after(word);
@@ -26,7 +27,7 @@ Slice import_and_merge() {
     return big;
 }
 
-// reads and returns up to 2^32 node types from world.txt
+// reads and returns types from world.txt
 // they are delimited by an empty line
 // each node type in world.txt looks like this
 //
@@ -36,7 +37,7 @@ Slice import_and_merge() {
 // | top 50 garden garden
 NodeType* rules_read()
 {
-    Slice file = import_and_merge(); // todo: free(file)
+    Slice file = rules_import_and_merge(); // todo: free(file)
     Slice word = { .first = file.first, .firstAfter = file.first };
 
     // Record typenames and their indices
@@ -67,7 +68,8 @@ NodeType* rules_read()
 
         // Read col and divide it from 0-100 to 0-1
         vec3 col;
-        for (uint8_t channel = 0; channel < 3; ++channel) {
+        for (size_t channel = 0; channel < 3; ++channel)
+        {
             word = slice_word_after(word);
             col[channel] = strtof(word.first, NULL) / 100.0f;
         }
@@ -106,7 +108,7 @@ NodeType* rules_read()
             char* const unit_words[] = { "cm", "m", "mm", "km", "um" };
             const float cm_to_unit[] = { 1.0f, 100.0f, 0.1f, 100000.0f, 0.0001f };
 
-            for (uint8_t i = 0; i < sizeof(unit_words) / sizeof(*unit_words); ++i)
+            for (size_t i = 0; i < sizeof(unit_words) / sizeof(*unit_words); ++i)
             {
                 if (slice_eq_str(unit, unit_words[i]))
                 {
@@ -117,13 +119,15 @@ NodeType* rules_read()
             }
 
             // read two typenames
-            for (uint8_t n = 0; n < 2; ++n) {
+            for (size_t type_index = 0; type_index < 2; ++type_index)
+            {
                 word = slice_word_after(word);
                 bool found = false;
                 for (size_t i = 0; i < arrlenu(type_names); ++i)
                 {
-                    if (slice_eq(type_names[i], word)) {
-                        this_replacement->types_indices[n] = i;
+                    if (slice_eq(type_names[i], word))
+                    {
+                        this_replacement->types_indices[type_index] = i;
                         found = true;
                         break;
                     }
@@ -145,47 +149,68 @@ NodeType* rules_read()
     return types;
 }
 
-void rules_print(NodeType* self) {
+void rules_print(NodeType* self)
+{
     printf("\nrules:\n");
-    for (size_t i = 0; i < arrlenu(self); ++i) {
+    for (size_t i = 0; i < arrlenu(self); ++i)
+    {
         rules_print_node_type(self[i], 1, self);
     }
 }
 
-void rules_print_node_type(NodeType self, uint8_t indent, NodeType* types) {
-    ind(indent); printf("NodeType:\n");
-    uint8_t in = indent + 1;
-    ind(in); printf("type name: ");
-    if (misc_notBad(&(self.typeName))) {
+void rules_print_node_type(NodeType self, size_t indent, NodeType* types)
+{
+    misc_ind(indent++);
+    printf("NodeType:\n");
+
+    misc_ind(indent);
+    printf("type name: ");
+    if (misc_not_null(&(self.typeName)))
+    {
         slice_print(self.typeName);
         printf("\n");
     }
-    ind(in); printf("col: ");
-    for (uint8_t i = 0; i < 3; ++i) {
-        printf("%d", (int)(self.col[i] * 100.0f));
+
+    misc_ind(indent);
+    printf("col:");
+    for (size_t i = 0; i < 3; ++i)
+    {
         printf(" ");
+        printf("%d", (int)(self.col[i] * 100.0f));
     }
-    printf("\n"); ind(in); printf("rep: ");
-    if (misc_notBad(self.replacements))
+    printf("\n");
+
+    misc_ind(indent);
+    printf("rep: ");
+    if (misc_not_null(self.replacements))
     {
         printf("\n");
-        rules_print_replacements(self.replacements, in, types);
+        rules_print_replacements(self.replacements, indent, types);
     }
 }
 
-void rules_print_replacements(Replacement* replacements, uint8_t indent, NodeType* types) {
-    for (size_t i = 0; i < arrlenu(replacements); ++i) {
+void rules_print_replacements(Replacement* replacements, size_t indent, NodeType* types)
+{
+    for (size_t i = 0; i < arrlenu(replacements); ++i)
+    {
         rules_print_replacement(replacements[i], indent, types);
     }
 }
 
-void rules_print_replacement(Replacement self, uint8_t indent, NodeType* types) {
-    uint8_t in = indent + 1;
-    ind(in); printf("orientation: %d\n", (int)self.orientation);
-    ind(in); printf("split: %f\n", self.splitDecimal);
-    for (uint8_t i = 0; i < 2; ++i) {
-        ind(in); printf("child type name: ");
-        if (misc_notBad(&types[self.types_indices[i]].typeName)) {
+void rules_print_replacement(Replacement self, size_t indent, NodeType* types)
+{
+    misc_ind(++indent);
+    printf("orientation: %d\n", (int)self.orientation);
+
+    misc_ind(indent);
+    printf("split: %f\n", self.splitDecimal);
+
+    for (size_t i = 0; i < 2; ++i)
+    {
+        misc_ind(indent);
+        printf("child type name: ");
+        if (misc_not_null(&types[self.types_indices[i]].typeName))
+        {
             slice_print(types[self.types_indices[i]].typeName);
         }
         printf("\n");

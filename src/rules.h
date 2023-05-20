@@ -31,7 +31,7 @@ typedef struct NodeType {
 NodeType* rules_read();
 
 void rules_print(NodeType* self);
-void rules_print_node_type(NodeType self, uint8_t indent, NodeType* types);
-void rules_print_replacements(Replacement* replacements, uint8_t indent, NodeType* types);
-void rules_print_replacement(Replacement self, uint8_t indent, NodeType* types);
+void rules_print_node_type(NodeType self, size_t indent, NodeType* types);
+void rules_print_replacements(Replacement* replacements, size_t indent, NodeType* types);
+void rules_print_replacement(Replacement self, size_t indent, NodeType* types);
 bool rules_orientation_ok(uint8_t orientation);
