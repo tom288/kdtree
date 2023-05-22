@@ -9,7 +9,7 @@
 
 Slice rules_import_and_merge()
 {
-    Slice world = slice_from_path("src/world/world.txt");
+    Slice world = slice_from_path("world.txt");
     Slice word = { .first = world.first, .firstAfter = world.first };
     word = slice_word_after(word);
     Slice* paths = NULL;
@@ -20,7 +20,7 @@ Slice rules_import_and_merge()
         word = slice_word_after(word);
     }
 
-    char* standard = "src/world/standard.txt";
+    char* standard = "standard.txt";
     arrput(paths, ((Slice) {
         .first = standard,
         .firstAfter = standard + strlen(standard)

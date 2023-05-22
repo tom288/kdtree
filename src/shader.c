@@ -10,8 +10,7 @@
 // and linking these shader source files. This file encapsulates all the work
 // done using shader source files, and exposes shader program functionality.
 
-// Shader directory
-static char* shader_dir = 0;
+extern char* shader_dir;
 
 /// @brief Print any shader compilation or linking errors
 /// @param id Shader id or shader program id
@@ -64,9 +63,9 @@ GLuint compile(char* path, GLenum type)
         return 0;
     }
 
-    char* shader_path = malloc(1 + strlen(shader_dir) + strlen(path));
+    char* file_path = malloc(1 + strlen(shader_dir) + strlen(path));
 
-    if (!shader_path)
+    if (!file_path)
     {
         fprintf(
             stderr,
@@ -76,20 +75,20 @@ GLuint compile(char* path, GLenum type)
         return 0;
     }
 
-    strcpy(shader_path, shader_dir);
-    strcpy(shader_path + strlen(shader_dir), path);
+    strcpy(file_path, shader_dir);
+    strcpy(file_path + strlen(shader_dir), path);
 
     // Read file at path into buffer (https://stackoverflow.com/a/3747128)
-    FILE* const file = fopen(shader_path, "rb");
+    FILE* const file = fopen(file_path, "rb");
 
     if (!file)
     {
         fprintf(stderr, "Failed to fopen ");
-        perror(shader_path);
+        perror(file_path);
     }
 
-    free(shader_path);
-    shader_path = NULL;
+    free(file_path);
+    file_path = NULL;
 
     if (!file) return 0;
 
@@ -130,42 +129,12 @@ GLuint compile(char* path, GLenum type)
     return id;
 }
 
-void shader_free_dir()
-{
-    free(shader_dir);
-    shader_dir = NULL;
-}
-
-void shader_set_dir(char* argv0)
-{
-    shader_free_dir();
-    const size_t dir_len = max(
-        max(
-            strrchr(argv0, '/'),
-            strrchr(argv0, '\\')
-        ) + 1,
-        argv0
-    ) - argv0;
-    const char* const shader_subdir = "../src/glsl/";
-    shader_dir = malloc(1 + dir_len + strlen(shader_subdir));
-
-    if (!shader_dir)
-    {
-        fprintf(stderr, "Failed to malloc for shader directory\n");
-        return;
-    }
-
-    memcpy(shader_dir, argv0, dir_len);
-    strcpy(shader_dir + dir_len, shader_subdir);
-}
-
 // A shader or shader program ID of 0 is silently ignored by OpenGL
 void shader_kill(Shader* shader)
 {
     glDeleteProgram(shader->id);
     shader->id = 0;
     shader->ok = GL_FALSE;
-    shader_free_dir();
 }
 
 // The geometry path is made optional by having checks for values NULL and ""

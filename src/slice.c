@@ -1,11 +1,14 @@
 #include "slice.h"
-#include "ctype.h"
+#include "utility.h"
+#include <ctype.h> // isspace
 #include <string.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdlib.h> // malloc, free
 #include <stb_ds.h>
+
+extern char* rule_dir;
 
 uint32_t slice_len(Slice str)
 {
@@ -69,15 +72,41 @@ void slice_print(Slice str)
 
 Slice slice_from_path(char* path)
 {
-    FILE* const file = fopen(path, "rb");
     Slice null_slice = { NULL };
+
+    if (!rule_dir)
+    {
+        fprintf(stderr, "Rule directory undefined for %s\n", path);
+        return null_slice;
+    }
+
+    char* file_path = malloc(1 + strlen(rule_dir) + strlen(path));
+
+    if (!file_path)
+    {
+        fprintf(
+            stderr,
+            "Failed to malloc for rule directory during compilation of %s\n",
+            path
+        );
+        return null_slice;
+    }
+
+    strcpy(file_path, rule_dir);
+    strcpy(file_path + strlen(rule_dir), path);
+
+    FILE* const file = fopen(file_path, "rb");
 
     if (!file)
     {
         fprintf(stderr, "Failed to fopen ");
-        perror(path);
-        return null_slice;
+        perror(file_path);
     }
+
+    free(file_path);
+    file_path = NULL;
+
+    if (!file) return null_slice;
 
     fseek(file, 0L, SEEK_END);
     const long file_size = ftell(file);
@@ -130,4 +159,28 @@ Slice slice_from_paths(Slice* paths)
     }
 
     return big;
+}
+
+char* dir_path(char* argv0, char* sub_dir)
+{
+    const size_t dir_len = max(
+        max(
+            strrchr(argv0, '/'),
+            strrchr(argv0, '\\')
+        ) + 1,
+        argv0
+    ) - argv0;
+
+    char* full_path = malloc(1 + dir_len + strlen(sub_dir));
+
+    if (!full_path)
+    {
+        fprintf(stderr, "Failed to malloc for %s\n", sub_dir);
+        return NULL;
+    }
+
+    memcpy(full_path, argv0, dir_len);
+    strcpy(full_path + dir_len, sub_dir);
+
+    return full_path;
 }

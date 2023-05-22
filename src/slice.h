@@ -48,3 +48,9 @@ Slice slice_from_path(char* path);
 /// @param paths Variable array of string slice file paths
 /// @return A string slice of merged file contents, which the caller must free
 Slice slice_from_paths(Slice* paths);
+
+/// @brief Get the full path of a directory from arg0 and the desired subdir
+/// @param argv0 argv[0]
+/// @param sub_dir The subdirectory
+/// @return The result of malloc, holding the desired partial arg0 + subdir
+char* dir_path(char* argv0, char* sub_dir);
