@@ -20,10 +20,21 @@ Slice rules_import_and_merge()
         word = slice_word_after(word);
     }
 
+    // add the standard libraries
     char* standard = "standard.txt";
+    char* standard2 = "standard_cols.txt";
+    char* standard3 = "standard_hv.txt";
     arrput(paths, ((Slice) {
         .first = standard,
         .firstAfter = standard + strlen(standard)
+    }));
+    arrput(paths, ((Slice) {
+        .first = standard2,
+        .firstAfter = standard2 + strlen(standard2)
+    }));
+    arrput(paths, ((Slice) {
+        .first = standard3,
+        .firstAfter = standard3 + strlen(standard3)
     }));
 
     Slice big = slice_from_paths(paths);
@@ -148,10 +159,8 @@ NodeType* rules_read()
             }
         }
     }
-
-    rules_print(types); // TODO remove this debug print
-    free(file.first); // We should never print or inspect typenames after this
-
+    // rules_print(types); // TODO remove this debug print
+    free(file.first); // can no longer use typenames
     return types;
 }
 

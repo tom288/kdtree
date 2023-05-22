@@ -1,0 +1,112 @@
+
+std.h2
+0 0 0
+| top 50 black white
+
+std.h2a
+0 0 0
+| top 50 white black
+
+std.h3
+0 0 0
+| top 33 white std.h2
+
+std.h3a
+0 0 0
+| top 33 black std.h2a
+
+std.h4
+0 0 0
+| top 25 black std.h3
+
+std.h4a
+0 0 0
+| top 25 white std.h3a
+
+std.h5
+0 0 0
+| top 20 white std.h4
+
+std.h12
+0 0 0
+| top 33 black std.h2
+
+std.h13
+0 0 0
+| top 25 white std.h3
+
+std.h14
+0 0 0
+| top 20 black std.h4
+
+std.h21
+0 0 0
+| top 66 std.h2 black
+
+std.h23
+0 0 0
+| top 40 std.h2a std.h3
+
+std.h31
+0 0 0
+| top 75 std.h3 black
+
+std.h32
+0 0 0
+| top 60 std.h3 std.h2
+
+std.h41
+0 0 0
+| top 80 std.h3 black
+
+std.v2
+0 0 0
+| left 50 black white
+
+std.v2a
+0 0 0
+| left 50 white black
+
+std.v3
+0 0 0
+| left 33 white std.h2
+
+std.v3a
+0 0 0
+| left 33 black std.v2a
+
+std.v4
+0 0 0
+| left 25 black std.h3
+
+std.v4a
+0 0 0
+| left 25 white std.h3a
+
+std.v5
+0 0 0
+| left 20 white std.h4
+
+std.v5a
+0 0 0
+| left 20 black std.h4a
+
+std.v12a
+0 0 0
+| left 33 white std.v2
+
+std.v2.decay.50_left
+0 0 0
+| left 50 std.v2.decay.50_left_a white
+
+std.v2.decay.50_left_a
+255 255 255
+| left 50 std.v2.decay.50_left black
+
+std.v2.decay.80_left
+0 0 0
+| left 80 std.v2.decay.50_left_a white
+
+std.v2.decay.80_left_a
+255 255 255
+| left 80 std.v2.decay.50_left black
