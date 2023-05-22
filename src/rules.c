@@ -100,6 +100,7 @@ NodeType* rules_read()
 
             // refers to a new uninitialized replacement in this_node
             Replacement* this_replacement = arraddnptr(this_node->replacements, 1);
+            this_replacement->orientation = 0;
 
             // read orientation
             // 0, 1 - x, y
