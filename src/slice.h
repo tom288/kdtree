@@ -18,10 +18,15 @@ typedef struct {
     char* firstAfter; // pointer to character
 } Slice;
 
-/// @brief yields the length of a string slice, use strlen for char*
-/// @param str string to be measured
-/// @return length of the string
+/// @brief Yields slice length, use strlen for char*
+/// @param str String slice to be measured
+/// @return length of the string slice
 uint32_t slice_len(Slice str);
+
+/// @brief Construct a slice from a string
+/// @param str String input
+/// @return Slice output
+Slice slice_from_str(char* str);
 
 /// @brief Check whether a string slice and char* are identical
 /// @param str1 The string slice
@@ -38,6 +43,18 @@ bool slice_eq(Slice str1, Slice str2);
 Slice slice_word_after(Slice str);
 
 void slice_print(Slice str);
+
+/// @brief Get the full path of a directory from arg0 and the desired subdir
+/// @param argv0 argv[0]
+/// @param sub_dir The subdirectory
+/// @return The result of malloc, holding the desired partial arg0 + subdir
+char* dir_path(char* argv0, char* sub_dir);
+
+/// @brief Read the file contents at the given path and return it as a char*
+/// @param dir Directory to search from
+/// @param path Path to the file
+/// @return char* of contents, which the caller must free
+char* str_from_dir_and_path(char* dir, char* path);
 
 /// @brief Read the file contents at the given path and return it as a slice
 /// @param path Path to the file

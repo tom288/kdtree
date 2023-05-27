@@ -22,10 +22,6 @@ Shader shader_init(char* vertex, char* geometry, char* fragment);
 /// @param shader Shader to instal
 void shader_use(Shader shader);
 
-/// @brief Use argv[0] to set the shader directory
-/// @param argv0 argv[0]
-void shader_set_dir(char* argv0);
-
 /// @brief Destroy shader, preventing any future uses
 /// @param shader Shader being destroyed
 void shader_kill(Shader* shader);

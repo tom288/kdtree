@@ -1,5 +1,6 @@
 #include "shader.h"
 #include "utility.h"
+#include "slice.h"
 #include <stdio.h>
 #include <stdlib.h> // calloc, free
 #include <string.h> // strlen
@@ -10,8 +11,8 @@
 // and linking these shader source files. This file encapsulates all the work
 // done using shader source files, and exposes shader program functionality.
 
-// Shader directory
-static char* shader_dir = 0;
+/// @brief Path to glsl source file directory
+char* shader_dir = NULL;
 
 /// @brief Print any shader compilation or linking errors
 /// @param id Shader id or shader program id
@@ -58,65 +59,7 @@ GLint compile_error(GLuint id, int is_program, char* path)
 /// @return ID of shader created, or 0 in the event of an error
 GLuint compile(char* path, GLenum type)
 {
-    if (!shader_dir)
-    {
-        fprintf(stderr, "Shader directory undefined for %s\n", path);
-        return 0;
-    }
-
-    char* shader_path = malloc(1 + strlen(shader_dir) + strlen(path));
-
-    if (!shader_path)
-    {
-        fprintf(
-            stderr,
-            "Failed to malloc for shader directory during compilation of %s\n",
-            path
-        );
-        return 0;
-    }
-
-    strcpy(shader_path, shader_dir);
-    strcpy(shader_path + strlen(shader_dir), path);
-
-    // Read file at path into buffer (https://stackoverflow.com/a/3747128)
-    FILE* const file = fopen(shader_path, "rb");
-
-    if (!file)
-    {
-        fprintf(stderr, "Failed to fopen ");
-        perror(shader_path);
-    }
-
-    free(shader_path);
-    shader_path = NULL;
-
-    if (!file) return 0;
-
-    // Record size of file content
-    fseek(file, 0L, SEEK_END);
-    const long file_size = ftell(file);
-    rewind(file);
-
-    // Allocate memory for entire file content
-    GLchar* const buffer = calloc(1, file_size + 1);
-    if (!buffer)
-    {
-        fclose(file);
-        fprintf(stderr, "Failed to calloc for %s buffer\n", path);
-        return 0;
-    }
-
-    // Copy the file content into the buffer
-    if (fread(buffer, file_size, 1, file) != 1)
-    {
-        fclose(file);
-        free(buffer);
-        fprintf(stderr, "Failed to fread for %s\n", path);
-        return 0;
-    }
-
-    fclose(file);
+    char* buffer = str_from_dir_and_path(shader_dir, path);
 
     GLuint id = glCreateShader(type);
     glShaderSource(id, 1, (const GLchar**)&buffer, NULL);
@@ -130,42 +73,12 @@ GLuint compile(char* path, GLenum type)
     return id;
 }
 
-void shader_free_dir()
-{
-    free(shader_dir);
-    shader_dir = NULL;
-}
-
-void shader_set_dir(char* argv0)
-{
-    shader_free_dir();
-    const size_t dir_len = max(
-        max(
-            strrchr(argv0, '/'),
-            strrchr(argv0, '\\')
-        ) + 1,
-        argv0
-    ) - argv0;
-    const char* const shader_subdir = "../src/glsl/";
-    shader_dir = malloc(1 + dir_len + strlen(shader_subdir));
-
-    if (!shader_dir)
-    {
-        fprintf(stderr, "Failed to malloc for shader directory\n");
-        return;
-    }
-
-    memcpy(shader_dir, argv0, dir_len);
-    strcpy(shader_dir + dir_len, shader_subdir);
-}
-
 // A shader or shader program ID of 0 is silently ignored by OpenGL
 void shader_kill(Shader* shader)
 {
     glDeleteProgram(shader->id);
     shader->id = 0;
     shader->ok = GL_FALSE;
-    shader_free_dir();
 }
 
 // The geometry path is made optional by having checks for values NULL and ""

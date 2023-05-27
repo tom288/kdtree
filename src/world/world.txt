@@ -1,5 +1,5 @@
 
-src/world/world2.txt
-src/world/building_lounge.txt
-src/world/building_garden.txt
-src/world/furniture_sofa.txt
+world2.txt
+building_lounge.txt
+building_garden.txt
+furniture_sofa.txt

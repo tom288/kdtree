@@ -3,16 +3,29 @@
 #include "kdtree.h"
 #include "camera.h"
 #include "killer.h"
+#include "utility.h"
+
+extern char* shader_dir;
+
+extern char* rule_dir;
 
 int main(int argc, char* argv[])
 {
-    // Create window
     Killer killer = killer_init();
+
+    // Prepare paths
+    shader_dir = dir_path(argv[0], "../src/glsl/");
+    if (!killer_assert(&killer, !!shader_dir)) return 1;
+    killer_target(&killer, (kill_fn)free, shader_dir);
+
+    rule_dir = dir_path(argv[0], "../src/world/");
+    if (!killer_assert(&killer, !!rule_dir)) return 1;
+    killer_target(&killer, (kill_fn)free, rule_dir);
+
+    // Create window
     Window* win = window_init();
     if (!killer_assert(&killer, !!win)) return 1;
     killer_target(&killer, (kill_fn)window_kill, win);
-
-    shader_set_dir(argv[0]);
 
     // Create rectangle to screen rasterisation shader
     Shader rectangle_shader = shader_init(

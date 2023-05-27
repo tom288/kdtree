@@ -1,5 +1,7 @@
+#define __USE_MINGW_ANSI_STDIO 1 // Make MinGW printf support size_t with %zu
 #include "slice.h"
-#include "ctype.h"
+#include "utility.h"
+#include <ctype.h> // isspace
 #include <string.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -7,9 +9,20 @@
 #include <stdlib.h> // malloc, free
 #include <stb_ds.h>
 
+/// @brief Path to rules definition file directory
+char* rule_dir = NULL;
+
 uint32_t slice_len(Slice str)
 {
     return str.firstAfter - str.first;
+}
+
+Slice slice_from_str(char* str)
+{
+    return (Slice) {
+        .first = str,
+        .firstAfter = str + strlen(str),
+    };
 }
 
 bool slice_eq_str(Slice str1, char* str2)
@@ -67,36 +80,99 @@ void slice_print(Slice str)
     }
 }
 
-Slice slice_from_path(char* path)
+char* dir_path_with_len(char* dir, size_t dir_len, char* sub_dir)
 {
-    FILE* const file = fopen(path, "rb");
-    Slice null_slice = { NULL };
+    char* full_path = malloc(1 + dir_len + strlen(sub_dir));
+
+    if (!full_path)
+    {
+        fprintf(
+            stderr,
+            "Failed to malloc for dir_path_with_len(%s, %zu, %s)\n",
+            dir,
+            dir_len,
+            sub_dir
+        );
+        return NULL;
+    }
+
+    memcpy(full_path, dir, dir_len);
+    strcpy(full_path + dir_len, sub_dir);
+
+    return full_path;
+}
+
+char* dir_path(char* argv0, char* sub_dir)
+{
+    const size_t dir_len = max(
+        max(
+            strrchr(argv0, '/'),
+            strrchr(argv0, '\\')
+        ) + 1,
+        argv0
+    ) - argv0;
+
+    return dir_path_with_len(argv0, dir_len, sub_dir);
+}
+
+char* str_from_dir_and_path(char* dir, char* path)
+{
+    if (!dir)
+    {
+        fprintf(stderr, "Directory undefined for %s\n", path);
+        return 0;
+    }
+
+    char* full_path = dir_path_with_len(dir, strlen(dir), path);
+
+    // Read file at path into buffer (https://stackoverflow.com/a/3747128)
+    FILE* const file = fopen(full_path, "rb");
 
     if (!file)
     {
         fprintf(stderr, "Failed to fopen ");
-        perror(path);
-        return null_slice;
+        perror(full_path);
     }
 
+    free(full_path);
+    full_path = NULL;
+
+    if (!file) return 0;
+
+    // Record size of file content
     fseek(file, 0L, SEEK_END);
     const long file_size = ftell(file);
     rewind(file);
 
-    char* const buffer = calloc(1, file_size + 1);
+    // Allocate memory for entire file content
+    GLchar* const buffer = calloc(1, file_size + 1);
+    if (!buffer)
+    {
+        fclose(file);
+        fprintf(stderr, "Failed to calloc for %s buffer\n", path);
+        return 0;
+    }
+
+    // Copy the file content into the buffer
     if (fread(buffer, file_size, 1, file) != 1)
     {
         fclose(file);
         free(buffer);
         fprintf(stderr, "Failed to fread for %s\n", path);
-        return null_slice;
+        return 0;
     }
 
     fclose(file);
-    return (Slice) {
-        .first = buffer,
-        .firstAfter = buffer + file_size,
-    };
+    return buffer;
+}
+
+Slice slice_from_path(char* path)
+{
+    char* buffer = str_from_dir_and_path(rule_dir, path);
+
+    return buffer
+        ? slice_from_str(buffer)
+        : (Slice) { NULL };
 }
 
 Slice slice_from_paths(Slice* paths)

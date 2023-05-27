@@ -9,7 +9,7 @@
 
 Slice rules_import_and_merge()
 {
-    Slice world = slice_from_path("src/world/world.txt");
+    Slice world = slice_from_path("world.txt");
     Slice word = { .first = world.first, .firstAfter = world.first };
     word = slice_word_after(word);
     Slice* paths = NULL;
@@ -20,22 +20,10 @@ Slice rules_import_and_merge()
         word = slice_word_after(word);
     }
 
-    // add the standard libraries
-    char* standard = "src/world/standard.txt";
-    char* standard2 = "src/world/standard_cols.txt";
-    char* standard3 = "src/world/standard_hv.txt";
-    arrput(paths, ((Slice) {
-        .first = standard,
-        .firstAfter = standard + strlen(standard)
-    }));
-    arrput(paths, ((Slice) {
-        .first = standard2,
-        .firstAfter = standard2 + strlen(standard2)
-    }));
-    arrput(paths, ((Slice) {
-        .first = standard3,
-        .firstAfter = standard3 + strlen(standard3)
-    }));
+    // Include the standard libraries
+    arrput(paths, slice_from_str("standard.txt"));
+    arrput(paths, slice_from_str("standard_cols.txt"));
+    arrput(paths, slice_from_str("standard_hv.txt"));
 
     Slice big = slice_from_paths(paths);
     arrfree(paths);
@@ -100,6 +88,7 @@ NodeType* rules_read()
 
             // refers to a new uninitialized replacement in this_node
             Replacement* this_replacement = arraddnptr(this_node->replacements, 1);
+            this_replacement->orientation = 0;
 
             // read orientation
             // 0, 1 - x, y
@@ -159,7 +148,6 @@ NodeType* rules_read()
             }
         }
     }
-    // rules_print(types); // TODO remove this debug print
     free(file.first); // can no longer use typenames
     return types;
 }
