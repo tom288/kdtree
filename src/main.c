@@ -5,11 +5,9 @@
 #include "killer.h"
 #include "utility.h"
 
-/// @brief Path to glsl source file directory
-char* shader_dir = NULL;
+extern char* shader_dir;
 
-/// @brief Path to rules definition file directory
-char* rule_dir = NULL;
+extern char* rule_dir;
 
 int main(int argc, char* argv[])
 {

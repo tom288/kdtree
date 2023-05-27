@@ -1,3 +1,4 @@
+#define __USE_MINGW_ANSI_STDIO 1 // Make MinGW printf support size_t with %zu
 #include "slice.h"
 #include "utility.h"
 #include <ctype.h> // isspace
@@ -8,7 +9,8 @@
 #include <stdlib.h> // malloc, free
 #include <stb_ds.h>
 
-extern char* rule_dir;
+/// @brief Path to rules definition file directory
+char* rule_dir = NULL;
 
 uint32_t slice_len(Slice str)
 {
@@ -70,6 +72,27 @@ void slice_print(Slice str)
     }
 }
 
+char* dir_path_with_len(char* dir, size_t dir_len, char* sub_dir)
+{
+    char* full_path = malloc(1 + dir_len + strlen(sub_dir));
+
+    if (!full_path)
+    {
+        fprintf(
+            stderr,
+            "Failed to malloc for dir_path_with_len(%s, %zu, %s)\n",
+            dir,
+            dir_len,
+            sub_dir
+        );
+        return NULL;
+    }
+
+    memcpy(full_path, dir, dir_len);
+    strcpy(full_path + dir_len, sub_dir);
+
+    return full_path;
+}
 
 char* dir_path(char* argv0, char* sub_dir)
 {
@@ -81,23 +104,7 @@ char* dir_path(char* argv0, char* sub_dir)
         argv0
     ) - argv0;
 
-    char* full_path = malloc(1 + dir_len + strlen(sub_dir));
-
-    if (!full_path)
-    {
-        fprintf(
-            stderr,
-            "Failed to malloc for dir_path(%s, %s)\n",
-            argv0,
-            sub_dir
-        );
-        return NULL;
-    }
-
-    memcpy(full_path, argv0, dir_len);
-    strcpy(full_path + dir_len, sub_dir);
-
-    return full_path;
+    return dir_path_with_len(argv0, dir_len, sub_dir);
 }
 
 // TODO add slice_from_char*
@@ -109,20 +116,7 @@ char* str_from_dir_and_path(char* dir, char* path)
         return 0;
     }
 
-    char* full_path = malloc(1 + strlen(dir) + strlen(path));
-
-    if (!full_path)
-    {
-        fprintf(
-            stderr,
-            "Failed to malloc for full_path of %s\n",
-            path
-        );
-        return NULL;
-    }
-
-    strcpy(full_path, dir);
-    strcpy(full_path + strlen(dir), path);
+    char* full_path = dir_path_with_len(dir, strlen(dir), path);
 
     // Read file at path into buffer (https://stackoverflow.com/a/3747128)
     FILE* const file = fopen(full_path, "rb");

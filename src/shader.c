@@ -11,7 +11,8 @@
 // and linking these shader source files. This file encapsulates all the work
 // done using shader source files, and exposes shader program functionality.
 
-extern char* shader_dir;
+/// @brief Path to glsl source file directory
+char* shader_dir = NULL;
 
 /// @brief Print any shader compilation or linking errors
 /// @param id Shader id or shader program id
