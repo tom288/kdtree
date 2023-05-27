@@ -18,10 +18,15 @@ typedef struct {
     char* firstAfter; // pointer to character
 } Slice;
 
-/// @brief yields the length of a string slice, use strlen for char*
-/// @param str string to be measured
-/// @return length of the string
+/// @brief Yields slice length, use strlen for char*
+/// @param str String slice to be measured
+/// @return length of the string slice
 uint32_t slice_len(Slice str);
+
+/// @brief Construct a slice from a string
+/// @param str String input
+/// @return Slice output
+Slice slice_from_str(char* str);
 
 /// @brief Check whether a string slice and char* are identical
 /// @param str1 The string slice

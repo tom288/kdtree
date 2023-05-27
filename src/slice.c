@@ -17,6 +17,14 @@ uint32_t slice_len(Slice str)
     return str.firstAfter - str.first;
 }
 
+Slice slice_from_str(char* str)
+{
+    return (Slice) {
+        .first = str,
+        .firstAfter = str + strlen(str),
+    };
+}
+
 bool slice_eq_str(Slice str1, char* str2)
 {
     char prev = *str1.firstAfter;
@@ -107,7 +115,6 @@ char* dir_path(char* argv0, char* sub_dir)
     return dir_path_with_len(argv0, dir_len, sub_dir);
 }
 
-// TODO add slice_from_char*
 char* str_from_dir_and_path(char* dir, char* path)
 {
     if (!dir)
@@ -164,13 +171,8 @@ Slice slice_from_path(char* path)
     char* buffer = str_from_dir_and_path(rule_dir, path);
 
     return buffer
-        ? (Slice) {
-            .first = buffer,
-            .firstAfter = buffer + strlen(buffer),
-        }
-        : (Slice) {
-            NULL
-        };
+        ? slice_from_str(buffer)
+        : (Slice) { NULL };
 }
 
 Slice slice_from_paths(Slice* paths)
