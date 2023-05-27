@@ -1,5 +1,6 @@
 #include "shader.h"
 #include "utility.h"
+#include "slice.h"
 #include <stdio.h>
 #include <stdlib.h> // calloc, free
 #include <string.h> // strlen
@@ -57,65 +58,7 @@ GLint compile_error(GLuint id, int is_program, char* path)
 /// @return ID of shader created, or 0 in the event of an error
 GLuint compile(char* path, GLenum type)
 {
-    if (!shader_dir)
-    {
-        fprintf(stderr, "Shader directory undefined for %s\n", path);
-        return 0;
-    }
-
-    char* file_path = malloc(1 + strlen(shader_dir) + strlen(path));
-
-    if (!file_path)
-    {
-        fprintf(
-            stderr,
-            "Failed to malloc for shader directory during compilation of %s\n",
-            path
-        );
-        return 0;
-    }
-
-    strcpy(file_path, shader_dir);
-    strcpy(file_path + strlen(shader_dir), path);
-
-    // Read file at path into buffer (https://stackoverflow.com/a/3747128)
-    FILE* const file = fopen(file_path, "rb");
-
-    if (!file)
-    {
-        fprintf(stderr, "Failed to fopen ");
-        perror(file_path);
-    }
-
-    free(file_path);
-    file_path = NULL;
-
-    if (!file) return 0;
-
-    // Record size of file content
-    fseek(file, 0L, SEEK_END);
-    const long file_size = ftell(file);
-    rewind(file);
-
-    // Allocate memory for entire file content
-    GLchar* const buffer = calloc(1, file_size + 1);
-    if (!buffer)
-    {
-        fclose(file);
-        fprintf(stderr, "Failed to calloc for %s buffer\n", path);
-        return 0;
-    }
-
-    // Copy the file content into the buffer
-    if (fread(buffer, file_size, 1, file) != 1)
-    {
-        fclose(file);
-        free(buffer);
-        fprintf(stderr, "Failed to fread for %s\n", path);
-        return 0;
-    }
-
-    fclose(file);
+    char* buffer = str_from_dir_and_path(shader_dir, path);
 
     GLuint id = glCreateShader(type);
     glShaderSource(id, 1, (const GLchar**)&buffer, NULL);

@@ -39,6 +39,18 @@ Slice slice_word_after(Slice str);
 
 void slice_print(Slice str);
 
+/// @brief Get the full path of a directory from arg0 and the desired subdir
+/// @param argv0 argv[0]
+/// @param sub_dir The subdirectory
+/// @return The result of malloc, holding the desired partial arg0 + subdir
+char* dir_path(char* argv0, char* sub_dir);
+
+/// @brief Read the file contents at the given path and return it as a char*
+/// @param dir Directory to search from
+/// @param path Path to the file
+/// @return char* of contents, which the caller must free
+char* str_from_dir_and_path(char* dir, char* path);
+
 /// @brief Read the file contents at the given path and return it as a slice
 /// @param path Path to the file
 /// @return String slice of contents, ending in \0, which the caller must free
@@ -48,9 +60,3 @@ Slice slice_from_path(char* path);
 /// @param paths Variable array of string slice file paths
 /// @return A string slice of merged file contents, which the caller must free
 Slice slice_from_paths(Slice* paths);
-
-/// @brief Get the full path of a directory from arg0 and the desired subdir
-/// @param argv0 argv[0]
-/// @param sub_dir The subdirectory
-/// @return The result of malloc, holding the desired partial arg0 + subdir
-char* dir_path(char* argv0, char* sub_dir);

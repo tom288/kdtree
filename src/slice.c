@@ -70,62 +70,113 @@ void slice_print(Slice str)
     }
 }
 
-Slice slice_from_path(char* path)
+
+char* dir_path(char* argv0, char* sub_dir)
 {
-    Slice null_slice = { NULL };
+    const size_t dir_len = max(
+        max(
+            strrchr(argv0, '/'),
+            strrchr(argv0, '\\')
+        ) + 1,
+        argv0
+    ) - argv0;
 
-    if (!rule_dir)
-    {
-        fprintf(stderr, "Rule directory undefined for %s\n", path);
-        return null_slice;
-    }
+    char* full_path = malloc(1 + dir_len + strlen(sub_dir));
 
-    char* file_path = malloc(1 + strlen(rule_dir) + strlen(path));
-
-    if (!file_path)
+    if (!full_path)
     {
         fprintf(
             stderr,
-            "Failed to malloc for rule directory during compilation of %s\n",
-            path
+            "Failed to malloc for dir_path(%s, %s)\n",
+            argv0,
+            sub_dir
         );
-        return null_slice;
+        return NULL;
     }
 
-    strcpy(file_path, rule_dir);
-    strcpy(file_path + strlen(rule_dir), path);
+    memcpy(full_path, argv0, dir_len);
+    strcpy(full_path + dir_len, sub_dir);
 
-    FILE* const file = fopen(file_path, "rb");
+    return full_path;
+}
+
+// TODO add slice_from_char*
+char* str_from_dir_and_path(char* dir, char* path)
+{
+    if (!dir)
+    {
+        fprintf(stderr, "Directory undefined for %s\n", path);
+        return 0;
+    }
+
+    char* full_path = malloc(1 + strlen(dir) + strlen(path));
+
+    if (!full_path)
+    {
+        fprintf(
+            stderr,
+            "Failed to malloc for full_path of %s\n",
+            path
+        );
+        return NULL;
+    }
+
+    strcpy(full_path, dir);
+    strcpy(full_path + strlen(dir), path);
+
+    // Read file at path into buffer (https://stackoverflow.com/a/3747128)
+    FILE* const file = fopen(full_path, "rb");
 
     if (!file)
     {
         fprintf(stderr, "Failed to fopen ");
-        perror(file_path);
+        perror(full_path);
     }
 
-    free(file_path);
-    file_path = NULL;
+    free(full_path);
+    full_path = NULL;
 
-    if (!file) return null_slice;
+    if (!file) return 0;
 
+    // Record size of file content
     fseek(file, 0L, SEEK_END);
     const long file_size = ftell(file);
     rewind(file);
 
-    char* const buffer = calloc(1, file_size + 1);
+    // Allocate memory for entire file content
+    GLchar* const buffer = calloc(1, file_size + 1);
+    if (!buffer)
+    {
+        fclose(file);
+        fprintf(stderr, "Failed to calloc for %s buffer\n", path);
+        return 0;
+    }
+
+    // Copy the file content into the buffer
     if (fread(buffer, file_size, 1, file) != 1)
     {
         fclose(file);
         free(buffer);
         fprintf(stderr, "Failed to fread for %s\n", path);
-        return null_slice;
+        return 0;
     }
 
     fclose(file);
-    return (Slice) {
-        .first = buffer,
-        .firstAfter = buffer + file_size,
-    };
+    return buffer;
+}
+
+Slice slice_from_path(char* path)
+{
+    char* buffer = str_from_dir_and_path(rule_dir, path);
+
+    return buffer
+        ? (Slice) {
+            .first = buffer,
+            .firstAfter = buffer + strlen(buffer),
+        }
+        : (Slice) {
+            NULL
+        };
 }
 
 Slice slice_from_paths(Slice* paths)
@@ -159,28 +210,4 @@ Slice slice_from_paths(Slice* paths)
     }
 
     return big;
-}
-
-char* dir_path(char* argv0, char* sub_dir)
-{
-    const size_t dir_len = max(
-        max(
-            strrchr(argv0, '/'),
-            strrchr(argv0, '\\')
-        ) + 1,
-        argv0
-    ) - argv0;
-
-    char* full_path = malloc(1 + dir_len + strlen(sub_dir));
-
-    if (!full_path)
-    {
-        fprintf(stderr, "Failed to malloc for %s\n", sub_dir);
-        return NULL;
-    }
-
-    memcpy(full_path, argv0, dir_len);
-    strcpy(full_path + dir_len, sub_dir);
-
-    return full_path;
 }
