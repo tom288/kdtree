@@ -154,7 +154,7 @@ NodeType* rules_read()
                     printf("Failed to find type name '");
                     slice_print(word);
                     printf("'\n");
-                    return types;
+                    return NULL;
                 }
             }
         }

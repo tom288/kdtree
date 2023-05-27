@@ -1,45 +1,14 @@
+#include "gameplay.h"
 #include <cglm/cglm.h>
-
-typedef struct Entity {
-    vec3 pos; // x, y, height (0, 0, 0 = center and on ground, negatives for underground)
-    float angle; // 0 = upwards
-} Entity;
-
-typedef struct Entity2 {
-    Entity ent;
-    vec3 vel;
-    float scale; // 0, 1, 2 = point, normal, double, etc...
-    uint8_t type; // 0, 1, 2, 3 = fixed size, laser, double ended laser, expandable
-    bool solid; // false if I can move through things
-} Entity2;
 
 Entity2 entity2() {
     return (Entity2) {.ent = {{0.0, 0.0, 0.0}, 0.0},
         .vel = {1.0, 1.0, 1.0}, .scale = 1.0, .type = 0, .solid = false};
 }
 
-// ---
-
-typedef struct GameplayPlayerStats {
-    struct Entity ent;
-    struct Entity2 ent2;
-    uint16_t health; // 0, 100 = defeated, starting, also can exceed 100
-    int8_t health_changePerSec; // 0, positive, negative = normal, regenerating, decaying
-    uint8_t friction; // 0, 100 = superglue, normal
-    uint8_t acceleration; // 0, 100 = no strength, normal
-    int16_t armour_lower; // -1, 0, 100 = non-existant, none, normal
-    int16_t armour_mid; // -1, 0, 100 = non-existant, none, normal
-    int16_t armour_upper; // -1, 0, 100 = non-existant, none, normal
-    uint16_t strength; // 0, 100 = slowed to a stop carrying anything, normal strength
-    char* name; // for flavour, hello my name is ...
-} GameplayPlayerStats;
-
-int gameplay_player_stats_count = 5;
-
 GameplayPlayerStats gameplay_player_stats(uint8_t choice) {
     GameplayPlayerStats def = (GameplayPlayerStats) {
-        .ent = (Entity) {.pos = {0, 0, 0}, .angle = 0},
-        .ent2 = (Entity2) {.vel = {0, 0, 0}, .scale = 1, .type = 0},
+        .ent2 = (Entity2) {.ent = {{0, 0, 0}, 0}, .vel = {0, 0, 0}, .scale = 1, .type = 3, .solid = true},
         .health = 100, .health_changePerSec = 0,
         .friction = 100, .acceleration = 100,
         .armour_lower = 100, .armour_mid = 100, .armour_upper = 50,
@@ -94,43 +63,69 @@ GameplayPlayerStats gameplay_player_stats(uint8_t choice) {
     return def;
 }
 
-// ---
+Entity3 entity3() {
+    return (Entity3) {.ent2 = entity2(), .onGround = false};
+}
 
-typedef struct Player {
-    struct Entity2 ent2;
-    uint16_t health; // 0, 100 = defeated, starting, also can exceed 100
-    bool onGround;
-} Player;
+const GameplayDrive gameplay_drive = {false, NULL, NULL, NULL};
 
-Player gameplay_player(GameplayPlayerStats stats) {
-    return (Player) {
+GameplayDrive gameplay_drive_physStep(GameplayDrive d) {
+    uint8_t speed_index = 3;
+    if (d.accelerating == true) d.values[speed_index] += 0.1f;
+    d.values[speed_index] *= 0.9f;
+    return d;
+}
+
+// todo: what easing function ID
+GameplayDrive gameplay_drive_physStep2(GameplayDrive d) {
+    for (uint8_t n = 0; n < gameplay_drive_valuesCount; n++) {
+        for (uint8_t m = 0; m < gameplay_drive_valuesCount; m++) {
+            d.values[n] = Gameplay_easing(0, d.values[m]) * d.weights[n][m] + d.biases[n][m];
+        }
+    }
+    return d;
+}
+
+float Gameplay_easing(uint8_t func_index, float value_0_to_1) {
+    float v = value_0_to_1;
+    switch (func_index) {
+        case 0: return v;
+        case 1: return cos(v * GLM_PI / 2);
+        case 2: return v * v;
+        default: printf("gameplay, easing --> no such easing function"); return 0;
+    }
+}
+
+Gameplay_Player gameplay_player(GameplayPlayerStats stats) {
+    return (Gameplay_Player) {
         .ent2 = entity2(),
         .health = stats.health};
 }
 
-void gameplay_player_lookAt(Entity* self, Entity target) {
-    printf("implement gameplay_player_lookAt(vec3)\n");
-}
-
-Player gameplay_player_physStep(Player self, GameplayPlayerStats stats) {
-    if (self.onGround) {
-        for (uint8_t n = 0; n < 3; n++)
-            self.ent2.ent.pos[n] = (self.ent2.ent.pos[n] + self.ent2.vel[n]) * (stats.friction / 100.0);
-    }
-    self.ent2.vel[2] -= 0.05;
-    self.ent2.ent.pos[2] -= self.ent2.vel[2];
-    if (self.ent2.ent.pos[2] < 0) self.ent2.ent.pos[2] = 0;
+// todo: Tom
+Entity gameplay_player_lookAt(Entity self, Entity target) {
+    float x = self.pos[0];
+    float y = self.pos[1];
+    float height = self.pos[2];
+    float angle = self.angle;
+    printf("gameplay, player_lookAt(vec3) needs implementing\n");
     return self;
 }
 
-// ---
+Gameplay_Player gameplay_player_physStep(Gameplay_Player self, GameplayPlayerStats stats) {
+    Entity2* e2 = &self.ent2;
+    Entity* e = &e2->ent;
+    if (self.onGround) {
+        for (uint8_t n = 0; n < 3; n++) {
+            e->pos[n] = (e->pos[n] + e2->vel[n]) * (stats.friction / 100.0);
+        }
+    }
+    e2->vel[2] -= 0.05;
+    e->pos[2] -= e2->vel[2];
+    if (e->pos[2] < 0) e->pos[2] = 0;
+    return self;
+}
 
-typedef struct Bull { // includes bullets, lasers, grenades, and the such
-    uint16_t type;
-} Bull;
-
-// ---
-
-typedef struct Gameplay_item_stats {
-    uint16_t type;
-} Item_inHand;
+Gameplay_Bull gameplay_bull() {
+    return (Gameplay_Bull) {.ent3 = entity3(), .beenOnGround = false, .seconds = 0};
+}
