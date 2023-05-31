@@ -68,7 +68,7 @@ GameplayDrive gameplay_drive_physStep2(GameplayDrive d);
 // continuous and increasing
 // both input and output stay in the range 0 to 1
 // (input, output) starts at (0, 0) and ends at (1, 1)
-float Gameplay_easing(uint8_t func_index, float value_0_to_1);
+float gameplay_easing(uint8_t func_index, float value_0_to_1);
 
 // ---
 

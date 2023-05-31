@@ -3,8 +3,13 @@
 #include <math.h>
 
 Entity2 entity2() {
-    return (Entity2) {.ent = {{0.0, 0.0, 0.0}, 0.0},
-        .vel = {1.0, 1.0, 1.0}, .scale = 1.0, .type = 0, .solid = false};
+    return (Entity2) {
+        .ent = {{0.0, 0.0, 0.0}, 0.0},
+        .vel = {1.0, 1.0, 1.0},
+        .scale = 1.0,
+        .type = 0,
+        .solid = false
+    };
 }
 
 GameplayPlayerStats gameplay_player_stats(uint8_t choice) {
@@ -81,13 +86,13 @@ GameplayDrive gameplay_drive_physStep(GameplayDrive d) {
 GameplayDrive gameplay_drive_physStep2(GameplayDrive d) {
     for (uint8_t n = 0; n < gameplay_drive_valuesCount; n++) {
         for (uint8_t m = 0; m < gameplay_drive_valuesCount; m++) {
-            d.values[n] = Gameplay_easing(0, d.values[m]) * d.weights[n][m] + d.biases[n][m];
+            d.values[n] = gameplay_easing(0, d.values[m]) * d.weights[n][m] + d.biases[n][m];
         }
     }
     return d;
 }
 
-float Gameplay_easing(uint8_t func_index, float value_0_to_1) {
+float gameplay_easing(uint8_t func_index, float value_0_to_1) {
     float v = value_0_to_1;
     switch (func_index) {
         case 0: return v;
@@ -100,10 +105,10 @@ float Gameplay_easing(uint8_t func_index, float value_0_to_1) {
 Gameplay_Player gameplay_player(GameplayPlayerStats stats) {
     return (Gameplay_Player) {
         .ent2 = entity2(),
-        .health = stats.health};
+        .health = stats.health
+    };
 }
 
-// todo: Tom
 void gameplay_player_lookAt(Entity* self, Entity target) {
     vec2 diff;
     glm_vec2_sub(target.pos, self->pos, diff);
@@ -112,16 +117,14 @@ void gameplay_player_lookAt(Entity* self, Entity target) {
 }
 
 Gameplay_Player gameplay_player_physStep(Gameplay_Player self, GameplayPlayerStats stats) {
-    Entity2* e2 = &self.ent2;
-    Entity* e = &e2->ent;
-    if (self.onGround) {
-        for (uint8_t n = 0; n < 3; n++) {
-            e->pos[n] = (e->pos[n] + e2->vel[n]) * (stats.friction / 100.0);
-        }
+    float* vel = self.ent2.vel;
+    float* pos = self.ent2.ent.pos;
+    if (self.onGround) for (uint8_t n = 0; n < 3; n++) {
+        pos[n] = (pos[n] + vel[n]) * (stats.friction / 100.0);
     }
-    e2->vel[2] -= 0.05;
-    e->pos[2] -= e2->vel[2];
-    if (e->pos[2] < 0) e->pos[2] = 0;
+    vel[2] -= 0.05;
+    pos[2] -= vel[2];
+    if (pos[2] < 0) pos[2] = 0;
     return self;
 }
 
