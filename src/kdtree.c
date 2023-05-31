@@ -122,7 +122,7 @@ Node* gen_nodes(float min_area)
     while (arrlenu(nodes) > num_nodes_finished)
     {
         Node node = nodes[num_nodes_finished];
-        uint32_t replacement_count = arrlenu(node.type->replacements);
+        size_t replacement_count = arrlenu(node.type->replacements);
         if (node.size[0] * node.size[1] > min_area && replacement_count > 0)
         {
             const size_t n = rand_int(replacement_count, true);

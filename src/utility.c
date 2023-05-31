@@ -126,11 +126,6 @@ float bias_float(float f, float towards, float strength)
     return powf(f * signum, strength) * signum + towards;
 }
 
-double min_d(double x, double y)
-{
-    return x < y ? x : y;
-}
-
 size_t rotate_left(size_t n, size_t dist)
 {
     return (n << dist) | (n >> (8 * sizeof(size_t) - dist));

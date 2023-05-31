@@ -6,7 +6,6 @@
 #include "utility.h"
 
 extern char* shader_dir;
-
 extern char* rule_dir;
 
 int main(int argc, char* argv[])

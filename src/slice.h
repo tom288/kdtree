@@ -21,7 +21,7 @@ typedef struct {
 /// @brief Yields slice length, use strlen for char*
 /// @param str String slice to be measured
 /// @return length of the string slice
-uint32_t slice_len(Slice str);
+size_t slice_len(Slice str);
 
 /// @brief Construct a slice from a string
 /// @param str String input
