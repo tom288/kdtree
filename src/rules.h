@@ -23,7 +23,7 @@ typedef struct Replacement {
 } Replacement;
 
 typedef struct NodeType {
-    vec3 col;
+    uint8_t col[3];
     Replacement* replacements; // Replacement array
     Slice typeName; // for use only when reading world.txt
 } NodeType;

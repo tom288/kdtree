@@ -35,11 +35,10 @@ Node node_child(
     Replacement replacement,
     NodeType* types
 ) {
-    vec3 r;
-    glm_vec3_scale(types[replacement.types_indices[child_index]].col, 255, r);
+    uint8_t* col = types[replacement.types_indices[child_index]].col;
 
     Node child = {
-        .colour = { r[0], r[1], r[2] },
+        .colour = { col[0], col[1], col[2] },
         .min_corner = { parent.min_corner[0], parent.min_corner[1] },
         .size = { parent.size[0], parent.size[1] },
         .type = &types[replacement.types_indices[child_index]],
@@ -105,12 +104,9 @@ Node* gen_nodes(float min_area)
     arrsetcap(nodes, expected_node_count);
     NodeType* types = rules_read(); // Read node types from file
 
-    vec3 r;
-    glm_vec3_scale(types[0].col, 255, r);
-
     // Define the head of the k-d tree
     arrput(nodes, ((Node) {
-        .colour = { r[0], r[1], r[2] },
+        .colour = { types[0].col[0], types[0].col[1], types[0].col[2] },
         .min_corner = { -1.0f, -1.0f },
         .size = { 2.0f, 2.0f },
         .type = &types[0],
