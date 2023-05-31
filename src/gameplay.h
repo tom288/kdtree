@@ -81,8 +81,8 @@ typedef struct {
 
 Gameplay_Player gameplay_player(GameplayPlayerStats stats);
 
-// todo: Tom
-Entity gameplay_player_lookAt(Entity self, Entity target);
+// Sets the self orientation to point to target (assumes radians)
+void gameplay_player_lookAt(Entity* self, Entity target);
 
 Gameplay_Player gameplay_player_physStep(Gameplay_Player self, GameplayPlayerStats stats);
 

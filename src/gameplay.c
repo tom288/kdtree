@@ -1,5 +1,6 @@
 #include "gameplay.h"
 #include <cglm/cglm.h>
+#include <math.h>
 
 Entity2 entity2() {
     return (Entity2) {.ent = {{0.0, 0.0, 0.0}, 0.0},
@@ -103,13 +104,11 @@ Gameplay_Player gameplay_player(GameplayPlayerStats stats) {
 }
 
 // todo: Tom
-Entity gameplay_player_lookAt(Entity self, Entity target) {
-    float x = self.pos[0];
-    float y = self.pos[1];
-    float height = self.pos[2];
-    float angle = self.angle;
-    printf("gameplay, player_lookAt(vec3) needs implementing\n");
-    return self;
+void gameplay_player_lookAt(Entity* self, Entity target) {
+    vec2 diff;
+    glm_vec2_sub(target.pos, self->pos, diff);
+    glm_vec2_normalize(diff);
+    self->angle = atan2f(self->pos[1], self->pos[0]);
 }
 
 Gameplay_Player gameplay_player_physStep(Gameplay_Player self, GameplayPlayerStats stats) {
