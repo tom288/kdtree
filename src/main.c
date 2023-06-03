@@ -10,7 +10,7 @@ extern char* rule_dir;
 
 int main(int argc, char* argv[])
 {
-    Killer killer = killer_init();
+    Killer killer = killer_null;
 
     // Prepare paths
     shader_dir = dir_path(argv[0], "../src/glsl/");

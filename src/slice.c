@@ -74,7 +74,7 @@ Slice slice_word_after(Slice str)
 
 void slice_print(Slice str)
 {
-    for (size_t i = 0; i < str.firstAfter - str.first; ++i)
+    for (ptrdiff_t i = 0; i < str.firstAfter - str.first; ++i)
     {
         printf("%c", str.first[i]);
     }
