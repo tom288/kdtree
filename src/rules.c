@@ -71,14 +71,14 @@ NodeType* rules_read()
         word = slice_word_after(word);
         this_node->typeName = word; // for debugging
 
-        // Read col and divide it from 0-100 to 0-1
-        vec3 col;
+        // Read col and cast it to a uint8
         for (size_t channel = 0; channel < 3; ++channel)
         {
             word = slice_word_after(word);
-            col[channel] = strtof(word.first, NULL) / 100.0f;
+            this_node->col[channel] = (uint8_t)glm_clamp(
+                strtof(word.first, NULL), 0.0f, 255.0f
+            );
         }
-        glm_vec3_copy(col, this_node->col);
 
         this_node->replacements = NULL;
         while (true) // until '|' keep reading replacement rule lines
