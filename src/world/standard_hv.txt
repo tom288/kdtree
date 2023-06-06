@@ -1,63 +1,63 @@
 
 std.h2
 0 0 0
-| top 50 black white
+| up 50 black white
 
 std.h2a
 0 0 0
-| top 50 white black
+| up 50 white black
 
 std.h3
 0 0 0
-| top 33 white std.h2
+| up 33 white std.h2
 
 std.h3a
 0 0 0
-| top 33 black std.h2a
+| up 33 black std.h2a
 
 std.h4
 0 0 0
-| top 25 black std.h3
+| up 25 black std.h3
 
 std.h4a
 0 0 0
-| top 25 white std.h3a
+| up 25 white std.h3a
 
 std.h5
 0 0 0
-| top 20 white std.h4
+| up 20 white std.h4
 
 std.h12
 0 0 0
-| top 33 black std.h2
+| up 33 black std.h2
 
 std.h13
 0 0 0
-| top 25 white std.h3
+| up 25 white std.h3
 
 std.h14
 0 0 0
-| top 20 black std.h4
+| up 20 black std.h4
 
 std.h21
 0 0 0
-| top 66 std.h2 black
+| up 66 std.h2 black
 
 std.h23
 0 0 0
-| top 40 std.h2a std.h3
+| up 40 std.h2a std.h3
 
 std.h31
 0 0 0
-| top 75 std.h3 black
+| up 75 std.h3 black
 
 std.h32
 0 0 0
-| top 60 std.h3 std.h2
+| up 60 std.h3 std.h2
 
 std.h41
 0 0 0
-| top 80 std.h3 black
+| up 80 std.h3 black
 
 std.v2
 0 0 0

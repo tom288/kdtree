@@ -1,0 +1,174 @@
+
+std.rec2a
+0 0 0
+| left 50 std.rec2a_1 std.rec2a
+| left 50 std.rec2a_1 std.rec2a
+| left 50 std.rec2a_1 std.rec2a
+| left 0 _ red2
+
+std.rec2a_1
+0 0 0
+| left 50 std.rec2a_1 std.rec2a
+| left 50 std.rec2a_1 std.rec2a
+| left 50 std.rec2a_1 std.rec2a
+| left 0 _ green2
+
+std.rec2b
+0 0 0
+| left 50 std.rec2b_1 std.rec2b
+| left 50 std.rec2b_1 std.rec2b
+| left 50 std.rec2b_1 std.rec2b
+| left 0 _ red2
+
+std.rec2b_1
+0 0 0
+| up 50 std.rec2b_1 std.rec2b
+| up 50 std.rec2b_1 std.rec2b
+| up 50 std.rec2b_1 std.rec2b
+| left 0 _ green2
+
+std.rec2c
+0 0 0
+| left 50 std.rec2c_1 std.rec2c
+| left 50 std.rec2c_1 std.rec2c
+| left 50 std.rec2c_1 std.rec2c
+| left 50 std.rec2c_1 std.rec2c
+| left 0 _ red2
+
+std.rec2c_1
+0 0 0
+| left 50 std.rec2c_1 std.rec2c
+| left 50 std.rec2c_1 std.rec2c
+| up 50 std.rec2c_1 std.rec2c
+| up 50 std.rec2c_1 std.rec2c
+| left 0 _ green2
+
+std.rec2d
+0 0 0
+| left 50 std.rec2d_1 std.rec2d
+| left 50 std.rec2d_1 std.rec2d
+| up 50 std.rec2d_1 std.rec2d
+| up 50 std.rec2d_1 std.rec2d
+| left 0 _ red2
+
+std.rec2d_1
+0 0 0
+| left 50 std.rec2d_1 std.rec2d
+| left 50 std.rec2d_1 std.rec2d
+| left 50 std.rec2d_1 std.rec2d
+| left 50 std.rec2d_1 std.rec2d
+| left 0 _ green2
+
+std.rec3a
+0 0 0
+| left 50 std.rec3a std.rec3a_1
+| left 50 std.rec3a std.rec3a_1
+| left 50 std.rec3a std.rec3a_1
+| left 0 _ red2
+
+std.rec3a_1
+0 0 0
+| left 50 std.rec3a_1 std.rec3a_2
+| left 50 std.rec3a_1 std.rec3a_2
+| left 50 std.rec3a_1 std.rec3a_2
+| left 0 _ green2
+
+std.rec3a_2
+0 0 0
+| left 50 std.rec3a_2 std.rec3a
+| left 50 std.rec3a_2 std.rec3a
+| left 50 std.rec3a_2 std.rec3a
+| left 0 _ black
+
+std.rec3b
+0 0 0
+| left 50 std.rec3b std.rec3b_1
+| left 50 std.rec3b std.rec3b_1
+| left 50 std.rec3b std.rec3b_1
+| left 0 _ red2
+
+std.rec3b_1
+0 0 0
+| up 50 std.rec3b_1 std.rec3b_2
+| up 50 std.rec3b_1 std.rec3b_2
+| up 50 std.rec3b_1 std.rec3b_2
+| left 0 _ green2
+
+std.rec3b_2
+0 0 0
+| down 50 std.rec3b_2 std.rec3b
+| down 50 std.rec3b_2 std.rec3b
+| down 50 std.rec3b_2 std.rec3b
+| left 0 _ black
+
+std.rec3c
+0 0 0
+| left 50 std.rec3c std.rec3c_1
+| left 50 std.rec3c std.rec3c_1
+| left 50 std.rec3c std.rec3c_1
+| left 0 _ red2
+
+std.rec3c_1
+0 0 0
+| up 50 std.rec3c_1 std.rec3c_2
+| up 50 std.rec3c_1 std.rec3c_2
+| up 50 std.rec3c_1 std.rec3c_2
+| left 0 _ green2
+
+std.rec3c_2
+0 0 0
+| down 50 std.rec3c std.rec3c_1
+| down 50 std.rec3c std.rec3c_1
+| down 50 std.rec3c std.rec3c_1
+| left 0 _ black
+
+std.rec3d
+0 0 0
+| left 50 std.rec3d_1 std.rec3d_2
+| left 50 std.rec3d_1 std.rec3d_2
+| left 50 std.rec3d_1 std.rec3d_2
+| left 0 _ red2
+
+std.rec3d_1
+0 0 0
+| up 50 std.rec3d std.rec3d_2
+| up 50 std.rec3d std.rec3d_2
+| up 50 std.rec3d std.rec3d_2
+| left 0 _ green2
+
+std.rec3d_2
+0 0 0
+| down 50 std.rec3d std.rec3d_1
+| down 50 std.rec3d std.rec3d_1
+| down 50 std.rec3d std.rec3d_1
+| left 0 _ black
+
+std.rec3e
+0 0 0
+| left 50 std.rec3e_1 std.rec3e_2
+| right 50 std.rec3e_1 std.rec3e_2
+| up 50 std.rec3e_1 std.rec3e_2
+| down 50 std.rec3e_1 std.rec3e_2
+| left 0 _ red2
+
+std.rec3e_1
+0 0 0
+| left 50 std.rec3e std.rec3e_2
+| right 50 std.rec3e std.rec3e_2
+| up 50 std.rec3e std.rec3e_2
+| down 50 std.rec3e std.rec3e_2
+| left 0 _ green2
+
+std.rec3e_2
+0 0 0
+| left 50 std.rec3e std.rec3e_1
+| right 50 std.rec3e std.rec3e_1
+| up 50 std.rec3e std.rec3e_1
+| down 50 std.rec3e std.rec3e_1
+| left 0 _ black
+
+red2
+25 0 0
+
+green2
+0 25 0

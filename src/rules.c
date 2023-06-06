@@ -24,6 +24,7 @@ Slice rules_import_and_merge()
     arrput(paths, slice_from_str("standard.txt"));
     arrput(paths, slice_from_str("standard_cols.txt"));
     arrput(paths, slice_from_str("standard_hv.txt"));
+    arrput(paths, slice_from_str("standard_recurse.txt"));
 
     Slice big = slice_from_paths(paths);
     arrfree(paths);
@@ -37,8 +38,8 @@ Slice rules_import_and_merge()
 //
 // world
 // 0 80 0
-// | top 50 room garden
-// | top 50 garden garden
+// | up 50 room garden
+// | up 50 garden garden
 NodeType* rules_read()
 {
     Slice file = rules_import_and_merge();
@@ -88,13 +89,13 @@ NodeType* rules_read()
 
             // refers to a new uninitialized replacement in this_node
             Replacement* this_replacement = arraddnptr(this_node->replacements, 1);
-            this_replacement->orientation = 0;
 
             // read orientation
             // 0, 1 - x, y
             // 0, 1 - up/left, down/right
             // 0, 1 - square
             // 0, 1 - absolute
+            this_replacement->orientation = 255;
             word = slice_word_after(word);
             char* orientations[] = {"left", "up", "right", "down", "square_upLeft", "square_downRight"};
             for (size_t i = 0; i < sizeof(orientations) / sizeof(*orientations); ++i)
@@ -104,6 +105,9 @@ NodeType* rules_read()
                     this_replacement->orientation = i;
                     break;
                 }
+            }
+            if (this_replacement->orientation == 255) {
+                error("no such orientation");
             }
 
             // read split percent

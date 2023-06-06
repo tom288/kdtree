@@ -1,20 +1,14 @@
 
 world
-0 80 0
-| left 50 h h
+0 0 0
+| left 1 red2 world2
 
-h
-0 40 0
-| left 50 h2 h2
+world2
+0 0 20
+| top 50 green2 world
 
-h2
-40 0 0
-| top 50 v v
+red2
+50 0 0
 
-v
-20 0 20
-| top 50 v2 v2
-
-v2
-40 40 40
-| top 50 _ blue
+green2
+0 50 0

@@ -1,3 +1,4 @@
+#define __USE_MINGW_ANSI_STDIO 1 // Make MinGW printf support size_t with %zu
 #include "utility.h"
 #include <stdio.h>
 #include <stdlib.h> // RAND_MAX
@@ -78,6 +79,10 @@ GLboolean _gl_error(char* file, int line)
         fprintf(stderr, "OpenGL %s @ %s (%d)\n", error, file, line);
     }
     return !!error_code;
+}
+
+void _error(const char* file, const char* func, const size_t line, const char* description) {
+    fprintf(stderr, "%s, %s, %zu --> %s\n", file, func, line, description);
 }
 
 // Be careful if refactoring this to avoid overflow on unix / macOS

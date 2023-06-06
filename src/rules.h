@@ -8,7 +8,7 @@
 #define ORIENTATION_ABSOLUTE 1 << 3
 
 typedef struct Replacement {
-    // world.txt --> | top 50 room garden
+    // world.txt --> | up 50 room garden
 
     uint8_t orientation;
     // orientation bit mask

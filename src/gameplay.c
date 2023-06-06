@@ -1,4 +1,5 @@
 #include "gameplay.h"
+#include "utility.h"
 #include <cglm/cglm.h>
 
 Entity2 entity2() {
@@ -92,7 +93,7 @@ float Gameplay_easing(uint8_t func_index, float value_0_to_1) {
         case 0: return v;
         case 1: return cos(v * GLM_PI / 2);
         case 2: return v * v;
-        default: printf("gameplay, easing --> no such easing function"); return 0;
+        default: error("no such easing function"); return 0;
     }
 }
 

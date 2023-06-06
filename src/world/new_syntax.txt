@@ -1,0 +1,16 @@
+word file proposed syntax:
+
+world
+0 80 0
+    left 50
+    arch
+        size 5
+        col red
+    door
+        handle_side 0
+
+arch
+0 0 80
+    left size
+    col
+    frame

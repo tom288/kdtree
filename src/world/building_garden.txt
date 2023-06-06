@@ -3,19 +3,19 @@ building.garden
 0 40 0
 | left 50 building.garden.left building.garden
 | left 50 building.garden building.garden.left
-| top 50 building.garden.top building.garden
-| top 50 building.garden building.garden.top
+| up 50 building.garden.top building.garden
+| up 50 building.garden building.garden.top
 
 building.garden.left
 0 30 0
 | left 50 building.garden.left building.garden
 | left 50 building.garden building.garden.left
-| top 50 building.garden.top building.garden
-| top 50 building.garden building.garden.top
+| up 50 building.garden.top building.garden
+| up 50 building.garden building.garden.top
 
 building.garden.top
 0 20 0
 | left 50 building.garden.left building.garden
 | left 50 building.garden building.garden.left
-| top 50 building.garden.top building.garden
-| top 50 building.garden building.garden.top
+| up 50 building.garden.top building.garden
+| up 50 building.garden building.garden.top

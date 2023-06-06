@@ -13,6 +13,10 @@ GLboolean _gl_error(char* file, int line);
 /// @return Whether an error was found
 #define gl_error() _gl_error(__FILE__, __LINE__)
 
+void _error(const char* file, const char* func, const size_t line, const char* description);
+
+#define error(description) _error(__FILE__, __func__, __LINE__, description)
+
 /// @brief Calculate size of type described by OpenGL enum
 /// @param type
 /// @return Size in bytes
@@ -49,10 +53,10 @@ size_t rand_int(size_t sides, GLboolean fair);
 /// @return n rotated by dist bytes
 size_t rotate_left(size_t n, size_t dist);
 
-/// @brief Rotate n left by n dist quaters
+/// @brief Rotate n left by n dist quarters
 /// @param n Value to rotate
-/// @param count Number of quaters to rotate by
-/// @return n rotated by dist quaters
+/// @param count Number of quarters to rotate by
+/// @return n rotated by dist quarters
 size_t rotate_left_quarter(size_t n, size_t count);
 
 /// @brief Sample some randomness for a given node, by treating it as a vec4
