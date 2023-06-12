@@ -1,5 +1,6 @@
 #define __USE_MINGW_ANSI_STDIO 1 // Make MinGW printf support size_t with %zu
 #include "utility.h"
+#include <string.h>
 #include <stdio.h>
 #include <stdlib.h> // RAND_MAX
 
@@ -162,4 +163,26 @@ size_t sampleRandom(Node sample)
         ^ rotate_left_quarter(y.to     , 1)
         ^ rotate_left_quarter(width.to , 2)
         ^ rotate_left_quarter(height.to, 3);
+}
+
+// ---
+
+bool for_helper(void* array, size_t array_size, void* value, size_t value_size, Compare cmp, bool any) {
+    if (value_size > array_size) error("value length exceeds array length");
+    if (array_size % value_size != 0) error("items in the array should be value_size bytes");
+    for (size_t index_byte = 0; index_byte + value_size <= array_size; index_byte += value_size) {
+        int result = memcmp((char*)array + index_byte, value, value_size);
+        if ((cmp == COMPARE_EQ && result == 0) == any) return any;
+        if ((cmp == COMPARE_LESS && result < 0) == any) return any;
+        if ((cmp == COMPARE_MORE && result > 0) == any) return any;
+    }
+    return !any;
+}
+
+bool for_any(void* array, size_t array_size, void* value, size_t value_size, Compare comparison) {
+    return for_helper(array, array_size, value, value_size, comparison, true);
+}
+
+bool for_all(void* array, size_t array_size, void* value, size_t value_size, Compare comparison) {
+    return for_helper(array, array_size, value, value_size, comparison, false);
 }

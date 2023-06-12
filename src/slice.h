@@ -18,6 +18,12 @@ typedef struct {
     char* firstAfter; // pointer to character
 } Slice;
 
+typedef struct {
+    bool lineBreaks;
+    uint8_t tabsAfterLineBreak;
+    Slice wordAfter;
+} SliceWordAfterInfo;
+
 /// @brief Yields slice length, use strlen for char*
 /// @param str String slice to be measured
 /// @return length of the string slice
@@ -40,6 +46,8 @@ bool slice_eq_str(Slice str1, char* str2);
 /// @return true if the string slices are identical, false otherwise
 bool slice_eq(Slice str1, Slice str2);
 
+bool slice_newline_after(Slice str);
+SliceWordAfterInfo slice_whitespace_word_after(Slice str);
 Slice slice_word_after(Slice str);
 
 void slice_print(Slice str);

@@ -4,3 +4,4 @@
 /custom.cmd
 *.code-workspace
 src/junk/
+src/rules_old.c

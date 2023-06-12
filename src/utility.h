@@ -64,14 +64,40 @@ size_t rotate_left_quarter(size_t n, size_t count);
 /// @return The random value at that node
 size_t sampleRandom(Node sample);
 
+// ---
+
 /// @brief Take the smaller of two values of any equal type
-#define min(a,b) \
+#define min(a, b) \
     __extension__({ __typeof__ (a) _a = (a); \
        __typeof__ (b) _b = (b); \
             _a < _b ? _a : _b; })
 
 /// @brief Take the larger of two values of any equal type
-#define max(a,b) \
+#define max(a, b) \
     __extension__({ __typeof__ (a) _a = (a); \
        __typeof__ (b) _b = (b); \
             _a > _b ? _a : _b; })
+
+typedef enum {
+    COMPARE_EQ,
+    COMPARE_LESS,
+    COMPARE_MORE
+} Compare;
+
+/// @brief true if any element in an array matches the provided value with the given comparison
+/// @param array an array of any type, all items are of the same type
+/// @param array_size sizeof(array)
+/// @param value a value of the same type as the array elements
+/// @param value_size sizeof(value)
+/// @param comparison use COMPARE_... to specify the type of comparison
+/// @return
+bool for_any(void* array, size_t array_size, void* value, size_t value_size, Compare comparison);
+
+/// @brief true if all elements in an array matches the provided value with the given comparison
+/// @param array an array of any type, all items are of the same type
+/// @param array_size sizeof(array)
+/// @param value a value of the same type as the array elements
+/// @param value_size sizeof(value)
+/// @param comparison use COMPARE_... to specify the type of comparison
+/// @return
+bool for_all(void* array, size_t array_size, void* value, size_t value_size, Compare comparison);
