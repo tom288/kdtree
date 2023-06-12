@@ -53,11 +53,6 @@ int main(int argc, char* argv[])
     if (!killer_assert(&killer, blit_shader.ok)) return 1;
     killer_target(&killer, (kill_fn)shader_kill, &blit_shader);
 
-    // Create main kd-tree
-    Graph tree = kdtree_init(&rectangle_shader);
-    if (!killer_assert(&killer, graph_ok(tree))) return 1;
-    killer_target(&killer, (kill_fn)graph_kill, &tree);
-
     // Choose the background colour
     window_clear_colour(win, 0.1f, 0.0f, 0.3f);
 
@@ -66,12 +61,20 @@ int main(int argc, char* argv[])
     window_size(win, win_size);
     Camera camera = camera_init(win_size);
 
+    // Create main kd-tree
+    Graph tree = kdtree_init(&rectangle_shader, camera);
+    if (!killer_assert(&killer, graph_ok(tree))) return 1;
+    killer_target(&killer, (kill_fn)graph_kill, &tree);
+
     window_reset_time(win);
 
     // Swap the buffers and process pending events until the window is not OK
     while (window_ok(win))
     {
-        if (window_action(win, randomise, GL_TRUE)) kdtree_randomise(&tree);
+        if (window_action(win, randomise, GL_TRUE))
+        {
+            kdtree_regenerate(&tree, camera);
+        }
         if (window_action(win, rasterise, GL_TRUE)) graph_free_textures(&tree);
 
         vec2 movement_input;
@@ -86,6 +89,8 @@ int main(int argc, char* argv[])
             camera_input,
             window_delta_time(win)
         );
+
+        kdtree_check_camera(&tree, camera);
 
         GLboolean prepped = graph_prep_texture(
             &tree,

@@ -2,6 +2,7 @@
 #include "shader.h"
 #include "graph.h"
 #include "rules.h"
+#include "camera.h"
 #include <cglm/cglm.h>
 
 /// @brief Node for kd-tree
@@ -16,12 +17,19 @@ typedef struct Node {
 
 /// @brief Create a random kd-tree spanning the entire -1 to 1 range
 /// @param shader Shader to use for attribute position names
+/// @param camera Camera to use for determining area to draw
 /// @return Graph holding kd-tree data
-Graph kdtree_init(Shader* shader);
+Graph kdtree_init(Shader* shader, Camera camera);
 
-/// @brief Randomise a kd-tree
-/// @param tree Tree to be randomised
-void kdtree_randomise(Graph *tree);
+/// @brief Regenerate a kd-tree
+/// @param tree Tree to be regenerated
+/// @param camera Camera to use for determining area to draw
+void kdtree_regenerate(Graph* tree, Camera camera);
+
+/// @brief Check whether regen is necessary based on the camera pos & size
+/// @param tree Tree to possibly be regenerated
+/// @param camera Camera to use
+void kdtree_check_camera(Graph* tree, Camera camera);
 
 /// @brief Display node information
 /// @param node Node to display

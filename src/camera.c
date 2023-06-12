@@ -24,6 +24,7 @@ void camera_step(
     camera->speed = glm_vec2_norm(camera->scaled_size) * 0.6f;
     // Rotation
     camera->rotation += camera_input[0] * delta_time * 1.5f;
+    camera->rotation = fmodf(camera->rotation, GLM_PIf * 2);
     // Translation
     vec2 movement_delta;
     glm_vec2_normalize_to(movement_input, movement_delta);
