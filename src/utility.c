@@ -172,9 +172,9 @@ bool for_helper(void* array, size_t array_size, void* value, size_t value_size, 
     if (array_size % value_size != 0) error("items in the array should be value_size bytes");
     for (size_t index_byte = 0; index_byte + value_size <= array_size; index_byte += value_size) {
         int result = memcmp((char*)array + index_byte, value, value_size);
-        if ((cmp == COMPARE_EQ && result == 0) == any) return any;
-        if ((cmp == COMPARE_LESS && result < 0) == any) return any;
-        if ((cmp == COMPARE_MORE && result > 0) == any) return any;
+        if (cmp == COMPARE_EQ && (result == 0) == any) return any;
+        if (cmp == COMPARE_LESS && (result < 0) == any) return any;
+        if (cmp == COMPARE_MORE && (result > 0) == any) return any;
     }
     return !any;
 }
