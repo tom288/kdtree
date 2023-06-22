@@ -65,7 +65,56 @@ Node node_child(
     return child;
 }
 
-Node* gen_random_nodes(float min_area, Camera camera)
+typedef struct {
+    vec2 min;
+    vec2 max;
+    bool set; // Whether min and max have been set
+    vec2 potential_min;
+    vec2 potential_max;
+    bool potential_set; // Whether potential_min and potential_max have been set
+    Node* nodes;
+} GeneratedNodes;
+
+void update_min_max(Node n, GeneratedNodes* out, GLboolean discarded)
+{
+    for (size_t i = 0; i < 2; ++i)
+    {
+        float potential_min_rhs = out->min[i];
+        float potential_max_rhs = out->max[i];
+        if (discarded)
+        {
+            potential_min_rhs = n.min_corner[i];
+            potential_max_rhs = n.size[i] + n.min_corner[i];
+        }
+        else
+        {
+            if (out->set)
+            {
+                out->min[i] = min(out->min[i], n.min_corner[i]);
+                out->max[i] = max(out->max[i], n.size[i] + n.min_corner[i]);
+            }
+            else
+            {
+                out->min[i] = n.min_corner[i];
+                out->max[i] = n.size[i] + n.min_corner[i];
+            }
+        }
+        if (out->potential_set)
+        {
+            out->potential_min[i] = min(out->potential_min[i], potential_min_rhs);
+            out->potential_max[i] = max(out->potential_max[i], potential_max_rhs);
+        }
+        else
+        {
+            out->potential_min[i] = potential_min_rhs;
+            out->potential_max[i] = potential_max_rhs;
+        }
+    }
+    out->set |= !discarded;
+    out->potential_set = GL_TRUE;
+}
+
+GeneratedNodes gen_random_nodes(float min_area, Camera camera)
 {
     // Guess the amount of memory needed to avoid both waste and growth
     Node* nodes = NULL;
@@ -83,22 +132,34 @@ Node* gen_random_nodes(float min_area, Camera camera)
 
     size_t num_nodes_finished = 0;
 
+    GeneratedNodes out;
+
     // Expand all nodes until they are finished
     while (arrlenu(nodes) > num_nodes_finished)
     {
         const Node node = nodes[num_nodes_finished];
-        if (node.size[0] * node.size[1] > min_area)
+        if (GL_FALSE) // TODO if outside camera region
+        {
+            update_min_max(node, &out, true);
+            arrdelswap(nodes, num_nodes_finished);
+        }
+        else if (node.size[0] * node.size[1] > min_area)
         {
             arrput(nodes, random_node_child(node, 0));
             nodes[num_nodes_finished] = random_node_child(node, 1);
         }
-        else num_nodes_finished++;
+        else
+        {
+            update_min_max(node, &out, false);
+            num_nodes_finished++;
+        }
     }
 
-    return nodes;
+    out.nodes = nodes;
+    return out;
 }
 
-Node* gen_nodes(float min_area, Camera camera)
+GeneratedNodes gen_nodes(float min_area, Camera camera)
 {
     // Guess the amount of memory needed to avoid both waste and growth
     Node* nodes = NULL;
@@ -119,11 +180,18 @@ Node* gen_nodes(float min_area, Camera camera)
 
     size_t num_nodes_finished = 0;
 
+    GeneratedNodes out;
+
     // Expand all nodes until they are finished
     while (arrlenu(nodes) > num_nodes_finished)
     {
         Node node = nodes[num_nodes_finished];
         size_t replacement_count = arrlenu(node.type->replacements);
+        if (GL_FALSE) // TODO if outside camera region
+        {
+            update_min_max(node, &out, true);
+            arrdelswap(nodes, num_nodes_finished);
+        }
         if (node.size[0] * node.size[1] > min_area && replacement_count > 0)
         {
             const size_t n = rand_int(replacement_count, true);
@@ -159,10 +227,15 @@ Node* gen_nodes(float min_area, Camera camera)
             arrput(nodes, node_child(node, 0, replacement, types));
             nodes[num_nodes_finished] = node_child(node, 1, replacement, types);
         }
-        else num_nodes_finished++;
+        else
+        {
+            update_min_max(node, &out, false);
+            num_nodes_finished++;
+        }
     }
 
-    return nodes;
+    out.nodes = nodes;
+    return out;
 }
 
 void** gen_vertices_from_nodes(Node* nodes)
@@ -189,28 +262,43 @@ void** gen_vertices_from_nodes(Node* nodes)
     return vertices;
 }
 
-void** gen_vertices(Camera camera)
+typedef struct {
+    vec2 min_corner;
+    vec2 size;
+    vec2 potential_min_corner;
+    vec2 potential_size;
+    void** vertices;
+} GeneratedVertices;
+
+GeneratedVertices gen_vertices(Camera camera)
 {
     srand(0);
     const size_t target_node_count = 1000 * 1000;
     const float min_area = 5.992f / target_node_count;
-    Node* nodes = gen_random_nodes(min_area, camera); // Use gen_nodes for rule usage
-    return gen_vertices_from_nodes(nodes);
+    GeneratedNodes nodes = gen_random_nodes(min_area, camera); // Use gen_nodes for rule usage
+    return (GeneratedVertices) {
+        .min_corner = { nodes.min[0], nodes.min[1] },
+        .size = { nodes.max[0] - nodes.min[0], nodes.max[1] - nodes.min[1] },
+        .potential_min_corner = { nodes.potential_min[0], nodes.potential_min[1] },
+        .potential_size = { nodes.potential_max[0] - nodes.potential_min[0], nodes.potential_max[1] - nodes.potential_min[1] },
+        .vertices = gen_vertices_from_nodes(nodes.nodes),
+    };
 }
 
-void kdtree_calc_bounds(Graph* tree)
+void kdtree_calc_bounds(KDTree* tree)
 {
-    if (!graph_ok(*tree)) return;
+    Graph graph = tree->graph;
+    if (!graph_ok(graph)) return;
 
     size_t dims = sizeof(tree->size) / sizeof(*tree->size);
-    const float* floats = tree->vertices[0];
+    const float* floats = graph.vertices[0];
     memcpy(tree->min_corner, floats, sizeof(tree->min_corner));
 
     for (size_t i = 0; i < dims; ++i)
     {
         tree->size[i] = tree->min_corner[i] + floats[i + dims];
     }
-    for (size_t i = dims * 2; i < arrlenu(tree->vertices[0]); i += dims * 2)
+    for (size_t i = dims * 2; i < arrlenu(graph.vertices[0]); i += dims * 2)
     {
         for (size_t j = 0; j < dims; ++j)
         {
@@ -222,11 +310,12 @@ void kdtree_calc_bounds(Graph* tree)
     for (size_t i = 0; i < 2; ++i) tree->size[i] -= tree->min_corner[i];
 }
 
-Graph kdtree_init(Shader* shader, Camera camera)
+KDTree kdtree_init(Shader* shader, Camera camera)
 {
     // Seed the random number generator
     // srand(time(NULL));
-    void** vertices = gen_vertices(camera);
+    GeneratedVertices generated = gen_vertices(camera);
+    void** vertices = generated.vertices;
 
     Attribute* layout_attributes = NULL;
 
@@ -254,35 +343,44 @@ Graph kdtree_init(Shader* shader, Camera camera)
     arrput(attributes, layout_attributes);
     arrput(attributes, colour_attributes);
 
-    Graph tree = graph_init(
-        shader,
-        vertices,
-        NULL,
-        attributes
-    );
+    KDTree tree = {
+        .graph = graph_init(
+            shader,
+            vertices,
+            NULL,
+            attributes
+        ),
+        .min_corner = { generated.min_corner[0], generated.min_corner[1] },
+        .size = { generated.size[0], generated.size[1] },
+        .potential_min_corner = { generated.potential_min_corner[0], generated.potential_min_corner[1] },
+        .potential_size = { generated.potential_size[0], generated.potential_size[1] },
+    };
 
     kdtree_calc_bounds(&tree);
 
     return tree;
 }
 
-void kdtree_regenerate(Graph *tree, Camera camera)
+void kdtree_regenerate(KDTree *tree, Camera camera)
 {
     GLenum* types = NULL;
     arrput(types, GL_FLOAT);
     arrput(types, GL_UNSIGNED_BYTE);
-    graph_update_vertices(tree, gen_vertices(camera), types);
+    GeneratedVertices generated = gen_vertices(camera);
+    graph_update_vertices(&tree->graph, generated.vertices, types);
     kdtree_calc_bounds(tree);
     arrfree(types);
 }
 
-void kdtree_check_camera(Graph* tree, Camera camera)
+void kdtree_check_camera(KDTree* tree, Camera camera)
 {
     // Regenerate if we are about to show an ungenerated region
     // OR if the zoom level has doubled
-    // For each corner of the camera (i < 4; ++i)
-    //     If the corner is outside the kdtree then regenerate, return
-    // If the area of the camera is less than 1/16th of the tree, regen, ret
+
+    // TODO Check if the tree can even be generated further in the desired dir
+    // TODO Support partial generation
+    // TODO Make min area take the zoom level into account
+    // TODO Try 64 instead
 
     if (tree->size[0] * tree->size[1] / 256 >
         camera.scaled_size[0] * camera.scaled_size[1]
@@ -302,11 +400,9 @@ void kdtree_check_camera(Graph* tree, Camera camera)
     {
         vec2 corner;
         glm_vec2_copy(camera.position, corner);
-        for (size_t dim = 0; dim < 2; ++dim)
-        {
-            if (i & (1 << dim)) glm_vec2_add(corner, local[dim], corner);
-            else                glm_vec2_sub(corner, local[dim], corner);
-        }
+        for (size_t dim = 0; dim < 2; ++dim) (i & (1 << dim)
+            ? glm_vec2_add
+            : glm_vec2_sub) (corner, local[dim], corner);
         for (size_t dim = 0; dim < 2; ++dim)
         {
             if (corner[dim] <= tree->min_corner[dim] ||

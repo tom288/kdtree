@@ -5,6 +5,15 @@
 #include "camera.h"
 #include <cglm/cglm.h>
 
+/// @brief Wrapper for a kd-tree graph
+typedef struct {
+    Graph graph;
+    vec2 min_corner;
+    vec2 size;
+    vec2 potential_min_corner;
+    vec2 potential_size;
+} KDTree;
+
 /// @brief Node for kd-tree
 typedef struct Node {
     GLubyte colour[3];
@@ -19,17 +28,17 @@ typedef struct Node {
 /// @param shader Shader to use for attribute position names
 /// @param camera Camera to use for determining area to draw
 /// @return Graph holding kd-tree data
-Graph kdtree_init(Shader* shader, Camera camera);
+KDTree kdtree_init(Shader* shader, Camera camera);
 
 /// @brief Regenerate a kd-tree
 /// @param tree Tree to be regenerated
 /// @param camera Camera to use for determining area to draw
-void kdtree_regenerate(Graph* tree, Camera camera);
+void kdtree_regenerate(KDTree* tree, Camera camera);
 
 /// @brief Check whether regen is necessary based on the camera pos & size
 /// @param tree Tree to possibly be regenerated
 /// @param camera Camera to use
-void kdtree_check_camera(Graph* tree, Camera camera);
+void kdtree_check_camera(KDTree* tree, Camera camera);
 
 /// @brief Display node information
 /// @param node Node to display

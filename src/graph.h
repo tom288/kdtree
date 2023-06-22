@@ -1,7 +1,6 @@
 #pragma once
 
 #include "shader.h"
-#include <cglm/cglm.h>
 
 /// @brief VRAM and RAM vertex data pair
 typedef struct Graph {
@@ -14,8 +13,6 @@ typedef struct Graph {
     size_t* strides;
     struct Graph* quad;
     GLuint quad_texture;
-    vec2 min_corner;
-    vec2 size;
 } Graph;
 
 /// @brief Vertex attribute
@@ -64,7 +61,7 @@ GLboolean graph_prep_texture(
 /// @brief Draw contents of graph
 /// @param graph Graph to draw
 /// @param mode Kind of primitive to render
-void graph_draw(Graph* graph, GLenum mode);
+void graph_draw(Graph graph, GLenum mode);
 
 /// @brief Free old graph vertices and assign new vertices
 /// @param graph Graph to update

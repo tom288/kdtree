@@ -342,7 +342,7 @@ GLboolean graph_prep_texture(
     glClear(GL_COLOR_BUFFER_BIT);
 
     // Draw before the framebuffer is set so that it does not attempt to use it
-    graph_draw(graph, mode);
+    graph_draw(*graph, mode);
     graph->fbo = framebuffer;
 
     if (mipmap) glGenerateMipmap(GL_TEXTURE_2D);
@@ -390,33 +390,33 @@ GLboolean graph_prep_texture(
     return GL_TRUE;
 }
 
-void graph_draw(Graph* graph, GLenum mode)
+void graph_draw(Graph graph, GLenum mode)
 {
-    if (!graph_ok(*graph)) return;
+    if (!graph_ok(graph)) return;
 
     // If we have a texture prepared then use it
-    if (graph->fbo)
+    if (graph.fbo)
     {
-        glBindTexture(GL_TEXTURE_2D, graph->quad_texture);
-        graph_draw(graph->quad, GL_TRIANGLES);
+        glBindTexture(GL_TEXTURE_2D, graph.quad_texture);
+        graph_draw(*graph.quad, GL_TRIANGLES);
         return;
     }
 
-    glBindVertexArray(graph->vao);
+    glBindVertexArray(graph.vao);
 
-    if (arrlenu(graph->indices))
+    if (arrlenu(graph.indices))
     {
         glDrawElements
         (
             mode,
-            arrlenu(graph->indices),
-            sizeof(*graph->indices),
+            arrlenu(graph.indices),
+            sizeof(*graph.indices),
             0
         );
     }
     else
     {
-        glDrawArrays(mode, 0, arrlenu(graph->vertices[0]) / graph->strides[0]);
+        glDrawArrays(mode, 0, arrlenu(graph.vertices[0]) / graph.strides[0]);
     }
 
     glBindVertexArray(0);
