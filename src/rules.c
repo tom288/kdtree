@@ -10,6 +10,8 @@
 Slice rules_import_and_merge()
 {
     Slice world = slice_from_path("world.txt");
+    return world; // todo: remove this line
+
     Slice word = { .first = world.first, .firstAfter = world.first };
     word = slice_word_after(word);
     Slice* paths = NULL;
@@ -32,6 +34,36 @@ Slice rules_import_and_merge()
     return big;
 }
 
+Slice rules_append_two_typenames(Slice word, Slice* type_names,
+    Replacement* this_replacement, NodeType* types) {
+    // read and record two typenames, along with the parameters to pass to them
+    for (size_t type_index = 0; type_index < 2; ++type_index)
+    {
+        word = slice_word_after(word);
+        bool found = false;
+        for (size_t i = 0; i < arrlenu(type_names); ++i)
+        {
+            if (slice_eq(type_names[i], word))
+            {
+                this_replacement->types_indices[type_index] = i;
+                found = true;
+                break;
+            }
+        }
+        if (found) {
+            word.firstAfter = word.first;
+            return word;
+        }
+        else {
+            arrpop(types);
+            printf("Failed to find type name '");
+            slice_print(word);
+            printf("'\n");
+        }
+    }
+    return (Slice) { NULL };
+}
+
 // reads and returns types from world.txt
 // they are delimited by an empty line
 // each node type in world.txt looks like this
@@ -42,8 +74,9 @@ Slice rules_import_and_merge()
 // | up 50 garden garden
 NodeType* rules_read()
 {
-    Slice file = rules_import_and_merge();
-    Slice word = { .first = file.first, .firstAfter = file.first };
+    // Slice file = rules_import_and_merge();
+    Slice file = slice_from_path("world2.txt");
+    Slice word = { file.first, file.first };
 
     // Record typenames and their indices
     Slice* type_names = NULL;
@@ -52,12 +85,12 @@ NodeType* rules_read()
         // Record typename and index
         word = slice_word_after(word);
         arrput(type_names, word);
-        // Skip R, G, B
-        for (size_t i = 0; i < 3; ++i) word = slice_word_after(word);
-        // Skip replacements
-        while (slice_eq_str(slice_word_after(word), "|"))
-        {
-            for (size_t i = 0; i < 5; ++i) word = slice_word_after(word);
+        // Skip the rest of the block
+        while (slice_whitespace_word_after(word).tabsAfterLineBreak != 0) {
+            word = slice_word_after(word);
+            while (!slice_whitespace_word_after(word).lineBreak) {
+                word = slice_word_after(word);
+            }
         }
     }
     word = (Slice) { .first = file.first, .firstAfter = file.first };
@@ -71,7 +104,7 @@ NodeType* rules_read()
         word = slice_word_after(word);
         this_node->typeName = word; // for debugging
 
-        // Read col and cast it to a uint8
+        // Read col and cast it to a uint8, 0 to 255
         for (size_t channel = 0; channel < 3; ++channel)
         {
             word = slice_word_after(word);
@@ -81,74 +114,56 @@ NodeType* rules_read()
         }
 
         this_node->replacements = NULL;
-        while (true) // until '|' keep reading replacement rule lines
+        if (slice_whitespace_word_after(word).tabsAfterLineBreak == 1)
         {
-            Slice word_ahead = slice_word_after(word);
-            if (!slice_eq_str(word_ahead, "|")) break;
-            word = word_ahead;
-
-            // refers to a new uninitialized replacement in this_node
-            Replacement* this_replacement = arraddnptr(this_node->replacements, 1);
-
-            // read orientation
-            // 0, 1 - x, y
-            // 0, 1 - up/left, down/right
-            // 0, 1 - square
-            // 0, 1 - absolute
-            this_replacement->orientation = 255;
-            word = slice_word_after(word);
-            char* orientations[] = {"left", "up", "right", "down", "square_upLeft", "square_downRight"};
-            for (size_t i = 0; i < sizeof(orientations) / sizeof(*orientations); ++i)
+            while (true) // until '|' keep reading replacement rule lines
             {
-                if (slice_eq_str(word, orientations[i]))
-                {
-                    this_replacement->orientation = i;
-                    break;
-                }
-            }
-            if (this_replacement->orientation == 255) {
-                error("no such orientation");
-            }
+                Slice word_ahead = slice_word_after(word);
+                if (!slice_eq_str(word_ahead, "|")) break;
+                word = word_ahead;
 
-            // read split percent
-            word = slice_word_after(word);
-            Slice unit = word;
-            this_replacement->splitDecimal = strtof(word.first, &unit.first) / 100.0f;
-            char* const unit_words[] = { "cm", "m", "mm", "km", "um" };
-            const float cm_to_unit[] = { 1.0f, 100.0f, 0.1f, 100000.0f, 0.0001f };
+                // refers to a new uninitialized replacement in this_node
+                Replacement* this_replacement = arraddnptr(this_node->replacements, 1);
 
-            for (size_t i = 0; i < sizeof(unit_words) / sizeof(*unit_words); ++i)
-            {
-                if (slice_eq_str(unit, unit_words[i]))
-                {
-                    this_replacement->orientation |= ORIENTATION_ABSOLUTE;
-                    this_replacement->splitDecimal *= cm_to_unit[i];
-                    break;
-                }
-            }
-
-            // read two typenames
-            for (size_t type_index = 0; type_index < 2; ++type_index)
-            {
+                // read orientation
+                // 0, 1 - x, y
+                // 0, 1 - up/left, down/right
+                // 0, 1 - square
+                // 0, 1 - absolute
+                this_replacement->orientation = 255;
                 word = slice_word_after(word);
-                bool found = false;
-                for (size_t i = 0; i < arrlenu(type_names); ++i)
+                char* orientations[] = {"left", "up", "right", "down", "square_upLeft", "square_downRight"};
+                for (size_t i = 0; i < sizeof(orientations) / sizeof(*orientations); ++i)
                 {
-                    if (slice_eq(type_names[i], word))
+                    if (slice_eq_str(word, orientations[i]))
                     {
-                        this_replacement->types_indices[type_index] = i;
-                        found = true;
+                        this_replacement->orientation = i;
                         break;
                     }
                 }
-                if (!found)
-                {
-                    arrpop(types);
-                    printf("Failed to find type name '");
-                    slice_print(word);
-                    printf("'\n");
-                    return NULL;
+                if (this_replacement->orientation == 255) {
+                    error("no such orientation");
                 }
+
+                // read split percent
+                word = slice_word_after(word);
+                Slice unit = word;
+                this_replacement->splitDecimal = strtof(word.first, &unit.first) / 100.0f;
+                char* const unit_words[] = { "cm", "m", "mm", "km", "um" };
+                const float cm_to_unit[] = { 1.0f, 100.0f, 0.1f, 100000.0f, 0.0001f };
+
+                for (size_t i = 0; i < sizeof(unit_words) / sizeof(*unit_words); ++i)
+                {
+                    if (slice_eq_str(unit, unit_words[i]))
+                    {
+                        this_replacement->orientation |= ORIENTATION_ABSOLUTE;
+                        this_replacement->splitDecimal *= cm_to_unit[i];
+                        break;
+                    }
+                }
+
+                word = rules_append_two_typenames(word, type_names, this_replacement, types);
+                if (word.first == NULL) return NULL;
             }
         }
     }

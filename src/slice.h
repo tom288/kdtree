@@ -19,7 +19,7 @@ typedef struct {
 } Slice;
 
 typedef struct {
-    bool lineBreaks;
+    bool lineBreak;
     uint8_t tabsAfterLineBreak;
     Slice wordAfter;
 } SliceWordAfterInfo;
@@ -46,7 +46,8 @@ bool slice_eq_str(Slice str1, char* str2);
 /// @return true if the string slices are identical, false otherwise
 bool slice_eq(Slice str1, Slice str2);
 
-bool slice_newline_after(Slice str);
+uint8_t slice_next_line_indentation(Slice str)
+bool slice_newlines_after(Slice str, uint8_t count);
 SliceWordAfterInfo slice_whitespace_word_after(Slice str);
 Slice slice_word_after(Slice str);
 
