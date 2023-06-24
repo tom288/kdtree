@@ -85,6 +85,7 @@ NodeType* rules_read()
         // Record typename and index
         word = slice_word_after(word);
         arrput(type_names, word);
+
         // Skip the rest of the block
         while (slice_whitespace_word_after(word).tabsAfterLineBreak != 0) {
             word = slice_word_after(word);
@@ -151,7 +152,6 @@ NodeType* rules_read()
                 this_replacement->splitDecimal = strtof(word.first, &unit.first) / 100.0f;
                 char* const unit_words[] = { "cm", "m", "mm", "km", "um" };
                 const float cm_to_unit[] = { 1.0f, 100.0f, 0.1f, 100000.0f, 0.0001f };
-
                 for (size_t i = 0; i < sizeof(unit_words) / sizeof(*unit_words); ++i)
                 {
                     if (slice_eq_str(unit, unit_words[i]))
@@ -162,8 +162,29 @@ NodeType* rules_read()
                     }
                 }
 
-                word = rules_append_two_typenames(word, type_names, this_replacement, types);
-                if (word.first == NULL) return NULL;
+                // read two typenames
+                for (size_t type_index = 0; type_index < 2; ++type_index)
+                {
+                    word = slice_word_after(word);
+                    bool found = false;
+                    for (size_t i = 0; i < arrlenu(type_names); ++i)
+                    {
+                        if (slice_eq(type_names[i], word))
+                        {
+                            this_replacement->types_indices[type_index] = i;
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found)
+                    {
+                        arrpop(types);
+                        printf("Failed to find type name '");
+                        slice_print(word);
+                        printf("'\n");
+                        return NULL;
+                    }
+                }
             }
         }
     }
