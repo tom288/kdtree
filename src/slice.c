@@ -43,9 +43,32 @@ bool slice_eq(Slice str1, Slice str2)
     return result;
 }
 
-bool slice_newline_after(Slice str) {
+uint8_t slice_next_line_indentation(Slice str) {
     char* after = str.firstAfter;
-    return for_any("\n\r", 2, after, 1, COMPARE_EQ);
+    char* avoid = "\a\b\f\v\t";
+    while (!for_any("\n\r", 2, after, 1, COMPARE_EQ)) {
+        if (for_any(avoid, 5, after, 1, COMPARE_EQ)) error("invalid character");
+        after++;
+    }
+    after++;
+    uint8_t spaces = 0;
+    while (isspace(*after)) {
+        if (for_any(avoid, 5, after, 1, COMPARE_EQ)) error("invalid character");
+        spaces++;
+        after++;
+    }
+    if (spaces % 4 != 0) error("invalid indentation");
+    return spaces / 4;
+}
+
+bool slice_newline_after(Slice str, uint8_t count) {
+    char* after = str.firstAfter;
+    while (count--) {
+        if (!for_any("\n\r", 2, after, 1, COMPARE_EQ)) return false;
+        if (*after == '\r') after++;
+        after++;
+    }
+    return true;
 }
 
 SliceWordAfterInfo slice_whitespace_word_after(Slice str) {
@@ -56,17 +79,17 @@ SliceWordAfterInfo slice_whitespace_word_after(Slice str) {
     while (*pos == '\n' || *pos == '\r') {
         info.lineBreak = true;
         if(for_any(avoid, 4, pos, 1, COMPARE_EQ)) error("invalid character");
-        if (*pos == '\t') error("invalid character, no tabs aloud");
+        if (*pos == '\t') error("invalid indentation, no tabs aloud");
         pos++;
     }
     if (info.lineBreak) {
         uint8_t spaces = 0;
         while (*pos == ' ') {
             spaces++;
-            if (*pos == '\t') error("invalid indenting, no tabs aloud");
+            if (*pos == '\t') error("invalid indentation, no tabs aloud");
             pos++;
         }
-        if (spaces % 4 != 0) error("invalid indenting, use multiples of four spaces");
+        if (spaces % 4 != 0) error("invalid indentation, use multiples of four spaces");
         info.tabsAfterLineBreak = spaces / 4;
     }
     else {

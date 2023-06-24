@@ -162,29 +162,8 @@ NodeType* rules_read()
                     }
                 }
 
-                // read two typenames
-                for (size_t type_index = 0; type_index < 2; ++type_index)
-                {
-                    word = slice_word_after(word);
-                    bool found = false;
-                    for (size_t i = 0; i < arrlenu(type_names); ++i)
-                    {
-                        if (slice_eq(type_names[i], word))
-                        {
-                            this_replacement->types_indices[type_index] = i;
-                            found = true;
-                            break;
-                        }
-                    }
-                    if (!found)
-                    {
-                        arrpop(types);
-                        printf("Failed to find type name '");
-                        slice_print(word);
-                        printf("'\n");
-                        return NULL;
-                    }
-                }
+                word = rules_append_two_typenames(word, type_names, this_replacement, types);
+                if (word.first == NULL) return NULL;
             }
         }
     }
