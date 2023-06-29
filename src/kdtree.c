@@ -190,7 +190,7 @@ void** gen_vertices()
 {
     const size_t target_node_count = 1000 * 1000;
     const float min_area = 5.992f / target_node_count;
-    Node* nodes = gen_random_nodes(min_area); // Use gen_nodes for rule usage
+    Node* nodes = gen_nodes(min_area); // Use gen_nodes for rule usage
     return gen_vertices_from_nodes(nodes);
 }
 
