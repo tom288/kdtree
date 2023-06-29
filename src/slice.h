@@ -2,27 +2,11 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-/// @brief pointer to start and end of substring
-/// last = (firstAfter - 1)
-/// (firstAfter - first) = length
-/// HelloWorld
-/// sub: elloWo
-/// first: 1
-/// last: 6
-/// firstAfter: 7
-/// If the slice ends on the last character of the string,
-/// then firstAfter will be the strings ending null character (/0).
-/// Needs to be passed as pointer if it will be modified.
+/// @brief a slice, pointers to its start and end, last = (firstAfter - 1), (firstAfter - first) = length
 typedef struct {
-    char* first; // pointer to character
-    char* firstAfter; // pointer to character
+    char* first;
+    char* firstAfter;
 } Slice;
-
-typedef struct {
-    bool lineBreak;
-    uint8_t tabsAfterLineBreak;
-    Slice wordAfter;
-} SliceWordAfterInfo;
 
 /// @brief Yields slice length, use strlen for char*
 /// @param str String slice to be measured
@@ -46,11 +30,13 @@ bool slice_eq_str(Slice str1, char* str2);
 /// @return true if the string slices are identical, false otherwise
 bool slice_eq(Slice str1, Slice str2);
 
+/// @brief counts the indentation tabs on the next line after a given string slice
+/// @param str a string slice
+/// @return the number of tabs on the next line
 uint8_t slice_next_line_indentation(Slice str);
-bool slice_newlines_after(Slice str);
-SliceWordAfterInfo slice_whitespace_word_after(Slice str);
-Slice slice_word_after(Slice str);
 
+bool slice_newlines_after(Slice str);
+Slice slice_word_after(Slice str);
 void slice_print(Slice str);
 
 /// @brief Get the full path of a directory from arg0 and the desired subdir

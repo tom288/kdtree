@@ -1,14 +1,14 @@
 
 world
-0 0 0
-| left 1 red2 world2
+0 80 0
+    left 50
+    arch
+        size: 5
+        col: red
+    door
 
-world2
-0 0 20
-| top 50 green2 world
-
-red2
-50 0 0
-
-green2
-0 50 0
+arch
+0 0 80
+    left size
+    1: frame
+    2: col

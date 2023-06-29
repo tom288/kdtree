@@ -78,21 +78,13 @@ NodeType* rules_read()
     Slice file = slice_from_path("world2.txt");
     Slice word = { file.first, file.first };
 
-    // Record typenames and their indices
+    // record typenames
     Slice* type_names = NULL;
-    for (size_t i = 0; slice_len(slice_word_after(word)); ++i)
-    {
-        // Record typename and index
+    word = slice_word_after(word);
+    arrput(type_names, word);
+    word = slice_word_after(word);
+    while (slice_next_line_indentation(word) != 0) {
         word = slice_word_after(word);
-        arrput(type_names, word);
-
-        // Skip the rest of the block
-        while (slice_whitespace_word_after(word).tabsAfterLineBreak != 0) {
-            word = slice_word_after(word);
-            while (!slice_whitespace_word_after(word).lineBreak) {
-                word = slice_word_after(word);
-            }
-        }
     }
     word = (Slice) { .first = file.first, .firstAfter = file.first };
 
@@ -115,7 +107,7 @@ NodeType* rules_read()
         }
 
         this_node->replacements = NULL;
-        if (slice_whitespace_word_after(word).tabsAfterLineBreak == 1)
+        if (slice_next_line_indentation(word) == 1)
         {
             while (true) // until '|' keep reading replacement rule lines
             {
