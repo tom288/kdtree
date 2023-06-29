@@ -134,7 +134,8 @@ void update_min_max(Node n, GeneratedNodes* out, GLboolean discarded)
     out->potential_set = GL_TRUE;
 }
 
-GLboolean kdtree_should_generate_node(Node node, Camera camera)
+// TODO rename and relocate
+float calc_camera_hyp(Camera camera)
 {
     float hyp = 0;
     for (size_t i = 0; i < 2; ++i)
@@ -142,7 +143,12 @@ GLboolean kdtree_should_generate_node(Node node, Camera camera)
         hyp += camera.scaled_size[i] * camera.scaled_size[i];
     }
     // Make generated region 2x the camera region
-    hyp = sqrtf(hyp) * 2.0f;
+    return sqrtf(hyp) * 2.0f;
+}
+
+GLboolean kdtree_should_generate_node(Node node, Camera camera)
+{
+    float hyp = calc_camera_hyp(camera);
 
     for (size_t i = 0; i < 2; ++i)
     {
@@ -155,19 +161,17 @@ GLboolean kdtree_should_generate_node(Node node, Camera camera)
 
 GeneratedNodes gen_random_nodes(float min_area, Camera camera)
 {
-    // Guess the amount of memory needed to avoid both waste and growth
+    // Guess the amount of memory needed to avoid both waste and growths
     Node* nodes = NULL;
     size_t expected_node_count = 6.0f / min_area;
     arrsetcap(nodes, expected_node_count);
 
+    // Generate the k-d tree head
     pcg32_random_t rng;
     pcg32_srandom_r(&rng, 4, 5);
-
-    // Define the head of the k-d tree, which is never a leaf, so has no colour
     arrput(nodes, _random_node(NULL, &rng));
 
     size_t num_nodes_finished = 0;
-
     GeneratedNodes out;
 
     // Expand all nodes until they are finished
@@ -201,12 +205,13 @@ GeneratedNodes gen_nodes(float min_area, Camera camera)
     Node* nodes = NULL;
     size_t expected_node_count = 6.0f / min_area;
     arrsetcap(nodes, expected_node_count);
-    NodeType* types = rules_read(); // Read node types from file
 
+    // Read node types from file
+    NodeType* types = rules_read();
+
+    // Generate the k-d tree head
     vec3 r;
     glm_vec3_scale(types[0].col, 255, r);
-
-    // Define the head of the k-d tree
     arrput(nodes, ((Node) {
         .colour = { r[0], r[1], r[2] },
         .min_corner = { -1.0f, -1.0f },
@@ -215,7 +220,6 @@ GeneratedNodes gen_nodes(float min_area, Camera camera)
     }));
 
     size_t num_nodes_finished = 0;
-
     GeneratedNodes out;
 
     // Expand all nodes until they are finished
@@ -329,12 +333,15 @@ GeneratedVertices gen_vertices(Camera camera)
     };
 }
 
-void kdtree_assign_bounds(KDTree* tree, GeneratedVertices generated)
+void kdtree_assign_bounds(KDTree* tree, GeneratedVertices generated, Camera cam)
 {
+    // TODO ensure min_corner and size are within camera constraints
+    float hyp = calc_camera_hyp(cam);
+
     for (size_t i = 0; i < 2; ++i)
     {
-        tree->min_corner[i] = generated.min_corner[i];
-        tree->size[i] = generated.size[i];
+        tree->min_corner[i] = max(generated.min_corner[i], cam.position[i] - hyp);
+        tree->size[i] = min(hyp * 2.0f, generated.size[i]);
         tree->potential_min_corner[i] = generated.potential_min_corner[i];
         tree->potential_size[i] = generated.potential_size[i];
     }
@@ -380,7 +387,7 @@ KDTree kdtree_init(Shader* shader, Camera camera)
         ),
     };
 
-    kdtree_assign_bounds(&tree, generated);
+    kdtree_assign_bounds(&tree, generated, camera);
 
     return tree;
 }
@@ -392,7 +399,7 @@ void kdtree_regenerate(KDTree* tree, Camera camera)
     arrput(types, GL_UNSIGNED_BYTE);
     GeneratedVertices generated = gen_vertices(camera);
     graph_update_vertices(&tree->graph, generated.vertices, types);
-    kdtree_assign_bounds(tree, generated);
+    kdtree_assign_bounds(tree, generated, camera);
     arrfree(types);
 }
 
@@ -402,10 +409,11 @@ void kdtree_check_camera(KDTree* tree, Camera camera)
     // OR if the zoom level has doubled
 
     // TODO Check if the tree can even be generated further in the desired dir
-    // TODO Support partial generation
     // TODO Make min area take the zoom level into account
-    // TODO Try 64 instead
 
+    // TODO add a mechanism to prevent this from occuring every frame in a
+    // worst-case scenario where the camera is extremely zoomed
+    // TODO try 64 instead
     if (tree->size[0] * tree->size[1] / 256 >
         camera.scaled_size[0] * camera.scaled_size[1]
     ) {
@@ -429,8 +437,14 @@ void kdtree_check_camera(KDTree* tree, Camera camera)
             : glm_vec2_sub) (corner, local[dim], corner);
         for (size_t dim = 0; dim < 2; ++dim)
         {
-            if (corner[dim] <= tree->min_corner[dim] ||
-                corner[dim] >= tree->min_corner[dim] + tree->size[dim])
+            if ((
+                corner[dim] <= tree->min_corner[dim] &&
+                tree->min_corner[dim] > tree->potential_min_corner[dim]
+            ) || (
+                corner[dim] >= tree->min_corner[dim] + tree->size[dim] &&
+                tree->min_corner[dim] + tree->size[dim] >
+                    tree->potential_min_corner[dim] + tree->potential_size[dim]
+            ))
             {
                 kdtree_regenerate(tree, camera);
                 return;
