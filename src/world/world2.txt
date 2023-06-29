@@ -1,14 +1,17 @@
 
 world
-0 80 0
+    0 80 0
     left 50
-    arch
-        size: 5
-        col: red
-    door
+        arch
+            size: 5
+            col: red
+        door
 
 arch
-0 0 80
+    0 0 80
     left size
-    1: frame
-    2: col
+    frame
+    col
+
+door
+    0 0 0
