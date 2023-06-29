@@ -2,7 +2,7 @@
 
 void misc_ind(size_t indent)
 {
-    for (size_t n = 0; n < indent; n++) printf("  ");
+    for (size_t i = 0; i < indent; ++i) printf("  ");
 }
 
 bool misc_not_null(void* z)

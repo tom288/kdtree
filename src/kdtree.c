@@ -118,7 +118,7 @@ Node* gen_nodes(float min_area)
     while (arrlenu(nodes) > num_nodes_finished)
     {
         Node node = nodes[num_nodes_finished];
-        uint32_t replacement_count = arrlenu(node.type->replacements);
+        size_t replacement_count = arrlenu(node.type->replacements);
         if (node.size[0] * node.size[1] > min_area && replacement_count > 0)
         {
             const size_t n = rand_int(replacement_count, true);
@@ -186,19 +186,11 @@ void** gen_vertices_from_nodes(Node* nodes)
     return vertices;
 }
 
-void** gen_random_vertices()
-{
-    const size_t target_node_count = 1000 * 1000;
-    const float min_area = 5.992f / target_node_count;
-    Node* nodes = gen_random_nodes(min_area);
-    return gen_vertices_from_nodes(nodes);
-}
-
 void** gen_vertices()
 {
     const size_t target_node_count = 1000 * 1000;
     const float min_area = 5.992f / target_node_count;
-    Node* nodes = gen_nodes(min_area);
+    Node* nodes = gen_random_nodes(min_area); // Use gen_nodes for rule usage
     return gen_vertices_from_nodes(nodes);
 }
 

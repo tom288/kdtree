@@ -120,20 +120,11 @@ Window* window_init()
     }
 
     *window = (Window) {
-        .win = NULL,
-        .ok = GL_FALSE,
         .clear_mask = clear_buffers * (
             GL_DEPTH_BUFFER_BIT * test_depth |
             GL_COLOR_BUFFER_BIT
         ),
-        .input = (Input) {
-            .hold = 0,
-            .press = 0,
-            .mouse = { 0.0f, 0.0f },
-            .scroll = 0.0,
-        },
         .size = { width, height },
-        .binds = NULL,
     };
 
     if (!window_count && !glfwInit())

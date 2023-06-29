@@ -1,12 +1,6 @@
 #include "killer.h"
 
-Killer killer_init()
-{
-    return (Killer) {
-        .kill_fns = NULL,
-        .kill_args = NULL,
-    };
-}
+Killer killer_null;
 
 int killer_assert(Killer* killer, GLboolean b)
 {

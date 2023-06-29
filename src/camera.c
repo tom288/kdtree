@@ -2,15 +2,13 @@
 
 Camera camera_init(vec2 window_size)
 {
-    Camera camera = {
+    return (Camera) {
         .position = { 0.0f, 0.0f },
         .velocity = { 0.0f, 0.0f },
-        .base_size = { 1.0f, 1.0f },
+        .base_size = { window_size[0] / window_size[1], 1.0f },
         .rotation = 0.0f,
         .scale_power = 0.0f,
     };
-    camera.base_size[0] *= window_size[0] / window_size[1];
-    return camera;
 }
 
 void camera_step(

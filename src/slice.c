@@ -12,7 +12,7 @@
 /// @brief Path to rules definition file directory
 char* rule_dir = NULL;
 
-uint32_t slice_len(Slice str)
+size_t slice_len(Slice str)
 {
     return str.firstAfter - str.first;
 }
@@ -104,9 +104,9 @@ Slice slice_word_after(Slice str)
 
 void slice_print(Slice str)
 {
-    for (uint32_t n = 0; n < str.firstAfter - str.first; n++)
+    for (ptrdiff_t i = 0; i < str.firstAfter - str.first; ++i)
     {
-        printf("%c", str.first[n]);
+        printf("%c", str.first[i]);
     }
 }
 

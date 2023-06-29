@@ -10,9 +10,8 @@ typedef struct {
     void** kill_args;
 } Killer;
 
-/// @brief Return a new killer
-/// @return The new killer
-Killer killer_init();
+// Default killer with no fns and no args/targets
+extern Killer killer_null;
 
 /// @brief Assert the input is true, otherwise call killer_kill
 /// @param killer Killer to assert for
