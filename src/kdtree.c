@@ -329,29 +329,15 @@ GeneratedVertices gen_vertices(Camera camera)
     };
 }
 
-void kdtree_calc_bounds(KDTree* tree)
+void kdtree_assign_bounds(KDTree* tree, GeneratedVertices generated)
 {
-    Graph graph = tree->graph;
-    if (!graph_ok(graph)) return;
-
-    size_t dims = sizeof(tree->size) / sizeof(*tree->size);
-    const float* floats = graph.vertices[0];
-    memcpy(tree->min_corner, floats, sizeof(tree->min_corner));
-
-    for (size_t i = 0; i < dims; ++i)
+    for (size_t i = 0; i < 2; ++i)
     {
-        tree->size[i] = tree->min_corner[i] + floats[i + dims];
+        tree->min_corner[i] = generated.min_corner[i];
+        tree->size[i] = generated.size[i];
+        tree->potential_min_corner[i] = generated.potential_min_corner[i];
+        tree->potential_size[i] = generated.potential_size[i];
     }
-    for (size_t i = dims * 2; i < arrlenu(graph.vertices[0]); i += dims * 2)
-    {
-        for (size_t j = 0; j < dims; ++j)
-        {
-            const float c = floats[i + j];
-            tree->min_corner[j] = min(tree->min_corner[j], c);
-            tree->size[j] = max(tree->size[j], c + floats[i + j + dims]);
-        }
-    }
-    for (size_t i = 0; i < 2; ++i) tree->size[i] -= tree->min_corner[i];
 }
 
 KDTree kdtree_init(Shader* shader, Camera camera)
@@ -392,25 +378,21 @@ KDTree kdtree_init(Shader* shader, Camera camera)
             NULL,
             attributes
         ),
-        .min_corner = { generated.min_corner[0], generated.min_corner[1] },
-        .size = { generated.size[0], generated.size[1] },
-        .potential_min_corner = { generated.potential_min_corner[0], generated.potential_min_corner[1] },
-        .potential_size = { generated.potential_size[0], generated.potential_size[1] },
     };
 
-    kdtree_calc_bounds(&tree);
+    kdtree_assign_bounds(&tree, generated);
 
     return tree;
 }
 
-void kdtree_regenerate(KDTree *tree, Camera camera)
+void kdtree_regenerate(KDTree* tree, Camera camera)
 {
     GLenum* types = NULL;
     arrput(types, GL_FLOAT);
     arrput(types, GL_UNSIGNED_BYTE);
     GeneratedVertices generated = gen_vertices(camera);
     graph_update_vertices(&tree->graph, generated.vertices, types);
-    kdtree_calc_bounds(tree);
+    kdtree_assign_bounds(tree, generated);
     arrfree(types);
 }
 
