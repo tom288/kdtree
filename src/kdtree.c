@@ -2,20 +2,40 @@
 #include "kdtree.h"
 #include "camera.h"
 #include "utility.h"
+#include "rand.h"
 #include "rules.h"
 #include <time.h> // time
 #include <stb_ds.h>
 #include <cglm/cglm.h>
 
+Node _random_node(Node* parent, pcg32_random_t* rng)
+{
+    uint32_t col = pcg32_random_r(rng);
+    uint32_t spl = pcg32_random_r(rng);
+
+    vec2 min_corner = { -1.0f, -1.0f };
+    vec2 size = { 2.0f, 2.0f };
+    if (parent) for (size_t i = 0; i < 2; ++i)
+    {
+        min_corner[i] = parent->min_corner[i];
+        size[i] = parent->size[i];
+    }
+
+    return (Node) {
+        .colour = { (col >> 24) & 255, (col >> 16) & 255, (col >> 8) & 255 },
+        .min_corner = { min_corner[0], min_corner[1] },
+        .seed = pcg32_random_r(rng),
+        .size = { size[0], size[1] },
+        .split_axis = spl & 1,
+        .split = bias_float((float)spl / (float)UINT32_MAX, 0.5, 2.0f),
+    };
+}
+
 Node random_node_child(Node parent, GLboolean child_index)
 {
-    Node child = {
-        .colour = { rand() & 255, rand() & 255, rand() & 255 },
-        .min_corner = { parent.min_corner[0], parent.min_corner[1] },
-        .size = { parent.size[0], parent.size[1] },
-        .split_axis = rand_bool(),
-        .split = bias_float(rand_float(), 0.5, 2.0f),
-    };
+    pcg32_random_t rng;
+    pcg32_srandom_r(&rng, parent.seed + child_index, child_index ? 7 : 9);
+    Node child = _random_node(&parent, &rng);
 
     const GLboolean axis = parent.split_axis;
     float split = parent.split;
@@ -114,6 +134,25 @@ void update_min_max(Node n, GeneratedNodes* out, GLboolean discarded)
     out->potential_set = GL_TRUE;
 }
 
+GLboolean kdtree_should_generate_node(Node node, Camera camera)
+{
+    float hyp = 0;
+    for (size_t i = 0; i < 2; ++i)
+    {
+        hyp += camera.scaled_size[i] * camera.scaled_size[i];
+    }
+    // Make generated region 2x the camera region
+    hyp = sqrtf(hyp) * 2.0f;
+
+    for (size_t i = 0; i < 2; ++i)
+    {
+        if (node.min_corner[i] > camera.position[i] + hyp ||
+            node.min_corner[i] + node.size[i] < camera.position[i] - hyp
+        ) return GL_FALSE;
+    }
+    return GL_TRUE;
+}
+
 GeneratedNodes gen_random_nodes(float min_area, Camera camera)
 {
     // Guess the amount of memory needed to avoid both waste and growth
@@ -121,14 +160,11 @@ GeneratedNodes gen_random_nodes(float min_area, Camera camera)
     size_t expected_node_count = 6.0f / min_area;
     arrsetcap(nodes, expected_node_count);
 
+    pcg32_random_t rng;
+    pcg32_srandom_r(&rng, 4, 5);
+
     // Define the head of the k-d tree, which is never a leaf, so has no colour
-    arrput(nodes, ((Node) {
-        .colour = { 0 },
-        .min_corner = { -1.0f, -1.0f },
-        .size = { 2.0f, 2.0f },
-        .split_axis = rand_bool(),
-        .split = bias_float(rand_float(), 0.5, 2.0f),
-    }));
+    arrput(nodes, _random_node(NULL, &rng));
 
     size_t num_nodes_finished = 0;
 
@@ -138,7 +174,7 @@ GeneratedNodes gen_random_nodes(float min_area, Camera camera)
     while (arrlenu(nodes) > num_nodes_finished)
     {
         const Node node = nodes[num_nodes_finished];
-        if (GL_FALSE) // TODO if outside camera region
+        if (!kdtree_should_generate_node(node, camera))
         {
             update_min_max(node, &out, true);
             arrdelswap(nodes, num_nodes_finished);
@@ -187,14 +223,16 @@ GeneratedNodes gen_nodes(float min_area, Camera camera)
     {
         Node node = nodes[num_nodes_finished];
         size_t replacement_count = arrlenu(node.type->replacements);
-        if (GL_FALSE) // TODO if outside camera region
+        if (!kdtree_should_generate_node(node, camera))
         {
             update_min_max(node, &out, true);
             arrdelswap(nodes, num_nodes_finished);
         }
         if (node.size[0] * node.size[1] > min_area && replacement_count > 0)
         {
-            const size_t n = rand_int(replacement_count, true);
+            pcg32_random_t rng;
+            pcg32_srandom_r(&rng, node.seed, 3);
+            const size_t n = pcg32_boundedrand_r(&rng, replacement_count);
             Replacement replacement = node.type->replacements[n];
 
             size_t n_copy = n;
@@ -272,15 +310,21 @@ typedef struct {
 
 GeneratedVertices gen_vertices(Camera camera)
 {
-    srand(0);
     const size_t target_node_count = 1000 * 1000;
     const float min_area = 5.992f / target_node_count;
-    GeneratedNodes nodes = gen_random_nodes(min_area, camera); // Use gen_nodes for rule usage
+    // TODO replace with gen_nodes to use rules instead
+    GeneratedNodes nodes = gen_random_nodes(min_area, camera);
     return (GeneratedVertices) {
         .min_corner = { nodes.min[0], nodes.min[1] },
         .size = { nodes.max[0] - nodes.min[0], nodes.max[1] - nodes.min[1] },
-        .potential_min_corner = { nodes.potential_min[0], nodes.potential_min[1] },
-        .potential_size = { nodes.potential_max[0] - nodes.potential_min[0], nodes.potential_max[1] - nodes.potential_min[1] },
+        .potential_min_corner = {
+            nodes.potential_min[0],
+            nodes.potential_min[1]
+        },
+        .potential_size = {
+            nodes.potential_max[0] - nodes.potential_min[0],
+            nodes.potential_max[1] - nodes.potential_min[1]
+        },
         .vertices = gen_vertices_from_nodes(nodes.nodes),
     };
 }
@@ -312,8 +356,6 @@ void kdtree_calc_bounds(KDTree* tree)
 
 KDTree kdtree_init(Shader* shader, Camera camera)
 {
-    // Seed the random number generator
-    // srand(time(NULL));
     GeneratedVertices generated = gen_vertices(camera);
     void** vertices = generated.vertices;
 

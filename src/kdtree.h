@@ -22,6 +22,7 @@ typedef struct Node {
     GLboolean split_axis;
     float split;
     NodeType* type;
+    uint16_t seed;
 } Node;
 
 /// @brief Create a random kd-tree spanning the entire -1 to 1 range

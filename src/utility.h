@@ -49,17 +49,6 @@ size_t rand_int(size_t sides, GLboolean fair);
 /// @return n rotated by dist bytes
 size_t rotate_left(size_t n, size_t dist);
 
-/// @brief Rotate n left by n dist quaters
-/// @param n Value to rotate
-/// @param count Number of quaters to rotate by
-/// @return n rotated by dist quaters
-size_t rotate_left_quarter(size_t n, size_t count);
-
-/// @brief Sample some randomness for a given node, by treating it as a vec4
-/// @param sample Node to sample from
-/// @return The random value at that node
-size_t sampleRandom(Node sample);
-
 /// @brief Take the smaller of two values of any equal type
 #define min(a,b) \
     __extension__({ __typeof__ (a) _a = (a); \
