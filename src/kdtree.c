@@ -23,9 +23,9 @@ Node _random_node(Node* parent, pcg32_random_t* rng)
 
     return (Node) {
         .colour = { (col >> 24) & 255, (col >> 16) & 255, (col >> 8) & 255 },
-        .min_corner = { min_corner[0], min_corner[1] },
+        .min_corner = { FLAT2(min_corner) },
         .seed = pcg32_random_r(rng),
-        .size = { size[0], size[1] },
+        .size = { FLAT2(size) },
         .split_axis = spl & 1,
         .split = bias_float((float)spl / (float)UINT32_MAX, 0.5, 2.0f),
     };
@@ -60,9 +60,9 @@ Node node_child(
     glm_vec3_scale(types[replacement.types_indices[child_index]].col, 255, r);
 
     Node child = {
-        .colour = { r[0], r[1], r[2] },
-        .min_corner = { parent.min_corner[0], parent.min_corner[1] },
-        .size = { parent.size[0], parent.size[1] },
+        .colour = { FLAT3(r) },
+        .min_corner = { FLAT2(parent.min_corner) },
+        .size = { FLAT2(parent.size) },
         .type = &types[replacement.types_indices[child_index]],
     };
 
@@ -101,6 +101,7 @@ void update_min_max(Node n, GeneratedNodes* out, GLboolean discarded)
     {
         float potential_min_rhs = out->min[i];
         float potential_max_rhs = out->max[i];
+
         if (discarded)
         {
             potential_min_rhs = n.min_corner[i];
@@ -159,11 +160,12 @@ GLboolean kdtree_should_generate_node(Node node, Camera camera)
     return GL_TRUE;
 }
 
-GeneratedNodes gen_random_nodes(float min_area, Camera camera)
+GeneratedNodes gen_random_nodes(size_t count, Camera camera)
 {
+    const float min_area = 3.37f / count * camera.scaled_size[0] * camera.scaled_size[1];
     // Guess the amount of memory needed to avoid both waste and growths
+    size_t expected_node_count = count * 1.01f;
     Node* nodes = NULL;
-    size_t expected_node_count = 6.0f / min_area;
     arrsetcap(nodes, expected_node_count);
 
     // Generate the k-d tree head
@@ -199,22 +201,26 @@ GeneratedNodes gen_random_nodes(float min_area, Camera camera)
     return out;
 }
 
-GeneratedNodes gen_nodes(float min_area, Camera camera)
+GeneratedNodes gen_nodes(size_t count, Camera camera)
 {
-    // Guess the amount of memory needed to avoid both waste and growth
+    const float min_area = 3.37f / count * camera.scaled_size[0] * camera.scaled_size[1];
+    // Guess the amount of memory needed to avoid both waste and growths
+    size_t expected_node_count = count * 1.01f;
     Node* nodes = NULL;
-    size_t expected_node_count = 6.0f / min_area;
     arrsetcap(nodes, expected_node_count);
 
     // Read node types from file
     NodeType* types = rules_read();
 
     // Generate the k-d tree head
-    vec3 r;
-    glm_vec3_scale(types[0].col, 255, r);
+    pcg32_random_t rng;
+    pcg32_srandom_r(&rng, 4, 5);
+    vec3 col;
+    glm_vec3_scale(types[0].col, 255, col);
     arrput(nodes, ((Node) {
-        .colour = { r[0], r[1], r[2] },
+        .colour = { FLAT3(col) },
         .min_corner = { -1.0f, -1.0f },
+        .seed = pcg32_random_r(&rng),
         .size = { 2.0f, 2.0f },
         .type = &types[0],
     }));
@@ -314,21 +320,13 @@ typedef struct {
 
 GeneratedVertices gen_vertices(Camera camera)
 {
-    const size_t target_node_count = 1000 * 1000;
-    const float min_area = 5.992f / target_node_count;
     // TODO replace with gen_nodes to use rules instead
-    GeneratedNodes nodes = gen_random_nodes(min_area, camera);
+    GeneratedNodes nodes = gen_random_nodes(1000, camera);
     return (GeneratedVertices) {
-        .min_corner = { nodes.min[0], nodes.min[1] },
-        .size = { nodes.max[0] - nodes.min[0], nodes.max[1] - nodes.min[1] },
-        .potential_min_corner = {
-            nodes.potential_min[0],
-            nodes.potential_min[1]
-        },
-        .potential_size = {
-            nodes.potential_max[0] - nodes.potential_min[0],
-            nodes.potential_max[1] - nodes.potential_min[1]
-        },
+        .min_corner = { FLAT2(nodes.min) },
+        .size = { FLAT_SUB2(nodes.max, nodes.min) },
+        .potential_min_corner = { FLAT2(nodes.potential_min) },
+        .potential_size = { FLAT_SUB2(nodes.potential_max, nodes.potential_min) },
         .vertices = gen_vertices_from_nodes(nodes.nodes),
     };
 }
@@ -434,7 +432,7 @@ void kdtree_check_camera(KDTree* tree, Camera camera)
         glm_vec2_copy(camera.position, corner);
         for (size_t dim = 0; dim < 2; ++dim) (i & (1 << dim)
             ? glm_vec2_add
-            : glm_vec2_sub) (corner, local[dim], corner);
+            : glm_vec2_sub)(corner, local[dim], corner);
         for (size_t dim = 0; dim < 2; ++dim)
         {
             if ((
@@ -457,13 +455,8 @@ void node_info(Node* node)
 {
     printf("Node %zu info:\n", (size_t)node / sizeof(Node));
     if (!node) return;
-    printf("Min corner %f %f\n", node->min_corner[0], node->min_corner[1]);
-    printf("Size %f %f\n", node->size[0], node->size[1]);
+    printf("Min corner %f %f\n", FLAT2(node->min_corner));
+    printf("Size %f %f\n", FLAT2(node->size));
     printf("Split %c %f\n", node->split_axis ? 'Y' : 'X', node->split);
-    printf(
-        "Colour %" PRIu8 " %" PRIu8 " %" PRIu8 "\n",
-        node->colour[0],
-        node->colour[1],
-        node->colour[2]
-    );
+    printf("Colour %" PRIu8 " %" PRIu8 " %" PRIu8 "\n", FLAT3(node->colour));
 }

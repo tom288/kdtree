@@ -1,14 +1,13 @@
 #include "camera.h"
+#include "utility.h"
 
 Camera camera_init(vec2 window_size)
 {
-    return (Camera) {
-        .position = { 0.0f, 0.0f },
-        .velocity = { 0.0f, 0.0f },
+    Camera cam = {
         .base_size = { window_size[0] / window_size[1], 1.0f },
-        .rotation = 0.0f,
-        .scale_power = 0.0f,
+        .scaled_size = { FLAT2(cam.base_size) },
     };
+    return cam;
 }
 
 void camera_step(

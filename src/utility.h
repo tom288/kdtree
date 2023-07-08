@@ -60,3 +60,9 @@ size_t rotate_left(size_t n, size_t dist);
     __extension__({ __typeof__ (a) _a = (a); \
        __typeof__ (b) _b = (b); \
             _a > _b ? _a : _b; })
+
+#define FLAT2(v) v[0], v[1]
+#define FLAT3(v) v[0], v[1], v[2]
+#define FLAT4(v) v[0], v[1], v[2], v[3]
+
+#define FLAT_SUB2(l, r) l[0] - r[0], l[1] - r[1]

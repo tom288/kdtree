@@ -346,18 +346,18 @@ GLboolean graph_prep_texture(
     graph->fbo = framebuffer;
 
     if (mipmap) glGenerateMipmap(GL_TEXTURE_2D);
-    glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
+    glViewport(FLAT4(viewport));
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     const float const_vertices[] = {
         // positions   // texCoords
-        -1.0f, -1.0f,  0.0f, 0.0f,
-        1.0f,  1.0f,  1.0f, 1.0f,
-        -1.0f,  1.0f,  0.0f, 1.0f,
+        -1.0f, -1.0f,  0.0f,  0.0f,
+         1.0f,  1.0f,  1.0f,  1.0f,
+        -1.0f,  1.0f,  0.0f,  1.0f,
 
-        1.0f,  1.0f,  1.0f, 1.0f,
-        -1.0f, -1.0f,  0.0f, 0.0f,
-        1.0f, -1.0f,  1.0f, 0.0f,
+         1.0f,  1.0f,  1.0f,  1.0f,
+        -1.0f, -1.0f,  0.0f,  0.0f,
+         1.0f, -1.0f,  1.0f,  0.0f,
     };
 
     float* vertex_floats = NULL;
