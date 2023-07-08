@@ -2,10 +2,29 @@
 #include "utility.h"
 #include <cglm/cglm.h>
 #include <math.h>
+#include "shader.h"
+
+Gameplay_Player player1;
+
+void gameplay_init() {
+    player1 = gameplay_player(gameplay_player_stats(0));
+}
+
+void move_test_rectangle(float x, float y, Shader* rectangle_shader) { // for testing only
+    shader_set_2fv(*rectangle_shader, "translate", 1, (vec2){x, y});;
+}
+
+// called once per frame
+// TODO: finish this
+void gameplay_physics_tick(float interval, Shader* rectangle_shader) {
+    gameplay_drive_physStep(player1.drive);
+    // gameplay_drive_physStep2(player1.drive);
+    move_test_rectangle(player1.ent2.pos_rot.pos[0], player1.ent2.pos_rot.pos[1], rectangle_shader);
+}
 
 Entity2 entity2() {
     return (Entity2) {
-        .ent = {{0.0, 0.0, 0.0}, 0.0},
+        .pos_rot = {{0.0, 0.0, 0.0}, 0.0},
         .vel = {1.0, 1.0, 1.0},
         .scale = 1.0,
         .type = 0,
@@ -13,9 +32,11 @@ Entity2 entity2() {
     };
 }
 
+int gameplay_player_stats_count = 3;
+
 GameplayPlayerStats gameplay_player_stats(uint8_t choice) {
     GameplayPlayerStats def = (GameplayPlayerStats) {
-        .ent2 = (Entity2) {.ent = {{0, 0, 0}, 0}, .vel = {0, 0, 0}, .scale = 1, .type = 3, .solid = true},
+        .ent2 = (Entity2) {.pos_rot = {{0, 0, 0}, 0}, .vel = {0, 0, 0}, .scale = 1, .type = 3, .solid = true},
         .health = 100, .health_changePerSec = 0,
         .friction = 100, .acceleration = 100,
         .armour_lower = 100, .armour_mid = 100, .armour_upper = 50,
@@ -74,12 +95,21 @@ Entity3 entity3() {
     return (Entity3) {.ent2 = entity2(), .onGround = false};
 }
 
-const GameplayDrive gameplay_drive = {false, NULL, NULL, NULL};
+uint8_t gameplay_drive_valuesCount = 3;
+
+GameplayDrive gameplay_drive() {
+    GameplayDrive drive;
+    drive.accelerating = 0;
+    drive.biases = NULL;
+    drive.values = NULL;
+    drive.weights = NULL;
+    return drive;
+}
 
 GameplayDrive gameplay_drive_physStep(GameplayDrive d) {
     uint8_t speed_index = 3;
     if (d.accelerating == true) d.values[speed_index] += 0.1f;
-    d.values[speed_index] *= 0.9f;
+    //d.values[speed_index] *= 0.9f;
     return d;
 }
 
@@ -106,11 +136,12 @@ float gameplay_easing(uint8_t func_index, float value_0_to_1) {
 Gameplay_Player gameplay_player(GameplayPlayerStats stats) {
     return (Gameplay_Player) {
         .ent2 = entity2(),
-        .health = stats.health
+        .health = stats.health,
+        .drive = gameplay_drive()
     };
 }
 
-void gameplay_player_lookAt(Entity* self, Entity target) {
+void gameplay_player_lookAt(PosRot* self, PosRot target) {
     vec2 diff;
     glm_vec2_sub(target.pos, self->pos, diff);
     glm_vec2_normalize(diff);
@@ -119,7 +150,7 @@ void gameplay_player_lookAt(Entity* self, Entity target) {
 
 Gameplay_Player gameplay_player_physStep(Gameplay_Player self, GameplayPlayerStats stats) {
     float* vel = self.ent2.vel;
-    float* pos = self.ent2.ent.pos;
+    float* pos = self.ent2.pos_rot.pos;
     if (self.onGround) for (uint8_t n = 0; n < 3; n++) {
         pos[n] = (pos[n] + vel[n]) * (stats.friction / 100.0);
     }

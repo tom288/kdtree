@@ -1,16 +1,16 @@
 #include "rectangle.h"
 #include <stb_ds.h>
 
-Graph rectangle_init(Shader* shader)
+Graph rectangle_init(Shader* shader) // for testing only
 {
     const float const_vertices[] = {
-        -0.5f, -0.5f,  0.0f,  0.0f,  1.0f,
-         0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-        -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+        -0.02f, -0.02f,  0.0f,  0.8f,  0.0f,
+         0.02f,  0.02f,  0.0f,  0.8f,  0.0f,
+        -0.02f,  0.02f,  0.0f,  0.8f,  0.0f,
 
-         0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
-        -0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
-         0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+         0.02f,  0.02f,  0.0f,  0.8f,  0.0f,
+        -0.02f, -0.02f,  0.0f,  0.8f,  0.0f,
+         0.02f, -0.02f,  0.0f,  0.8f,  0.0f,
     };
 
     float* vertex_floats = NULL;

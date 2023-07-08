@@ -1,14 +1,18 @@
 #include <cglm/cglm.h>
+#include "shader.h"
+
+void gameplay_init();
+void gameplay_physics_tick(float interval, Shader* rectangle_shader);
 
 typedef struct {
     vec3 pos; // x, y, height (0, 0, 0 = center and on ground, negatives for underground)
-    float angle; // 0 = upwards
-} Entity;
+    float angle; // in radians, 0 = upwards
+} PosRot;
 
 // ---
 
 typedef struct {
-    Entity ent;
+    PosRot pos_rot;
     vec3 vel;
     float scale; // 0, 1, 2 = point, normal, double, etc...
     uint8_t type; // 0, 1, 2, 3 = fixed size, laser, double ended laser, expandable
@@ -34,8 +38,6 @@ typedef struct {
 
 GameplayPlayerStats gameplay_player_stats(uint8_t choice);
 
-int gameplay_player_stats_count = 3;
-
 // ---
 
 typedef struct {
@@ -58,10 +60,8 @@ typedef struct {
     //   hidden variable
 } GameplayDrive;
 
-uint8_t gameplay_drive_valuesCount = 3;
-
+GameplayDrive gameplay_drive();
 GameplayDrive gameplay_drive_physStep(GameplayDrive d);
-
 GameplayDrive gameplay_drive_physStep2(GameplayDrive d);
 
 // easing functions
@@ -82,7 +82,7 @@ typedef struct {
 Gameplay_Player gameplay_player(GameplayPlayerStats stats);
 
 // Sets the self orientation to point to target (assumes radians)
-void gameplay_player_lookAt(Entity* self, Entity target);
+void gameplay_player_lookAt(PosRot* self, PosRot target);
 
 Gameplay_Player gameplay_player_physStep(Gameplay_Player self, GameplayPlayerStats stats);
 

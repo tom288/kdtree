@@ -6,6 +6,7 @@ Camera camera_init(vec2 window_size)
         .position = { 0.0f, 0.0f },
         .velocity = { 0.0f, 0.0f },
         .base_size = { window_size[0] / window_size[1], 1.0f },
+        .scaled_size = { window_size[0] / window_size[1], 1.0f },
         .rotation = 0.0f,
         .scale_power = 0.0f,
     };
