@@ -3,6 +3,7 @@
 
 void gameplay_init();
 void gameplay_physics_tick(float interval, Shader* rectangle_shader);
+void gameplay_input_tick(bool accelerating);
 
 typedef struct {
     vec3 pos; // x, y, height (0, 0, 0 = center and on ground, negatives for underground)
@@ -51,12 +52,12 @@ Entity3 entity3();
 
 typedef struct {
     bool accelerating;
-    float* values;
-    float** weights;
-    float** biases;
-    // values 0 to 2:
-    //   angle
+    float values[4];
+    float weights[2][4];
+    // values 0 to 3:
+    //   rotational velocity
     //   speed
+    //   drift in rotational direction
     //   hidden variable
 } GameplayDrive;
 

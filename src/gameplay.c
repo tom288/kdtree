@@ -10,15 +10,24 @@ void gameplay_init() {
     player1 = gameplay_player(gameplay_player_stats(0));
 }
 
+void gameplay_input_tick(bool accelerating) {
+    player1.drive.accelerating = accelerating;
+}
+
 void move_test_rectangle(float x, float y, Shader* rectangle_shader) { // for testing only
     shader_set_2fv(*rectangle_shader, "translate", 1, (vec2){x, y});;
 }
 
-// called once per frame
 // TODO: finish this
 void gameplay_physics_tick(float interval, Shader* rectangle_shader) {
     gameplay_drive_physStep(player1.drive);
     // gameplay_drive_physStep2(player1.drive);
+    uint8_t rotational_velocity_index = 0;
+    uint8_t speed_index = 0;
+    PosRot p = player1.ent2.pos_rot;
+    GameplayDrive d = player1.drive;
+    p.angle += d.values[rotational_velocity_index];
+    p.pos[0] += d.values[speed_index];
     move_test_rectangle(player1.ent2.pos_rot.pos[0], player1.ent2.pos_rot.pos[1], rectangle_shader);
 }
 
@@ -98,18 +107,16 @@ Entity3 entity3() {
 uint8_t gameplay_drive_valuesCount = 3;
 
 GameplayDrive gameplay_drive() {
-    GameplayDrive drive;
-    drive.accelerating = 0;
-    drive.biases = NULL;
-    drive.values = NULL;
-    drive.weights = NULL;
-    return drive;
+    return (GameplayDrive){
+        .accelerating = false,
+        .values = {0, 0, 0, 0},
+        .weights = {{0, 0, 0, 0}, {0, 0, 0, 0}}};
 }
 
 GameplayDrive gameplay_drive_physStep(GameplayDrive d) {
-    uint8_t speed_index = 3;
+    uint8_t speed_index = 1;
     if (d.accelerating == true) d.values[speed_index] += 0.1f;
-    //d.values[speed_index] *= 0.9f;
+    d.values[speed_index] *= 0.9f;
     return d;
 }
 
@@ -117,7 +124,8 @@ GameplayDrive gameplay_drive_physStep(GameplayDrive d) {
 GameplayDrive gameplay_drive_physStep2(GameplayDrive d) {
     for (uint8_t n = 0; n < gameplay_drive_valuesCount; n++) {
         for (uint8_t m = 0; m < gameplay_drive_valuesCount; m++) {
-            d.values[n] = gameplay_easing(0, d.values[m]) * d.weights[n][m] + d.biases[n][m];
+            d.values[n] = gameplay_easing(0, d.values[m]) * d.weights[n][m];
+            // d.values[n] = gameplay_easing(0, d.values[m]) * d.weights[n][m] + d.biases[n][m];
         }
     }
     return d;
