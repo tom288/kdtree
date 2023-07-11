@@ -1,12 +1,24 @@
 #include "camera.h"
 #include "utility.h"
 
+void camera_update_hyp(Camera* camera)
+{
+    camera->hyp = 0;
+    for (size_t i = 0; i < 2; ++i)
+    {
+        camera->hyp += camera->scaled_size[i] * camera->scaled_size[i];
+    }
+    // Make generated region 2x the camera region
+    camera->hyp = sqrtf(camera->hyp) * 2.0f;
+}
+
 Camera camera_init(vec2 window_size)
 {
     Camera cam = {
         .base_size = { window_size[0] / window_size[1], 1.0f },
         .scaled_size = { FLAT2(cam.base_size) },
     };
+    camera_update_hyp(&cam);
     return cam;
 }
 
@@ -20,6 +32,7 @@ void camera_step(
     camera->scale_power += camera_input[1] * delta_time;
     const float scale = powf(3.0f, camera->scale_power);
     glm_vec2_scale(camera->base_size, scale, camera->scaled_size);
+    camera_update_hyp(camera);
     camera->speed = glm_vec2_norm(camera->scaled_size) * 0.6f;
     // Rotation
     camera->rotation += camera_input[0] * delta_time * 1.5f;

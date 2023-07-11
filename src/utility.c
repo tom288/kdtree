@@ -130,3 +130,8 @@ size_t rotate_left(size_t n, size_t dist)
 {
     return (n << dist) | (n >> (8 * sizeof(size_t) - dist));
 }
+
+float glm_area2(vec2 v)
+{
+    return v[0] * v[1];
+}

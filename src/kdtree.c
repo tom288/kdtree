@@ -135,21 +135,9 @@ void update_min_max(Node n, GeneratedNodes* out, GLboolean discarded)
     out->potential_set = GL_TRUE;
 }
 
-// TODO rename and relocate
-float calc_camera_hyp(Camera camera)
-{
-    float hyp = 0;
-    for (size_t i = 0; i < 2; ++i)
-    {
-        hyp += camera.scaled_size[i] * camera.scaled_size[i];
-    }
-    // Make generated region 2x the camera region
-    return sqrtf(hyp) * 2.0f;
-}
-
 GLboolean kdtree_should_generate_node(Node node, Camera camera)
 {
-    float hyp = calc_camera_hyp(camera);
+    float hyp = camera.hyp;
 
     for (size_t i = 0; i < 2; ++i)
     {
@@ -162,9 +150,9 @@ GLboolean kdtree_should_generate_node(Node node, Camera camera)
 
 GeneratedNodes gen_random_nodes(size_t count, Camera camera)
 {
-    const float min_area = 3.37f / count * camera.scaled_size[0] * camera.scaled_size[1];
     // Guess the amount of memory needed to avoid both waste and growths
-    size_t expected_node_count = count * 1.01f;
+    // At 100K nodes the spread is almost 2.0%
+    size_t expected_node_count = count * 1.02f;
     Node* nodes = NULL;
     arrsetcap(nodes, expected_node_count);
 
@@ -173,19 +161,24 @@ GeneratedNodes gen_random_nodes(size_t count, Camera camera)
     pcg32_srandom_r(&rng, 4, 5);
     arrput(nodes, _random_node(NULL, &rng));
 
+    const float min_area = 6.11f / count * min(
+        powf(camera.hyp, 2.0f),
+        glm_area2(nodes[0].size) / 4.0f
+    );
+
     size_t num_nodes_finished = 0;
-    GeneratedNodes out;
+    GeneratedNodes out = { 0 };
 
     // Expand all nodes until they are finished
     while (arrlenu(nodes) > num_nodes_finished)
     {
-        const Node node = nodes[num_nodes_finished];
+        Node node = nodes[num_nodes_finished];
         if (!kdtree_should_generate_node(node, camera))
         {
             update_min_max(node, &out, true);
             arrdelswap(nodes, num_nodes_finished);
         }
-        else if (node.size[0] * node.size[1] > min_area)
+        else if (glm_area2(node.size) > min_area)
         {
             arrput(nodes, random_node_child(node, 0));
             nodes[num_nodes_finished] = random_node_child(node, 1);
@@ -198,14 +191,14 @@ GeneratedNodes gen_random_nodes(size_t count, Camera camera)
     }
 
     out.nodes = nodes;
+    // printf("%zu nodes\n", arrlenu(nodes));
     return out;
 }
 
 GeneratedNodes gen_nodes(size_t count, Camera camera)
 {
-    const float min_area = 3.37f / count * camera.scaled_size[0] * camera.scaled_size[1];
     // Guess the amount of memory needed to avoid both waste and growths
-    size_t expected_node_count = count * 1.01f;
+    size_t expected_node_count = count * 1.02f;
     Node* nodes = NULL;
     arrsetcap(nodes, expected_node_count);
 
@@ -225,6 +218,11 @@ GeneratedNodes gen_nodes(size_t count, Camera camera)
         .type = &types[0],
     }));
 
+    const float min_area = 6.11f / count * min(
+        powf(camera.hyp, 2.0f),
+        glm_area2(nodes[0].size) / 4.0f
+    );
+
     size_t num_nodes_finished = 0;
     GeneratedNodes out;
 
@@ -238,7 +236,7 @@ GeneratedNodes gen_nodes(size_t count, Camera camera)
             update_min_max(node, &out, true);
             arrdelswap(nodes, num_nodes_finished);
         }
-        if (node.size[0] * node.size[1] > min_area && replacement_count > 0)
+        if (glm_area2(node.size) > min_area && replacement_count > 0)
         {
             pcg32_random_t rng;
             pcg32_srandom_r(&rng, node.seed, 3);
@@ -321,7 +319,11 @@ typedef struct {
 GeneratedVertices gen_vertices(Camera camera)
 {
     // TODO replace with gen_nodes to use rules instead
-    GeneratedNodes nodes = gen_random_nodes(1000, camera);
+    GeneratedNodes nodes = gen_random_nodes(10000, camera);
+    // printf("%f %f .. %f %f .. %d\n%f %f .. %f %f .. %d\n\n",
+    //     FLAT2(nodes.min), FLAT2(nodes.max), (int)nodes.set,
+    //     FLAT2(nodes.potential_min), FLAT2(nodes.potential_max), (int)nodes.potential_set
+    // );
     return (GeneratedVertices) {
         .min_corner = { FLAT2(nodes.min) },
         .size = { FLAT_SUB2(nodes.max, nodes.min) },
@@ -334,7 +336,7 @@ GeneratedVertices gen_vertices(Camera camera)
 void kdtree_assign_bounds(KDTree* tree, GeneratedVertices generated, Camera cam)
 {
     // TODO ensure min_corner and size are within camera constraints
-    float hyp = calc_camera_hyp(cam);
+    float hyp = cam.hyp;
 
     for (size_t i = 0; i < 2; ++i)
     {
@@ -411,11 +413,11 @@ void kdtree_check_camera(KDTree* tree, Camera camera)
 
     // TODO add a mechanism to prevent this from occuring every frame in a
     // worst-case scenario where the camera is extremely zoomed
-    // TODO try 64 instead
-    if (tree->size[0] * tree->size[1] / 256 >
-        camera.scaled_size[0] * camera.scaled_size[1]
-    ) {
+
+    if (glm_area2(tree->size) > powf(camera.hyp * 4.0f, 2.0f))
+    {
         kdtree_regenerate(tree, camera);
+        // printf("Regenerating zoomed in\n");
         return;
     }
 
@@ -445,6 +447,7 @@ void kdtree_check_camera(KDTree* tree, Camera camera)
             ))
             {
                 kdtree_regenerate(tree, camera);
+                // printf("Regenerating missing content\n");
                 return;
             }
         }

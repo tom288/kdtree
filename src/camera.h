@@ -15,6 +15,7 @@ typedef struct {
     // Derived
     float speed;
     vec2 scaled_size;
+    float hyp;
 } Camera;
 
 /// @brief Create a camera for a given window size

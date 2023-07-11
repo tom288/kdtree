@@ -49,6 +49,11 @@ size_t rand_int(size_t sides, GLboolean fair);
 /// @return n rotated by dist bytes
 size_t rotate_left(size_t n, size_t dist);
 
+/// @brief Obtain area of input rect dimensions
+/// @param v Input vector
+/// @return Area = v[0] * v[1]
+float glm_area2(vec2 v);
+
 /// @brief Take the smaller of two values of any equal type
 #define min(a,b) \
     __extension__({ __typeof__ (a) _a = (a); \
