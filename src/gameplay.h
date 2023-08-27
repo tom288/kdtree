@@ -2,8 +2,8 @@
 #include "shader.h"
 
 void gameplay_init();
-void gameplay_physics_tick(float interval, Shader* rectangle_shader);
-void gameplay_input_tick(bool accelerating);
+void gameplay_test();
+void gameplay_physics_tick(float interval, vec2 input, Shader* rectangle_shader);
 
 typedef struct {
     vec3 pos; // x, y, height (0, 0, 0 = center and on ground, negatives for underground)
@@ -51,18 +51,19 @@ Entity3 entity3();
 // ---
 
 typedef struct {
-    bool accelerating;
     float values[4];
     float weights[2][4];
-    // values 0 to 3:
-    //   rotational velocity
-    //   speed
-    //   drift in rotational direction
-    //   hidden variable
+    float* speed;
+    float* angular_velocity;
+    float* perpendicular_movement; // drift at right angles to direction facing
+    // (doesn't exist yet) rotational grip
+    // (doesn't exist yet) grip in direction of movement
+    // (doesn't exist yet) rotational jitter
+    // hidden variable
 } GameplayDrive;
 
 GameplayDrive gameplay_drive();
-GameplayDrive gameplay_drive_physStep(GameplayDrive d);
+GameplayDrive gameplay_drive_physStep(GameplayDrive d, vec2 input, float interval_sec);
 GameplayDrive gameplay_drive_physStep2(GameplayDrive d);
 
 // easing functions

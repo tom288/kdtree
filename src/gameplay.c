@@ -4,30 +4,33 @@
 #include <math.h>
 #include "shader.h"
 
+// TODO: move me into main, pass in to gameplay_physics_tick from main each frame
 Gameplay_Player player1;
-
-void gameplay_init() {
-    player1 = gameplay_player(gameplay_player_stats(0));
-}
-
-void gameplay_input_tick(bool accelerating) {
-    player1.drive.accelerating = accelerating;
-}
 
 void move_test_rectangle(float x, float y, Shader* rectangle_shader) { // for testing only
     shader_set_2fv(*rectangle_shader, "translate", 1, (vec2){x, y});;
 }
 
+void gameplay_init() {
+    player1 = gameplay_player(gameplay_player_stats(0));
+}
+
+// todo: remove me
+void gameplay_test() {
+    Gameplay_Player t = player1;
+    printf("%f\n", *player1.drive.perpendicular_movement);
+}
+
 // TODO: finish this
-void gameplay_physics_tick(float interval, Shader* rectangle_shader) {
-    gameplay_drive_physStep(player1.drive);
-    // gameplay_drive_physStep2(player1.drive);
+void gameplay_physics_tick(float interval_sec, vec2 input, Shader* rectangle_shader) {
+    GameplayDrive* drive = &player1.drive;
+    *drive = gameplay_drive_physStep(*drive, input, interval_sec);
+    // gameplay_drive_physStep2(*player1.drive);
     uint8_t rotational_velocity_index = 0;
     uint8_t speed_index = 0;
-    PosRot p = player1.ent2.pos_rot;
-    GameplayDrive d = player1.drive;
-    p.angle += d.values[rotational_velocity_index];
-    p.pos[0] += d.values[speed_index];
+    PosRot* pos_rot = &player1.ent2.pos_rot;
+    pos_rot->angle += *drive->angular_velocity * interval_sec;
+    pos_rot->pos[0] += drive->values[speed_index];
     move_test_rectangle(player1.ent2.pos_rot.pos[0], player1.ent2.pos_rot.pos[1], rectangle_shader);
 }
 
@@ -107,16 +110,24 @@ Entity3 entity3() {
 uint8_t gameplay_drive_valuesCount = 3;
 
 GameplayDrive gameplay_drive() {
-    return (GameplayDrive){
-        .accelerating = false,
+    GameplayDrive d = (GameplayDrive){
         .values = {0, 0, 0, 0},
         .weights = {{0, 0, 0, 0}, {0, 0, 0, 0}}};
+    d.speed = &(d.values[0]);
+    d.angular_velocity = &(d.values[1]);
+    d.perpendicular_movement = &(d.values[2]);
+    return d;
 }
 
-GameplayDrive gameplay_drive_physStep(GameplayDrive d) {
-    uint8_t speed_index = 1;
-    if (d.accelerating == true) d.values[speed_index] += 0.1f;
-    d.values[speed_index] *= 0.9f;
+// todo: finish me
+GameplayDrive gameplay_drive_physStep(GameplayDrive d, vec2 input, float interval_sec) {
+    uint8_t rotation_speed_index = 2;
+    float input_steering = input[0];
+    float input_accelerating = input[1];
+    if (input_accelerating > 0) *d.speed += 0.1 * interval_sec;
+    *d.speed *= powf(0.5, interval_sec * 10.0);
+    *d.angular_velocity += input_steering * interval_sec;
+    *d.angular_velocity *= powf(0.5, interval_sec * 10.0);
     return d;
 }
 
@@ -145,7 +156,7 @@ Gameplay_Player gameplay_player(GameplayPlayerStats stats) {
     return (Gameplay_Player) {
         .ent2 = entity2(),
         .health = stats.health,
-        .drive = gameplay_drive()
+        .drive = gameplay_drive(),
     };
 }
 

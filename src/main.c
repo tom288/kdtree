@@ -70,14 +70,15 @@ int main(int argc, char* argv[])
     window_reset_time(win);
 
     gameplay_init();
+    gameplay_test();
     // Swap the buffers and process pending events until the window is not OK
     while (window_ok(win))
     {
-        vec2 movement_input;
-        window_movement_input(win, movement_input);
-        glm_vec2_scale(movement_input, window_delta_time(win), movement_input);
+        gameplay_test();
+        vec2 input;
+        window_movement_input(win, input);
         // glm_vec2_add(rect_pos, movement_input, rect_pos);
-        gameplay_physics_tick(window_delta_time(win), &rectangle_shader);
+        gameplay_physics_tick(window_delta_time(win), input, &rectangle_shader);
 
         camera_use(camera, rectangle_shader);
         // shader_set_2fv(rectangle_shader, "translate", 1, rect_pos);
